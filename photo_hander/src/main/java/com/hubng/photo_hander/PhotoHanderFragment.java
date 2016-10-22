@@ -50,7 +50,7 @@ import com.hubng.photo_hander.utils.ScreenUtils;
  * Created by Nereo on 2015/4/7.
  * Updated by nereo on 2016/5/18.
  */
-public class MultiImageSelectorFragment extends Fragment {
+public class PhotoHanderFragment extends Fragment {
 
     public static final String TAG = "MultiImageSelectorFragment";
 

@@ -32,8 +32,8 @@ import static com.hubng.photo_hander.crop.Crop.Extra.SHOW_CIRCLE;
  * Updated by nereo on 2016/1/19.
  * Updated by nereo on 2016/5/18.
  */
-public class MultiImageSelectorActivity extends AppCompatActivity
-        implements MultiImageSelectorFragment.Callback {
+public class PhotoHanderActivity extends AppCompatActivity
+        implements PhotoHanderFragment.Callback {
 
     // Single choice
     public static final int MODE_SINGLE = 0;
@@ -136,13 +136,13 @@ public class MultiImageSelectorActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             Bundle bundle = new Bundle();
-            bundle.putInt(MultiImageSelectorFragment.EXTRA_SELECT_COUNT, mDefaultCount);
-            bundle.putInt(MultiImageSelectorFragment.EXTRA_SELECT_MODE, mode);
-            bundle.putBoolean(MultiImageSelectorFragment.EXTRA_SHOW_CAMERA, isShow);
-            bundle.putStringArrayList(MultiImageSelectorFragment.EXTRA_DEFAULT_SELECTED_LIST, resultList);
+            bundle.putInt(PhotoHanderFragment.EXTRA_SELECT_COUNT, mDefaultCount);
+            bundle.putInt(PhotoHanderFragment.EXTRA_SELECT_MODE, mode);
+            bundle.putBoolean(PhotoHanderFragment.EXTRA_SHOW_CAMERA, isShow);
+            bundle.putStringArrayList(PhotoHanderFragment.EXTRA_DEFAULT_SELECTED_LIST, resultList);
 
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.image_grid, Fragment.instantiate(this, MultiImageSelectorFragment.class.getName(), bundle))
+                    .add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle))
                     .commit();
         }
 
@@ -184,7 +184,6 @@ public class MultiImageSelectorActivity extends AppCompatActivity
             Uri source = Uri.fromFile(new File(path));
             try {
                 destination = Uri.fromFile(FileUtils.createTmpFile(this, "crop"));
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -241,7 +240,7 @@ public class MultiImageSelectorActivity extends AppCompatActivity
                         @Override
                         public void onStart() {
                             if (compressDialog == null) {
-                                compressDialog = new ProgressDialog(MultiImageSelectorActivity.this);
+                                compressDialog = new ProgressDialog(PhotoHanderActivity.this);
                                 compressDialog.setTitle("图片处理中");
                                 compressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                                 compressDialog.setCanceledOnTouchOutside(false);
@@ -260,7 +259,7 @@ public class MultiImageSelectorActivity extends AppCompatActivity
 
                         @Override
                         public void onError(Throwable e) {
-                            Toast.makeText(MultiImageSelectorActivity.this, "图片处理出错", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PhotoHanderActivity.this, "图片处理出错", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override

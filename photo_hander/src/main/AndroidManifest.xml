@@ -8,7 +8,7 @@
     <application android:allowBackup="true">
 
         <activity
-            android:name="com.hubng.photo_hander.MultiImageSelectorActivity"
+            android:name="com.hubng.photo_hander.PhotoHanderActivity"
             android:configChanges="orientation|screenSize" />
         <activity
             android:name="com.hubng.photo_hander.crop.CropImageActivity"

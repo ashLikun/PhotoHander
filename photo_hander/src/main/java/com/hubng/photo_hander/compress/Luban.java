@@ -242,57 +242,59 @@ public class Luban {
         String thumb = mCacheDir.getAbsolutePath() + File.separator +
                 (TextUtils.isEmpty(filename) ? System.currentTimeMillis() : filename) + ".jpg";
 
-        double size;
+        double size;//期望大小  kb
         String filePath = file.getAbsolutePath();
-
+        int[] imgSize = getImageSize(filePath);
         int angle = getImageSpinAngle(filePath);
-        int width = getImageSize(filePath)[0];
-        int height = getImageSize(filePath)[1];
+        int width = imgSize[0];
+        int height = imgSize[1];
         int thumbW = width % 2 == 1 ? width + 1 : width;
         int thumbH = height % 2 == 1 ? height + 1 : height;
 
+        //一直保证width比height小，   那么除出来的就是  （1，0）
         width = thumbW > thumbH ? thumbH : thumbW;
         height = thumbW > thumbH ? thumbW : thumbH;
 
+
         double scale = ((double) width / height);
 
-        if (scale <= 1 && scale > 0.5625) {
+        if (scale <= 1 && scale > 0.5625) {//即图片处于 [1:1 ~ 9:16) 比例范围内
             if (height < 1664) {
-                if (file.length() / 1024 < 150) return file;
+                if (file.length() / 1024 < 100) return file;//文件大小小于100kb  就不压缩
 
-                size = (width * height) / Math.pow(1664, 2) * 150;
-                size = size < 60 ? 60 : size;
+                size = (width * height) / Math.pow(1664, 2) * 100;
+                size = size < 60 ? 60 : size;//希望（60-100）kb
             } else if (height >= 1664 && height < 4990) {
                 thumbW = width / 2;
                 thumbH = height / 2;
                 size = (thumbW * thumbH) / Math.pow(2495, 2) * 300;
-                size = size < 60 ? 60 : size;
+                size = size < 60 ? 60 : size;//希望（60-300）kb
             } else if (height >= 4990 && height < 10240) {
                 thumbW = width / 4;
                 thumbH = height / 4;
                 size = (thumbW * thumbH) / Math.pow(2560, 2) * 300;
-                size = size < 100 ? 100 : size;
+                size = size < 100 ? 100 : size;//希望（100-300）kb
             } else {
                 int multiple = height / 1280 == 0 ? 1 : height / 1280;
                 thumbW = width / multiple;
                 thumbH = height / multiple;
                 size = (thumbW * thumbH) / Math.pow(2560, 2) * 300;
-                size = size < 100 ? 100 : size;
+                size = size < 100 ? 100 : size;//希望（100-300）kb
             }
-        } else if (scale <= 0.5625 && scale > 0.5) {
-            if (height < 1280 && file.length() / 1024 < 200) return file;
+        } else if (scale <= 0.5625 && scale > 0.5) {//即图片处于 [9:16 ~ 1:2) 比例范围内
+            if (height < 1280 && file.length() / 1024 < 100) return file;//文件大小小于100kb  就不压缩
 
             int multiple = height / 1280 == 0 ? 1 : height / 1280;
             thumbW = width / multiple;
             thumbH = height / multiple;
             size = (thumbW * thumbH) / (1440.0 * 2560.0) * 400;
-            size = size < 100 ? 100 : size;
-        } else {
+            size = size < 100 ? 100 : size;//希望（100-400）kb
+        } else {//即图片处于 [1:2 ~ 1:∞) 比例范围内
             int multiple = (int) Math.ceil(height / (1280.0 / scale));
             thumbW = width / multiple;
             thumbH = height / multiple;
             size = ((thumbW * thumbH) / (1280.0 * (1280 / scale))) * 500;
-            size = size < 100 ? 100 : size;
+            size = size < 100 ? 100 : size;//希望（100-500）kb
         }
 
         return compress(filePath, thumb, thumbW, thumbH, angle, (long) size);
@@ -482,10 +484,10 @@ public class Luban {
         if (!result.exists() && !result.mkdirs()) return null;
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        int options = 100;
-        bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);
+        int options = 100;//图片质量
+        bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);//压缩图片
 
-        while (stream.toByteArray().length / 1024 > size && options > 6) {
+        while (stream.toByteArray().length / 1024.0 > size && options > 6) {
             stream.reset();
             options -= 6;
             bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);

@@ -25,6 +25,7 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.Closeable;
 import java.io.File;
@@ -66,7 +67,7 @@ class CropUtil {
                     return ExifInterface.ORIENTATION_UNDEFINED;
             }
         } catch (IOException e) {
-            Log.e("Error getting Exif data", e);
+            Log.e("Error getting Exif data", e.toString());
             return 0;
         }
     }
@@ -80,7 +81,7 @@ class CropUtil {
             exifDest.saveAttributes();
             return true;
         } catch (IOException e) {
-            Log.e("Error copying Exif data", e);
+            Log.e("Error copying Exif data", e.toString());
             return false;
         }
     }

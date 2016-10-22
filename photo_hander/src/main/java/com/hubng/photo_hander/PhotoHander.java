@@ -19,84 +19,84 @@ import java.util.ArrayList;
  * 图片选择器
  * Created by nereo on 16/3/17.
  */
-public class MultiImageSelector {
+public class PhotoHander {
     private Intent intent;
-    public static final String EXTRA_RESULT = MultiImageSelectorActivity.EXTRA_RESULT;
+    public static final String EXTRA_RESULT = PhotoHanderActivity.EXTRA_RESULT;
 
     private ArrayList<String> mOriginData;
-    private static MultiImageSelector sSelector;
+    private static PhotoHander sSelector;
 
 
-    private MultiImageSelector() {
+    private PhotoHander() {
     }
 
 
-    public static MultiImageSelector create() {
+    public static PhotoHander create() {
         if (sSelector == null) {
-            sSelector = new MultiImageSelector();
+            sSelector = new PhotoHander();
         }
         sSelector.intent = new Intent();
         return sSelector;
     }
 
-    public MultiImageSelector showCamera(boolean mShowCamera) {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, mShowCamera);
+    public PhotoHander showCamera(boolean mShowCamera) {
+        intent.putExtra(PhotoHanderActivity.EXTRA_SHOW_CAMERA, mShowCamera);
         return sSelector;
     }
 
-    public MultiImageSelector count(int count) {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, count);
+    public PhotoHander count(int count) {
+        intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_COUNT, count);
         return sSelector;
     }
 
-    public MultiImageSelector single() {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_SINGLE);
+    public PhotoHander single() {
+        intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_MODE, PhotoHanderActivity.MODE_SINGLE);
         return sSelector;
     }
 
-    public MultiImageSelector multi() {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_MULTI);
+    public PhotoHander multi() {
+        intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_MODE, PhotoHanderActivity.MODE_MULTI);
         return sSelector;
     }
 
-    public MultiImageSelector origin(ArrayList<String> images) {
+    public PhotoHander origin(ArrayList<String> images) {
         mOriginData = images;
         return sSelector;
     }
 
-    public MultiImageSelector compress(boolean isCompress) {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_IS_COMPRESS, isCompress);
+    public PhotoHander compress(boolean isCompress) {
+        intent.putExtra(PhotoHanderActivity.EXTRA_IS_COMPRESS, isCompress);
         return sSelector;
     }
 
-    public MultiImageSelector compressRankThird() {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_COMPRESS_RANK, Luban.THIRD_GEAR);
+    public PhotoHander compressRankThird() {
+        intent.putExtra(PhotoHanderActivity.EXTRA_COMPRESS_RANK, Luban.THIRD_GEAR);
         return sSelector;
     }
 
-    public MultiImageSelector compressRankFirst() {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_COMPRESS_RANK, Luban.FIRST_GEAR);
+    public PhotoHander compressRankFirst() {
+        intent.putExtra(PhotoHanderActivity.EXTRA_COMPRESS_RANK, Luban.FIRST_GEAR);
         return sSelector;
     }
 
-    public MultiImageSelector crop(boolean isCrop) {
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_IS_CROP, isCrop);
+    public PhotoHander crop(boolean isCrop) {
+        intent.putExtra(PhotoHanderActivity.EXTRA_IS_CROP, isCrop);
         return sSelector;
     }
 
-    public MultiImageSelector crop(int cropWidth, int cropHeight) {
+    public PhotoHander crop(int cropWidth, int cropHeight) {
         crop(true);
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_CROP_WIDTH, cropWidth);
-        intent.putExtra(MultiImageSelectorActivity.EXTRA_CROP_HEIGHT, cropHeight);
+        intent.putExtra(PhotoHanderActivity.EXTRA_CROP_WIDTH, cropWidth);
+        intent.putExtra(PhotoHanderActivity.EXTRA_CROP_HEIGHT, cropHeight);
         return sSelector;
     }
 
-    public MultiImageSelector color(int color) {
+    public PhotoHander color(int color) {
         intent.putExtra(Crop.Extra.COLOR, color);
         return sSelector;
     }
 
-    public MultiImageSelector showCircle(boolean showCircle) {
+    public PhotoHander showCircle(boolean showCircle) {
         intent.putExtra(Crop.Extra.SHOW_CIRCLE, showCircle);
         return sSelector;
     }
@@ -132,9 +132,9 @@ public class MultiImageSelector {
     }
 
     private Intent createIntent(Context context) {
-        intent.setClass(context, MultiImageSelectorActivity.class);
+        intent.setClass(context, PhotoHanderActivity.class);
         if (mOriginData != null) {
-            intent.putStringArrayListExtra(MultiImageSelectorActivity.EXTRA_DEFAULT_SELECTED_LIST, mOriginData);
+            intent.putStringArrayListExtra(PhotoHanderActivity.EXTRA_DEFAULT_SELECTED_LIST, mOriginData);
         }
 
         return intent;
