@@ -19,7 +19,7 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import com.hubng.photo_hander.MultiImageSelector;
+import com.hubng.photo_hander.PhotoHander;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-            MultiImageSelector selector = MultiImageSelector.create();
+            PhotoHander selector = PhotoHander.create();
             selector.showCamera(showCamera);
             selector.count(maxNum);
             if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE) {
             if (resultCode == RESULT_OK) {
-                mSelectPath = data.getStringArrayListExtra(MultiImageSelector.EXTRA_RESULT);
+                mSelectPath = data.getStringArrayListExtra(PhotoHander.EXTRA_RESULT);
                 StringBuilder sb = new StringBuilder();
                 for (String p : mSelectPath) {
                     sb.append(p);
