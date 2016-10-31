@@ -208,7 +208,6 @@ public class PhotoHanderActivity extends AppCompatActivity
             completeSelect();
         }
     }
-
     @Override
     public void onImageSelected(String path) {
         if (!resultList.contains(path)) {

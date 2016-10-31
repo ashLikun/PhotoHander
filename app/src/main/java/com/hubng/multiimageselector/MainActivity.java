@@ -98,8 +98,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 selector.multi();
             }
-            selector.crop(3, 2);
-            selector.color(0xffff0000);
             selector.compress(true);
             selector.origin(mSelectPath);
             selector.start(MainActivity.this, REQUEST_IMAGE);
