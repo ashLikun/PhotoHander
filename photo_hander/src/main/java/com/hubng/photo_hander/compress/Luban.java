@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -29,6 +28,7 @@ public class Luban {
 
     public static final int FIRST_GEAR = 1;
     public static final int THIRD_GEAR = 3;
+    public static final int MAX_SAVE_FILS = 100;
 
     private static final String TAG = "Luban";
     private static String DEFAULT_DISK_CACHE_DIR = "luban_disk_cache";
@@ -39,7 +39,6 @@ public class Luban {
 
     private OnCompressListener compressListener;
     private int gear = THIRD_GEAR;
-    private String filename;
     private ArrayList<String> mFiles = new ArrayList<>();
     private ArrayList<String> compressFiles = new ArrayList<String>();
 
@@ -47,28 +46,18 @@ public class Luban {
         mCacheDir = cacheDir;
     }
 
-    /**
-     * 作者　　: 李坤
-     * 创建时间: 2016/9/8 10:03
-     * <p>
-     * 方法功能：删除压缩后的图片
-     */
-
-
-    public static void deleteDir(File cacheDir) {
-        if (cacheDir != null) {
-            File result = new File(cacheDir, DEFAULT_DISK_CACHE_DIR);
-            if (result.exists()) {
-                result.delete();
-            }
-        }
-    }
 
     public static void deleteDir(Context context) {
         File cacheDir = getPhotoCacheDir(context);
+        deleteDir(cacheDir);
+    }
+
+    public static void deleteDir(File cacheDir) {
         if (cacheDir != null) {
             if (cacheDir.exists()) {
-                cacheDir.delete();
+                if (getFiles(cacheDir) > MAX_SAVE_FILS) {
+                    cacheDir.delete();
+                }
             }
         }
     }
@@ -115,7 +104,6 @@ public class Luban {
 
     public static Luban get(Context context) {
         if (INSTANCE == null) INSTANCE = new Luban(Luban.getPhotoCacheDir(context));
-        deleteDir(context);
         return INSTANCE;
     }
 
@@ -151,6 +139,7 @@ public class Luban {
                     @Override
                     public void call() {
                         if (compressListener != null) compressListener.onSuccess(compressFiles);
+                        deleteDir(mCacheDir);
                     }
                 })
                 .subscribe(new Action1<Integer>() {
@@ -189,16 +178,12 @@ public class Luban {
         return this;
     }
 
-    /**
-     * @deprecated
-     */
-    public Luban setFilename(String filename) {
-        this.filename = filename;
-        return this;
-    }
 
     private File compress(@NonNull String file) {
         try {
+            //是否存在缓存
+            File tempFile = getTempFile(file);
+            if (tempFile != null) return tempFile;
             File ff = new File(file);
             if (gear == Luban.THIRD_GEAR) {
 
@@ -239,8 +224,7 @@ public class Luban {
     }
 
     private File thirdCompress(@NonNull File file) {
-        String thumb = mCacheDir.getAbsolutePath() + File.separator +
-                (TextUtils.isEmpty(filename) ? System.currentTimeMillis() : filename) + ".jpg";
+
 
         double size;//期望大小  kb
         String filePath = file.getAbsolutePath();
@@ -297,7 +281,7 @@ public class Luban {
             size = size < 100 ? 100 : size;//希望（100-500）kb
         }
 
-        return compress(filePath, thumb, thumbW, thumbH, angle, (long) size);
+        return compress(filePath, createTempFile(filePath), thumbW, thumbH, angle, (long) size);
     }
 
     private File firstCompress(@NonNull File file) {
@@ -306,8 +290,6 @@ public class Luban {
         int shortSide = 1280;
 
         String filePath = file.getAbsolutePath();
-        String thumbFilePath = mCacheDir.getAbsolutePath() + File.separator +
-                (TextUtils.isEmpty(filename) ? System.currentTimeMillis() : filename) + ".jpg";
 
         long size = 0;
         long maxSize = file.length() / 5;
@@ -339,7 +321,7 @@ public class Luban {
             }
         }
 
-        return compress(filePath, thumbFilePath, width, height, angle, size);
+        return compress(filePath, createTempFile(filePath), width, height, angle, size);
     }
 
     /**
@@ -503,5 +485,41 @@ public class Luban {
         }
 
         return new File(filePath);
+    }
+
+
+    public String createTempFile(String orginFile) {
+        return mCacheDir.getAbsolutePath() + File.separator +
+                Math.abs(orginFile.hashCode()) + ".jpg";
+    }
+
+    /**
+     * 获取文件夹中已经存在的文件
+     */
+
+    public File getTempFile(String orginFile) {
+        String tempPath = mCacheDir.getAbsolutePath() + File.separator +
+                Math.abs(orginFile.hashCode()) + ".jpg";
+        File file = new File(tempPath);
+        if (file.exists()) {
+            return file;
+        }
+        return null;
+    }
+
+    public static int getFiles(File mCacheDir) {
+        if (mCacheDir == null || !mCacheDir.exists()) {
+            return 0;
+        }
+        int num = 0;
+        File[] childs = mCacheDir.listFiles();
+        for (int j = 0; j < childs.length; j++) {
+            if (childs[j].isDirectory()) {
+                getFiles(childs[j]);
+            } else {
+                num++;
+            }
+        }
+        return num;
     }
 }

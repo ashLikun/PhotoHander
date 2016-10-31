@@ -130,4 +130,21 @@ public class FileUtils {
         return perm == PackageManager.PERMISSION_GRANTED;
     }
 
+    public static int getFiles(File files) {
+        if (files == null || !files.exists()) {
+            return 0;
+        }
+        int num = 0;
+        File[] childs = files.listFiles();
+        for (int j = 0; j < childs.length; j++) {
+            if (childs[j].isDirectory()) {
+                getFiles(childs[j]);
+            } else {
+                num++;
+            }
+        }
+        return num;
+    }
+
+
 }

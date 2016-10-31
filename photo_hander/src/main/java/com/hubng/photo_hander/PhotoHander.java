@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.hubng.photo_hander.compress.Luban;
@@ -22,7 +23,8 @@ import java.util.ArrayList;
 public class PhotoHander {
     private Intent intent;
     public static final String EXTRA_RESULT = PhotoHanderActivity.EXTRA_RESULT;
-
+    //未压缩的图片与原图的对应关系
+    private SparseArray<String> mRelationMap = new SparseArray();
     private ArrayList<String> mOriginData;
     private static PhotoHander sSelector;
 
@@ -30,6 +32,9 @@ public class PhotoHander {
     private PhotoHander() {
     }
 
+    protected SparseArray<String> getmRelationMap() {
+        return mRelationMap;
+    }
 
     public static PhotoHander create() {
         if (sSelector == null) {

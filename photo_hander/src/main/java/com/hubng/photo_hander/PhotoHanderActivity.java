@@ -69,6 +69,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     // Default image size
     private static final int DEFAULT_IMAGE_SIZE = 9;
 
+
     private ArrayList<String> resultList = new ArrayList<>();
     private Button mSubmitButton;
     private int mDefaultCount = DEFAULT_IMAGE_SIZE;
@@ -109,6 +110,11 @@ public class PhotoHanderActivity extends AppCompatActivity
 
         if (mode == MODE_MULTI && intent.hasExtra(EXTRA_DEFAULT_SELECTED_LIST)) {
             resultList = intent.getStringArrayListExtra(EXTRA_DEFAULT_SELECTED_LIST);
+            for (int i = 0; i < resultList.size(); i++) {
+                if (PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()) != null) {//是加密图片
+                    resultList.set(i, PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()));
+                }
+            }
         }
 
         cropWidth = intent.getIntExtra(EXTRA_CROP_WIDTH, cropWidth);
@@ -233,7 +239,9 @@ public class PhotoHanderActivity extends AppCompatActivity
      * 图片选择完成, 还没压缩
      */
     private void completeSelect() {
+
         if (isCompress) {
+
             Luban.get(this).load(resultList)
                     .putGear(compressRank)
                     .setCompressListener(new OnCompressListener() {
@@ -252,6 +260,14 @@ public class PhotoHanderActivity extends AppCompatActivity
                         @Override
                         public void onSuccess(ArrayList<String> files) {
                             compressDialog.dismiss();
+                            PhotoHander.create().getmRelationMap().clear();
+                            for (int i = 0; i < files.size(); i++) {
+                                if (!isEquals(files.get(i), resultList.get(i))) {//是加密图片
+                                    //保存关系
+                                    PhotoHander.create().getmRelationMap().put(files.get(i).hashCode(),
+                                            resultList.get(i));
+                                }
+                            }
                             resultList = files;
                             isCompress = false;
                             completeSelect();
@@ -303,5 +319,13 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (compressDialog != null) {
             compressDialog.dismiss();
         }
+    }
+
+    /*
+      * 比较两个字符串
+      */
+    private boolean isEquals(String actual, String expected) {
+        return actual == expected
+                || (actual == null ? expected == null : actual.equals(expected));
     }
 }
