@@ -17,11 +17,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    /**
+     * aar文件的编译
+     */
+    repositories {
+        maven {
+            url "https://jitpack.io"
+        }
+    }
 }
-
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:24.2.1'
     compile project(':photo_hander')
-
+    compile 'com.bm.photoview:library:1.4.1'
 }

@@ -189,7 +189,7 @@ public class PhotoHanderActivity extends AppCompatActivity
             Uri destination = null;
             Uri source = Uri.fromFile(new File(path));
             try {
-                destination = Uri.fromFile(FileUtils.createTmpFile(this, "crop"));
+                destination = Uri.fromFile(FileUtils.createCacheTmpFile(this, "crop"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -208,6 +208,7 @@ public class PhotoHanderActivity extends AppCompatActivity
             completeSelect();
         }
     }
+
     @Override
     public void onImageSelected(String path) {
         if (!resultList.contains(path)) {

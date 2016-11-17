@@ -6,7 +6,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
-import android.util.Log;
+
+import com.hubng.photo_hander.utils.FileUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -67,40 +68,11 @@ public class Luban {
      * retrieved media and thumbnails.
      *
      * @param context A context.
-     * @see #getPhotoCacheDir(Context, String)
      */
     private static synchronized File getPhotoCacheDir(Context context) {
-        return getPhotoCacheDir(context, Luban.DEFAULT_DISK_CACHE_DIR);
+        return FileUtils.getPhotoCacheDir(context, Luban.DEFAULT_DISK_CACHE_DIR);
     }
 
-    /**
-     * Returns a directory with the given name in the private cache directory of the application to use to store
-     * retrieved media and thumbnails.
-     *
-     * @param context   A context.
-     * @param cacheName The name of the subdirectory in which to store the cache.
-     * @see #getPhotoCacheDir(Context)
-     */
-    private static File getPhotoCacheDir(Context context, String cacheName) {
-        File cacheDir = context.getCacheDir();
-        if (cacheDir != null) {
-            File result = new File(cacheDir, cacheName);
-            if (!result.mkdirs() && (!result.exists() || !result.isDirectory())) {
-                // File wasn't able to create a directory, or the result exists but not a directory
-                return null;
-            }
-
-            File noMedia = new File(cacheDir + "/.nomedia");
-            if (!noMedia.mkdirs() && (!noMedia.exists() || !noMedia.isDirectory())) {
-                return null;
-            }
-            return result;
-        }
-        if (Log.isLoggable(TAG, Log.ERROR)) {
-            Log.e(TAG, "default disk cache dir is null");
-        }
-        return null;
-    }
 
     public static Luban get(Context context) {
         if (INSTANCE == null) INSTANCE = new Luban(Luban.getPhotoCacheDir(context));
@@ -460,10 +432,13 @@ public class Luban {
      */
     private File saveImage(String filePath, Bitmap bitmap, long size) {
         checkNotNull(bitmap, TAG + "bitmap cannot be null");
+        if (filePath == null) {
+            return null;
+        }
 
-        File result = new File(filePath.substring(0, filePath.lastIndexOf("/")));
-
-        if (!result.exists() && !result.mkdirs()) return null;
+//        File result = new File(filePath.substring(0, filePath.lastIndexOf("/")));
+//
+//        if (!result.exists() && !result.mkdirs()) return null;
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         int options = 100;//图片质量
@@ -489,8 +464,14 @@ public class Luban {
 
 
     public String createTempFile(String orginFile) {
-        return mCacheDir.getAbsolutePath() + File.separator +
-                Math.abs(orginFile.hashCode()) + ".jpg";
+        try {
+            File file = new File(mCacheDir, Math.abs(orginFile.hashCode()) + FileUtils.getFileSuffix(orginFile));
+            file.createNewFile();
+            return file.getAbsolutePath();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -499,7 +480,7 @@ public class Luban {
 
     public File getTempFile(String orginFile) {
         String tempPath = mCacheDir.getAbsolutePath() + File.separator +
-                Math.abs(orginFile.hashCode()) + ".jpg";
+                Math.abs(orginFile.hashCode()) + FileUtils.getFileSuffix(orginFile);
         File file = new File(tempPath);
         if (file.exists()) {
             return file;

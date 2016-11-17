@@ -4,10 +4,12 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 
+import static android.content.ContentValues.TAG;
 import static android.os.Environment.MEDIA_MOUNTED;
 
 /**
@@ -37,6 +39,10 @@ public class FileUtils {
             dir = getCacheDirectory(context, true);
         }
         return File.createTempFile(JPEG_FILE_PREFIX, JPEG_FILE_SUFFIX, dir);
+    }
+
+    public static File createCacheTmpFile(Context context, String dirName) throws IOException {
+        return File.createTempFile(JPEG_FILE_PREFIX, JPEG_FILE_SUFFIX, getPhotoCacheDir(context, dirName));
     }
 
 
@@ -88,6 +94,27 @@ public class FileUtils {
             appCacheDir = new File(cacheDirPath);
         }
         return appCacheDir;
+    }
+
+    public static File getPhotoCacheDir(Context context, String cacheName) {
+        File cacheDir = FileUtils.getCacheDirectory(context, false);
+        if (cacheDir != null) {
+            File result = new File(cacheDir, cacheName);
+            if (!result.mkdirs() && (!result.exists() || !result.isDirectory())) {
+                // File wasn't able to create a directory, or the result exists but not a directory
+                return null;
+            }
+
+            File noMedia = new File(cacheDir + "/.nomedia");
+            if (!noMedia.mkdirs() && (!noMedia.exists() || !noMedia.isDirectory())) {
+                return null;
+            }
+            return result;
+        }
+        if (Log.isLoggable(TAG, Log.ERROR)) {
+            Log.e(TAG, "default disk cache dir is null");
+        }
+        return null;
     }
 
     /**
@@ -146,5 +173,16 @@ public class FileUtils {
         return num;
     }
 
+
+    public static String getFileSuffix(String filePath) {
+        String res;
+        String[] sp = filePath.split(".");
+        if (sp != null && sp.length > 0) {
+            res = "." + sp[sp.length - 1];
+        } else {
+            res = JPEG_FILE_SUFFIX;
+        }
+        return res;
+    }
 
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <com.hubng.photo_hander.photoBrowse.PhotoViewPager
+        android:id="@+id/photoViewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></com.hubng.photo_hander.photoBrowse.PhotoViewPager>
+
+    <TextView
+        android:id="@+id/numberTv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:background="#10000000"
+        android:gravity="center"
+        android:padding="10dp"
+        android:paddingTop="10dp"
+        android:text="1 / 21"
+        android:textColor="#00000000"
+        android:textSize="16sp"
+        android:visibility="gone" />
+</FrameLayout>

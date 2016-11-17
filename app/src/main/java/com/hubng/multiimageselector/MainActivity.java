@@ -95,10 +95,12 @@ public class MainActivity extends AppCompatActivity {
             selector.count(maxNum);
             if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
                 selector.single();
+                selector.crop(true);
             } else {
                 selector.multi();
             }
             selector.compress(true);
+
             selector.origin(mSelectPath);
             selector.start(MainActivity.this, REQUEST_IMAGE);
         }
