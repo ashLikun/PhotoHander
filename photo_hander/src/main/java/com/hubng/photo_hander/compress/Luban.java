@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
 
+import com.hubng.photo_hander.PhotoHander;
 import com.hubng.photo_hander.utils.FileUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -89,7 +90,6 @@ public class Luban {
             public void call(Subscriber<? super Integer> subscriber) {
                 compressFiles.clear();
                 for (String f : mFiles) {
-
                     File ff = compress(f);
                     if (ff != null && ff.exists()) {
                         compressFiles.add(ff.getPath());
@@ -139,6 +139,21 @@ public class Luban {
         mFiles.addAll(file);
         return this;
     }
+
+    /**
+     * 作者　　: 李坤
+     * 创建时间: 2016/12/30 16:59
+     * <p>
+     * 方法功能：对照片处理 判断是否是之前已经是加密后的照片
+     */
+    public void filesHander(List<String> resultList) {
+        for (int i = 0; i < resultList.size(); i++) {
+            if (PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()) != null) {//是加密图片
+                resultList.set(i, PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()));
+            }
+        }
+    }
+
 
     public Luban setCompressListener(OnCompressListener listener) {
         compressListener = listener;
