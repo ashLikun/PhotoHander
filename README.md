@@ -45,5 +45,8 @@
 
 ## 截图
 ![Example1](art/example_1.png) ![Select1](art/select_1.png) ![Select2](art/select_2.png) ![Select3](art/select_3.png)
+
+##使用
+
 compile 'com.github.ashLikun:PhotoHander:1.1.5'
 
