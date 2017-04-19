@@ -27,11 +27,13 @@ import java.util.ArrayList;
 import static com.hubng.photo_hander.crop.Crop.Extra.SHOW_CIRCLE;
 
 /**
- * Multi image selector
- * Created by Nereo on 2015/4/7.
- * Updated by nereo on 2016/1/19.
- * Updated by nereo on 2016/5/18.
+ * 作者　　: 李坤
+ * 创建时间: 16:32 Administrator
+ * 邮箱　　：496546144@qq.com
+ *
+ * 功能介绍：图片选择主界面
  */
+
 public class PhotoHanderActivity extends AppCompatActivity
         implements PhotoHanderFragment.Callback {
 
