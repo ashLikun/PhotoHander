@@ -32,7 +32,7 @@ public class PhotoHander {
     private PhotoHander() {
     }
 
-    protected SparseArray<String> getmRelationMap() {
+    public SparseArray<String> getmRelationMap() {
         return mRelationMap;
     }
 
@@ -144,4 +144,7 @@ public class PhotoHander {
 
         return intent;
     }
+
+
+
 }
