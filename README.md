@@ -1,9 +1,9 @@
 # PhotoHander
 # 图片选择  图片裁剪 图片压缩
-#权限
-#READ_EXTERNAL_STORAGE
-#WRITE_EXTERNAL_STORAGE
-#CAMERA
+# 权限
+# READ_EXTERNAL_STORAGE
+# WRITE_EXTERNAL_STORAGE
+# CAMERA
 鲁班压缩算法
 判断图片比例值，是否处于以下区间内；
 
