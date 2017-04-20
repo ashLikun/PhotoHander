@@ -48,5 +48,5 @@
 
 ## 使用
 
-compile 'com.github.ashLikun:PhotoHander:1.1.5'
+compile 'com.github.ashLikun:PhotoHander:1.2.5'
 
