@@ -47,6 +47,23 @@
 ![Example1](art/example_1.png) ![Select1](art/select_1.png) ![Select2](art/select_2.png) ![Select3](art/select_3.png)
 
 ## 使用
+    PhotoHander selector = PhotoHander.create();
+    selector.showCamera(showCamera);
+    selector.count(maxNum);
+    if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
+        selector.single();
+        selector.crop(true);
+    } else {
+        selector.multi();
+    }
+    selector.compress(true);
 
-compile 'com.github.ashLikun:PhotoHander:1.2.5'
+    selector.origin(mSelectPath);
+    selector.start(MainActivity.this, REQUEST_IMAGE);
+
+    com.github.bumptech.glide:glide:3.7.0
+    compile 'io.reactivex:rxjava:x.y.z'
+    compile 'io.reactivex:rxandroid:1.2.1'
+
+    compile 'com.github.ashLikun:PhotoHander:1.2.5'
 
