@@ -43,11 +43,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 /*
  * Modified from original in AOSP.
@@ -210,42 +212,41 @@ public class CropImageActivity extends MonitoredActivity {
                 this, null, getResources().getString(R.string.crop__wait), true, false);
         imageView.setImageRotateBitmapResetBase(rotateBitmap, true);
 
-        Observable.create(new Observable.OnSubscribe<CountDownLatch>() {
+        Observable.create(new ObservableOnSubscribe<CountDownLatch>() {
             @Override
-            public void call(Subscriber<? super CountDownLatch> subscriber) {
+            public void subscribe(ObservableEmitter<CountDownLatch> e) throws Exception {
                 final CountDownLatch latch = new CountDownLatch(1);
-                subscriber.onNext(latch);
+                e.onNext(latch);
                 try {
                     latch.await();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                } catch (InterruptedException e1) {
+                    throw new RuntimeException(e1);
                 }
                 new Cropper().crop();
-                subscriber.onCompleted();
+                e.onComplete();
             }
         }).observeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<CountDownLatch>() {
+                .subscribe(new Consumer<CountDownLatch>() {
                     @Override
-                    public void onCompleted() {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                    }
-
-                    @Override
-                    public void onNext(CountDownLatch countDownLatch) {
+                    public void accept(CountDownLatch o) throws Exception {
                         if (imageView.getScale() == 1F) {
                             imageView.center();
                         }
-                        countDownLatch.countDown();
-
+                        o.countDown();
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
                     }
                 });
 
@@ -349,15 +350,15 @@ public class CropImageActivity extends MonitoredActivity {
         if (croppedImage != null) {
             dialog = ProgressDialog.show(
                     this, null, getResources().getString(R.string.crop__saving), true, false);
-            Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            Observable.create(new ObservableOnSubscribe<Bitmap>() {
                 @Override
-                public void call(Subscriber<? super Bitmap> subscriber) {
+                public void subscribe(ObservableEmitter<Bitmap> e) throws Exception {
                     saveOutput(croppedImage);
                 }
             }).observeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Action1<Bitmap>() {
+                    .subscribe(new Consumer<Bitmap>() {
                         @Override
-                        public void call(Bitmap countDownLatch) {
+                        public void accept(Bitmap bitmap) throws Exception {
 
                         }
                     });
