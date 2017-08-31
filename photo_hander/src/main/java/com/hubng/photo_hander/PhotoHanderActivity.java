@@ -139,13 +139,12 @@ public class PhotoHanderActivity extends AppCompatActivity
         compressRank = intent.getIntExtra(EXTRA_COMPRESS_RANK, compressRank);
 
         mSubmitButton = (Button) findViewById(R.id.commit);
-        if (mode == MODE_MULTI) {
+        if (selectMode == MODE_MULTI) {
             updateDoneText(resultList);
             mSubmitButton.setVisibility(View.VISIBLE);
             mSubmitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
                     completeSelect();
                 }
             });
