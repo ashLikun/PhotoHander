@@ -154,7 +154,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             addFragment();
         }
-
     }
 
     public void addFragment() {

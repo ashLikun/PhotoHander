@@ -44,7 +44,7 @@
 |滚动截屏 1080*6433|1080*6433,1.56M|1080*6433,351k|1080*6433,482k|
 
 ## 截图
-![Example1](art/example_1.png) ![Select1](art/select_1.png) ![Select2](art/select_2.png) ![Select3](art/select_3.png)
+![image1](art/image1.png) ![image2](art/image2.png) ![image3](art/image3.png) ![image4](art/image4.png)
 
 ## 使用
 ####    权限
