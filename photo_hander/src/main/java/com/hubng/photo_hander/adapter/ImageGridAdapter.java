@@ -4,28 +4,27 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Build;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
+import com.hubng.photo_hander.R;
+import com.hubng.photo_hander.bean.Image;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.hubng.photo_hander.R;
-import com.hubng.photo_hander.bean.Image;
 
 /**
  * 图片Adapter
  * Created by Nereo on 2015/4/7.
  * Updated by nereo on 2016/1/19.
  */
-public class ImageGridAdapter extends BaseAdapter {
+public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.ViewHolder> {
 
     private static final int TYPE_CAMERA = 0;
     private static final int TYPE_NORMAL = 1;
@@ -38,7 +37,7 @@ public class ImageGridAdapter extends BaseAdapter {
 
     private List<Image> mImages = new ArrayList<>();
     private List<Image> mSelectedImages = new ArrayList<>();
-
+    OnItemClickListener onItemClickListener;
     final int mGridWidth;
 
     public ImageGridAdapter(Context context, boolean showCamera, int column) {
@@ -136,8 +135,27 @@ public class ImageGridAdapter extends BaseAdapter {
     }
 
     @Override
-    public int getViewTypeCount() {
-        return 2;
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        ViewHolder viewHolder;
+        if (viewType == TYPE_CAMERA) {
+            viewHolder = new ViewHolder(mInflater.inflate(R.layout.mis_list_item_camera, parent, false));
+        } else {
+            viewHolder = new ViewHolder(mInflater.inflate(R.layout.mis_list_item_image, parent, false));
+        }
+        return viewHolder;
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, final int position) {
+        holder.bindData(getItem(position));
+        if (onItemClickListener != null) {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onItemClickListener.onItemClick(v, getItem(position), position);
+                }
+            });
+        }
     }
 
     @Override
@@ -148,12 +166,7 @@ public class ImageGridAdapter extends BaseAdapter {
         return TYPE_NORMAL;
     }
 
-    @Override
-    public int getCount() {
-        return showCamera ? mImages.size() + 1 : mImages.size();
-    }
 
-    @Override
     public Image getItem(int i) {
         if (showCamera) {
             if (i == 0) {
@@ -171,44 +184,31 @@ public class ImageGridAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-
-        if (isShowCamera()) {
-            if (i == 0) {
-                view = mInflater.inflate(R.layout.mis_list_item_camera, viewGroup, false);
-                return view;
-            }
-        }
-
-        ViewHolder holder;
-        if (view == null) {
-            view = mInflater.inflate(R.layout.mis_list_item_image, viewGroup, false);
-            holder = new ViewHolder(view);
-        } else {
-            holder = (ViewHolder) view.getTag();
-        }
-
-        if (holder != null) {
-            holder.bindData(getItem(i));
-        }
-
-        return view;
+    public int getItemCount() {
+        return showCamera ? mImages.size() + 1 : mImages.size();
     }
 
-    class ViewHolder {
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
+    }
+
+
+    class ViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
         ImageView indicator;
         View mask;
 
         ViewHolder(View view) {
+            super(view);
             image = (ImageView) view.findViewById(R.id.image);
             indicator = (ImageView) view.findViewById(R.id.checkmark);
             mask = view.findViewById(R.id.mask);
-            view.setTag(this);
+
         }
 
         void bindData(final Image data) {
             if (data == null) return;
+
             // 处理单选和多选状态
             if (showSelectIndicator) {
                 indicator.setVisibility(View.VISIBLE);
@@ -239,4 +239,8 @@ public class ImageGridAdapter extends BaseAdapter {
         }
     }
 
+    public interface OnItemClickListener {
+
+        void onItemClick(View view, Image data, int position);
+    }
 }

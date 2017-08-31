@@ -7,13 +7,12 @@
         android:id="@+id/done_cancel_bar"
         layout="@layout/crop__layout_done_cancel" />
 
-    <com.hubng.photo_hander.crop.CropImageView
+    <com.hubng.photo_hander.crop.CropImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/crop_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:highlightColor="@color/colorPrimary"
         android:layout_below="@id/done_cancel_bar"
-        android:background="@drawable/crop__texture" />
+        android:background="@drawable/crop__texture"
+        app:highlightColor="@color/colorPrimary" />
 
 </RelativeLayout>

@@ -141,7 +141,7 @@ public class CropImageActivity extends MonitoredActivity {
             maxX = extras.getInt(Crop.Extra.MAX_X);
             maxY = extras.getInt(Crop.Extra.MAX_Y);
             saveAsPng = extras.getBoolean(Crop.Extra.AS_PNG, false);
-            showCircle = extras.getBoolean(Crop.Extra.SHOW_CIRCLE, false);
+            showCircle = extras.getBoolean(Crop.Extra.CROP_CIRCLE, false);
             color = extras.getInt(Crop.Extra.COLOR);
             saveUri = extras.getParcelable(MediaStore.EXTRA_OUTPUT);
         }
