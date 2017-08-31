@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
             selector.count(maxNum);
             if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
                 selector.single();
-                selector.crop(true);
+                selector.crop(16, 9);
             } else {
                 selector.multi();
             }
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE) {
             if (resultCode == RESULT_OK) {
-                mSelectPath = data.getStringArrayListExtra(PhotoHander.EXTRA_RESULT);
+                mSelectPath = PhotoHander.getIntentResult(data);
                 StringBuilder sb = new StringBuilder();
                 for (String p : mSelectPath) {
                     sb.append(p);

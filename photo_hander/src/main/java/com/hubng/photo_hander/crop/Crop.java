@@ -29,7 +29,7 @@ public class Crop {
         String MAX_Y = "max_y";
         String AS_PNG = "as_png";
         String COLOR = "color";
-        String SHOW_CIRCLE = "show_circle";
+        String CROP_CIRCLE = "show_circle";
         String ERROR = "error";
     }
 
@@ -100,7 +100,7 @@ public class Crop {
     }
 
     public Crop showCircle(boolean showCircle) {
-        cropIntent.putExtra(Extra.SHOW_CIRCLE, showCircle);
+        cropIntent.putExtra(Extra.CROP_CIRCLE, showCircle);
         return this;
     }
 

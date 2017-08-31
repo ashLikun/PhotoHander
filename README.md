@@ -44,26 +44,51 @@
 |滚动截屏 1080*6433|1080*6433,1.56M|1080*6433,351k|1080*6433,482k|
 
 ## 截图
-![Example1](art/example_1.png) ![Select1](art/select_1.png) ![Select2](art/select_2.png) ![Select3](art/select_3.png)
+![image1](art/image1.png) ![image2](art/image2.png) ![image3](art/image3.png) ![image4](art/image4.png)
 
 ## 使用
-    PhotoHander selector = PhotoHander.create();
-    selector.showCamera(showCamera);
-    selector.count(maxNum);
-    if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
-        selector.single();
-        selector.crop(true);
-    } else {
-        selector.multi();
-    }
-    selector.compress(true);
+####    权限
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.CAMERA" />
+####    引用activity
+            <activity
+                android:name="com.hubng.photo_hander.PhotoHanderActivity"
+                android:configChanges="orientation|screenSize"
+                android:label="图片选择" />
+            <activity
+                android:name="com.hubng.photo_hander.crop.CropImageActivity"
+                android:configChanges="orientation|screenSize"
+                android:label="图片裁剪" />
+####    Java代码
+            PhotoHander selector = PhotoHander.create();
+            selector.showCamera(showCamera);
+            selector.count(maxNum);
+            if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
+                selector.single();
+                selector.crop(true);
+            } else {
+                selector.multi();
+            }
+            selector.compress(true);
 
-    selector.origin(mSelectPath);
-    selector.start(MainActivity.this, REQUEST_IMAGE);
+            selector.origin(mSelectPath);
+            selector.start(MainActivity.this, REQUEST_IMAGE);
 
-    com.github.bumptech.glide:glide:3.7.0
-    compile 'io.reactivex:rxjava:x.y.z'
-    compile 'io.reactivex:rxandroid:1.2.1'
-
-    compile 'com.github.ashLikun:PhotoHander:1.2.5'
+          //返回
+          @Override
+            protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+                super.onActivityResult(requestCode, resultCode, data);
+                if (requestCode == REQUEST_IMAGE) {
+                    if (resultCode == RESULT_OK) {
+                       ArrayList<String> mSelectPath =  PhotoHander.getIntentResult(data);
+                    }
+                }
+            }
+####    依赖
+            compile 'com.github.bumptech.glide:glide:3.7.0'
+            //rxjava
+            compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+            compile 'io.reactivex.rxjava2:rxjava:2.y.z'
+            compile 'com.github.ashLikun:PhotoHander:1.2.6'
 

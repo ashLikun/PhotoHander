@@ -1,17 +1,26 @@
-<resources>
-    <string name="mis_folder_all">All Images</string>
-    <string name="mis_preview">Preview</string>
-    <string name="mis_msg_no_camera">No system camera found</string>
-    <string name="mis_msg_amount_limit">Select images amount is limit</string>
-    <string name="mis_action_done">Done</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="mis_folder_all">所有照片</string>
+    <string name="mis_preview">预览</string>
+    <string name="mis_msg_no_camera">没有系统相机</string>
+    <string name="mis_msg_amount_limit">已经达到最高选择数量</string>
+    <string name="mis_action_done">完成</string>
     <string name="mis_action_button_string">%1$s(%2$d/%3$d)</string>
-    <string name="mis_photo_unit">Shot</string>
-    <string name="mis_tip_take_photo">Take photo</string>
-    <string name="mis_error_image_not_exist">Image error</string>
-    <string name="mis_error_no_permission">Has no permission</string>
-    <string name="mis_permission_dialog_title">Permission Deny</string>
-    <string name="mis_permission_dialog_ok">OK</string>
-    <string name="mis_permission_dialog_cancel">CANCEL</string>
-    <string name="mis_permission_rationale">Storage read permission is needed to pick files.</string>
-    <string name="mis_permission_rationale_write_storage">Storage write permission is needed to save the image.</string>
+    <string name="mis_photo_unit">张</string>
+    <string name="mis_tip_take_photo">拍摄照片</string>
+    <string name="mis_error_image_not_exist">图片错误</string>
+    <string name="mis_error_no_permission">无权限</string>
+    <string name="mis_permission_dialog_title">权限拒绝</string>
+    <string name="mis_permission_dialog_ok">好</string>
+    <string name="mis_permission_dialog_cancel">拒绝</string>
+    <string name="mis_permission_rationale">浏览图片需要您提供浏览存储的权限</string>
+    <string name="mis_permission_rationale_write_storage">保存拍照图片需要您提供写存储权限</string>
+    <string name="mis_permission_rationale_camera">保存拍照图片需要您提供写存储权限和拍照权限</string>
+
+
+    <string name="crop__saving">正在保存照片…</string>
+    <string name="crop__wait">请等待…</string>
+    <string name="crop__pick_error">无效的图片</string>
+
+    <string name="crop__done">完成</string>
+    <string name="crop__cancel" tools:ignore="ButtonCase">取消</string>
 </resources>

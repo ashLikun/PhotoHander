@@ -23,13 +23,14 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ import com.hubng.photo_hander.bean.Folder;
 import com.hubng.photo_hander.bean.Image;
 import com.hubng.photo_hander.utils.FileUtils;
 import com.hubng.photo_hander.utils.ScreenUtils;
+import com.hubng.photo_hander.utils.SimpleItemDecoration;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,7 +90,7 @@ public class PhotoHanderFragment extends Fragment {
     // folder result data set
     private ArrayList<Folder> mResultFolder = new ArrayList<>();
 
-    private GridView mGridView;
+    private RecyclerView recyclerView;
     private Callback mCallback;
 
     private ImageGridAdapter mImageAdapter;
@@ -155,40 +157,31 @@ public class PhotoHanderFragment extends Fragment {
             }
         });
 
-        mGridView = (GridView) view.findViewById(R.id.grid);
-        mGridView.setAdapter(mImageAdapter);
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 3));
+        recyclerView.addItemDecoration(new SimpleItemDecoration.Builder(getContext(), SimpleItemDecoration.HORIZONTAL)
+                .setColor(0x00ff0000)
+                .setSizeRes(R.dimen.mis_space_size)
+                .create());
+        recyclerView.addItemDecoration(new SimpleItemDecoration.Builder(getContext(), SimpleItemDecoration.VERTICAL)
+                .setColor(0x00ff0000)
+                .setSizeRes(R.dimen.mis_space_size)
+                .create());
+        recyclerView.setAdapter(mImageAdapter);
+        mImageAdapter.setOnItemClickListener(new ImageGridAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(View view, Image data, int position) {
                 if (mImageAdapter.isShowCamera()) {
-                    if (i == 0) {
+                    if (position == 0) {
                         showCameraAction();
                     } else {
-                        Image image = (Image) adapterView.getAdapter().getItem(i);
-                        selectImageFromGrid(image, mode);
+                        selectImageFromGrid(data, mode);
                     }
                 } else {
-                    Image image = (Image) adapterView.getAdapter().getItem(i);
-                    selectImageFromGrid(image, mode);
+                    selectImageFromGrid(data, mode);
                 }
             }
         });
-//        mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(AbsListView view, int scrollState) {
-//                if (scrollState == SCROLL_STATE_FLING) {
-//                    Glide.with(view.getContext());
-//                } else {
-//                    Picasso.with(view.getContext()).resumeTag(TAG);
-//                }
-//            }
-//
-//            @Override
-//            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-//
-//            }
-//        });
-
         mFolderAdapter = new FolderAdapter(getActivity());
     }
 
@@ -241,7 +234,7 @@ public class PhotoHanderFragment extends Fragment {
                             mImageAdapter.setShowCamera(false);
                         }
 
-                        mGridView.smoothScrollToPosition(0);
+                        recyclerView.smoothScrollToPosition(0);
                     }
                 }, 100);
 
@@ -303,7 +296,7 @@ public class PhotoHanderFragment extends Fragment {
     }
 
     /**
-     * Open camera
+     * 打开相机
      */
     private void showCameraAction() {
         String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -319,25 +312,26 @@ public class PhotoHanderFragment extends Fragment {
                     e.printStackTrace();
                 }
                 if (mTmpFile != null && mTmpFile.exists()) {
-
-                       /*获取当前系统的android版本号*/
-                    int currentapiVersion = android.os.Build.VERSION.SDK_INT;
-                    if (currentapiVersion < 24) {
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-                        startActivityForResult(intent, REQUEST_CAMERA);
-                    } else {
-                        ContentValues contentValues = new ContentValues(1);
-                        contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
-                        Uri uri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                        startActivityForResult(intent, REQUEST_CAMERA);
-                    }
+                    startActionImageCapture(intent);
                 } else {
                     Toast.makeText(getActivity(), R.string.mis_error_image_not_exist, Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(getActivity(), R.string.mis_msg_no_camera, Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    public void startActionImageCapture(Intent intent) {
+        if (android.os.Build.VERSION.SDK_INT < 24) {
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
+            startActivityForResult(intent, REQUEST_CAMERA);
+        } else {
+            ContentValues contentValues = new ContentValues(1);
+            contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
+            Uri uri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            startActivityForResult(intent, REQUEST_CAMERA);
         }
     }
 

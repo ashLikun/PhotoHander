@@ -6,4 +6,5 @@
     <color name="crop__button_text">#666666</color>
     <color name="crop__selector_pressed">#1a000000</color>
     <color name="crop__selector_focused">#77000000</color>
+    <color name="activity_backgound">#ffeeeeee</color>
 </resources>

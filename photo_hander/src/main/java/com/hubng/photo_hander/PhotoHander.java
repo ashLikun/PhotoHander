@@ -1,15 +1,10 @@
 package com.hubng.photo_hander;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
-import android.widget.Toast;
 
 import com.hubng.photo_hander.compress.Luban;
 import com.hubng.photo_hander.crop.Crop;
@@ -53,46 +48,55 @@ public class PhotoHander {
         intent.putExtra(PhotoHanderActivity.EXTRA_SHOW_CAMERA, mShowCamera);
         return sSelector;
     }
+
     //最大多少张
     public PhotoHander count(int count) {
         intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_COUNT, count);
         return sSelector;
     }
+
     //单选
     public PhotoHander single() {
         intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_MODE, PhotoHanderActivity.MODE_SINGLE);
         return sSelector;
     }
+
     //多选
     public PhotoHander multi() {
         intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_MODE, PhotoHanderActivity.MODE_MULTI);
         return sSelector;
     }
+
     //已选
     public PhotoHander origin(ArrayList<String> images) {
         mOriginData = images;
         return sSelector;
     }
+
     //压缩
     public PhotoHander compress(boolean isCompress) {
         intent.putExtra(PhotoHanderActivity.EXTRA_IS_COMPRESS, isCompress);
         return sSelector;
     }
+
     //压缩等级  高
     public PhotoHander compressRankThird() {
         intent.putExtra(PhotoHanderActivity.EXTRA_COMPRESS_RANK, Luban.THIRD_GEAR);
         return sSelector;
     }
+
     //压缩等级 低
     public PhotoHander compressRankFirst() {
         intent.putExtra(PhotoHanderActivity.EXTRA_COMPRESS_RANK, Luban.FIRST_GEAR);
         return sSelector;
     }
+
     //裁剪
     public PhotoHander crop(boolean isCrop) {
         intent.putExtra(PhotoHanderActivity.EXTRA_IS_CROP, isCrop);
         return sSelector;
     }
+
     //裁剪
     public PhotoHander crop(int cropWidth, int cropHeight) {
         crop(true);
@@ -100,45 +104,31 @@ public class PhotoHander {
         intent.putExtra(PhotoHanderActivity.EXTRA_CROP_HEIGHT, cropHeight);
         return sSelector;
     }
+
+    //裁剪圆形
+    public PhotoHander cropCircle(boolean showCircle) {
+        intent.putExtra(Crop.Extra.CROP_CIRCLE, showCircle);
+        return sSelector;
+    }
+
     //裁剪框颜色
     public PhotoHander color(int color) {
         intent.putExtra(Crop.Extra.COLOR, color);
         return sSelector;
     }
-    //裁剪圆形
-    public PhotoHander showCircle(boolean showCircle) {
-        intent.putExtra(Crop.Extra.SHOW_CIRCLE, showCircle);
-        return sSelector;
-    }
+
 
     //开启
     public void start(Activity activity, int requestCode) {
         final Context context = activity;
-//        if (hasPermission(context)) {
-            activity.startActivityForResult(createIntent(context), requestCode);
-//        } else {
-//            Toast.makeText(context, R.string.mis_error_no_permission, Toast.LENGTH_SHORT).show();
-//        }
+        activity.startActivityForResult(createIntent(context), requestCode);
         intent = null;
     }
 
     public void start(Fragment fragment, int requestCode) {
         final Context context = fragment.getContext();
-        if (hasPermission(context)) {
-            fragment.startActivityForResult(createIntent(context), requestCode);
-        } else {
-            Toast.makeText(context, R.string.mis_error_no_permission, Toast.LENGTH_SHORT).show();
-        }
+        fragment.startActivityForResult(createIntent(context), requestCode);
         intent = null;
-    }
-
-    private boolean hasPermission(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            // Permission was added in API Level 16
-            return ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    == PackageManager.PERMISSION_GRANTED;
-        }
-        return true;
     }
 
     private Intent createIntent(Context context) {
@@ -150,5 +140,9 @@ public class PhotoHander {
         return intent;
     }
 
+    //获取照片选择后的地址
+    public static ArrayList<String> getIntentResult(Intent data) {
+        return data.getStringArrayListExtra(PhotoHander.EXTRA_RESULT);
+    }
 
 }

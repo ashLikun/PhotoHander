@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,8 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static android.R.attr.mode;
-import static com.hubng.photo_hander.crop.Crop.Extra.SHOW_CIRCLE;
+import static com.hubng.photo_hander.crop.Crop.Extra.CROP_CIRCLE;
 
 /**
  * 作者　　: 李坤
@@ -102,7 +100,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         setContentView(R.layout.mis_activity_default);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(Color.BLACK);
+            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -121,7 +119,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         selectMode = intent.getIntExtra(EXTRA_SELECT_MODE, MODE_MULTI);
         isShowCamera = intent.getBooleanExtra(EXTRA_SHOW_CAMERA, true);
 
-        if (mode == MODE_MULTI && intent.hasExtra(EXTRA_DEFAULT_SELECTED_LIST)) {
+        if (selectMode == MODE_MULTI && intent.hasExtra(EXTRA_DEFAULT_SELECTED_LIST)) {
             resultList = intent.getStringArrayListExtra(EXTRA_DEFAULT_SELECTED_LIST);
             for (int i = 0; i < resultList.size(); i++) {
                 if (PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()) != null) {//是加密图片
@@ -133,7 +131,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         cropWidth = intent.getIntExtra(EXTRA_CROP_WIDTH, cropWidth);
         cropHeight = intent.getIntExtra(EXTRA_CROP_HEIGHT, cropHeight);
         mIsCrop = intent.getBooleanExtra(EXTRA_IS_CROP, mIsCrop);
-        cropShowCircle = intent.getBooleanExtra(SHOW_CIRCLE, cropShowCircle);
+        cropShowCircle = intent.getBooleanExtra(CROP_CIRCLE, cropShowCircle);
         cropColor = intent.getIntExtra(Crop.Extra.COLOR, cropColor);
         isCompress = intent.getBooleanExtra(EXTRA_IS_COMPRESS, isCompress);
         compressRank = intent.getIntExtra(EXTRA_COMPRESS_RANK, compressRank);
@@ -155,7 +153,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             addFragment();
         }
-
     }
 
     public void addFragment() {
