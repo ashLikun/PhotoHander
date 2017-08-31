@@ -251,8 +251,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (imageFile != null) {
             // notify system the image has change
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
-            resultList.add(imageFile.getAbsolutePath());
-            completeSelect();
+            onSingleImageSelected(imageFile.getPath());
         }
     }
 
