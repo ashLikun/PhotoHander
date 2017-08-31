@@ -17,51 +17,53 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.functions.Action1;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.hubng.photo_hander.compress.Preconditions.checkNotNull;
+
 /**
  * 作者　　: 李坤
  * 创建时间: 2017/4/19 0019 16:52
- *
+ * <p>
  * 方法功能：
  * 判断图片比例值，是否处于以下区间内；
-
- [1, 0.5625) 即图片处于 [1:1 ~ 9:16) 比例范围内
- [0.5625, 0.5) 即图片处于 [9:16 ~ 1:2) 比例范围内
- [0.5, 0) 即图片处于 [1:2 ~ 1:∞) 比例范围内
- 判断图片最长边是否过边界值；
-
- [1, 0.5625) 边界值为：1664 * n（n=1）, 4990 * n（n=2）, 1280 * pow(2, n-1)（n≥3）
- [0.5625, 0.5) 边界值为：1280 * pow(2, n-1)（n≥1）
- [0.5, 0) 边界值为：1280 * pow(2, n-1)（n≥1）
- 计算压缩图片实际边长值，以第2步计算结果为准，超过某个边界值则：width / pow(2, n-1)，height/pow(2, n-1)
-
- 计算压缩图片的实际文件大小，以第2、3步结果为准，图片比例越大则文件越大。
-
- size = (newW * newH) / (width * height) * m；
-
- [1, 0.5625) 则 width & height 对应 1664，4990，1280 * n（n≥3），m 对应 150，300，300；
- [0.5625, 0.5) 则 width = 1440，height = 2560, m = 200；
- [0.5, 0) 则 width = 1280，height = 1280 / scale，m = 500；注：scale为比例值
- 判断第4步的size是否过小
-
- [1, 0.5625) 则最小 size 对应 60，60，100
- [0.5625, 0.5) 则最小 size 都为 100
- [0.5, 0) 则最小 size 都为 100
- 将前面求到的值压缩图片 width, height, size 传入压缩流程，压缩图片直到满足以上数值
- 效果与对比
- 内容	原图	Luban	Wechat
- 截屏 720P	720*1280,390k	720*1280,87k	720*1280,56k
- 截屏 1080P	1080*1920,2.21M	1080*1920,104k	1080*1920,112k
- 拍照 13M(4:3)	3096*4128,3.12M	1548*2064,141k	1548*2064,147k
- 拍照 9.6M(16:9)	4128*2322,4.64M	1032*581,97k	1032*581,74k
- 滚动截屏	1080*6433,1.56M	1080*6433,351k	1080*6433,482k
+ * <p>
+ * [1, 0.5625) 即图片处于 [1:1 ~ 9:16) 比例范围内
+ * [0.5625, 0.5) 即图片处于 [9:16 ~ 1:2) 比例范围内
+ * [0.5, 0) 即图片处于 [1:2 ~ 1:∞) 比例范围内
+ * 判断图片最长边是否过边界值；
+ * <p>
+ * [1, 0.5625) 边界值为：1664 * n（n=1）, 4990 * n（n=2）, 1280 * pow(2, n-1)（n≥3）
+ * [0.5625, 0.5) 边界值为：1280 * pow(2, n-1)（n≥1）
+ * [0.5, 0) 边界值为：1280 * pow(2, n-1)（n≥1）
+ * 计算压缩图片实际边长值，以第2步计算结果为准，超过某个边界值则：width / pow(2, n-1)，height/pow(2, n-1)
+ * <p>
+ * 计算压缩图片的实际文件大小，以第2、3步结果为准，图片比例越大则文件越大。
+ * <p>
+ * size = (newW * newH) / (width * height) * m；
+ * <p>
+ * [1, 0.5625) 则 width & height 对应 1664，4990，1280 * n（n≥3），m 对应 150，300，300；
+ * [0.5625, 0.5) 则 width = 1440，height = 2560, m = 200；
+ * [0.5, 0) 则 width = 1280，height = 1280 / scale，m = 500；注：scale为比例值
+ * 判断第4步的size是否过小
+ * <p>
+ * [1, 0.5625) 则最小 size 对应 60，60，100
+ * [0.5625, 0.5) 则最小 size 都为 100
+ * [0.5, 0) 则最小 size 都为 100
+ * 将前面求到的值压缩图片 width, height, size 传入压缩流程，压缩图片直到满足以上数值
+ * 效果与对比
+ * 内容	原图	Luban	Wechat
+ * 截屏 720P	720*1280,390k	720*1280,87k	720*1280,56k
+ * 截屏 1080P	1080*1920,2.21M	1080*1920,104k	1080*1920,112k
+ * 拍照 13M(4:3)	3096*4128,3.12M	1548*2064,141k	1548*2064,147k
+ * 拍照 9.6M(16:9)	4128*2322,4.64M	1032*581,97k	1032*581,74k
+ * 滚动截屏	1080*6433,1.56M	1080*6433,351k	1080*6433,482k
  */
 
 public class Luban {
@@ -118,38 +120,38 @@ public class Luban {
         //checkNotNull(mFile, "the image file cannot be null, please call .load() before this method!");
         if (compressListener != null) compressListener.onStart();
 
-        Observable.create(new Observable.OnSubscribe<Integer>() {
+        Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
-            public void call(Subscriber<? super Integer> subscriber) {
+            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
                 compressFiles.clear();
                 for (String f : mFiles) {
                     File ff = compress(f);
                     if (ff != null && ff.exists()) {
                         compressFiles.add(ff.getPath());
                         int progress = mFiles.indexOf(f) + 1;
-                        subscriber.onNext(progress);
+                        e.onNext(progress);
                     }
                 }
-                subscriber.onCompleted();
+                e.onComplete();
             }
         }).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnError(new Action1<Throwable>() {
+                .doOnError(new Consumer<Throwable>() {
                     @Override
-                    public void call(Throwable throwable) {
+                    public void accept(Throwable throwable) {
                         if (compressListener != null) compressListener.onError(throwable);
                     }
                 })
-                .doOnCompleted(new Action0() {
+                .doOnComplete(new Action() {
                     @Override
-                    public void call() {
+                    public void run() throws Exception {
                         if (compressListener != null) compressListener.onSuccess(compressFiles);
                         deleteDir(mCacheDir);
                     }
                 })
-                .subscribe(new Action1<Integer>() {
+                .subscribe(new Consumer<Integer>() {
                     @Override
-                    public void call(Integer progress) {
+                    public void accept(Integer progress) {
                         if (compressListener != null)
                             compressListener.onLoading(progress, mFiles.size());
                     }
@@ -226,19 +228,19 @@ public class Luban {
 
     public Observable<Integer> asObservable() {
 
-        return Observable.create(new Observable.OnSubscribe<Integer>() {
+        return Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
-            public void call(Subscriber<? super Integer> subscriber) {
+            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
                 compressFiles.clear();
                 for (String f : mFiles) {
                     File ff = compress(f);
                     if (ff != null && ff.exists()) {
                         compressFiles.add(ff.getPath());
                         int progress = mFiles.indexOf(f) + 1;
-                        subscriber.onNext(progress);
+                        e.onNext(progress);
                     }
                 }
-                subscriber.onCompleted();
+                e.onComplete();
             }
         });
     }
@@ -268,12 +270,12 @@ public class Luban {
 
                 size = (width * height) / Math.pow(1664, 2) * 100;
                 size = size < 60 ? 60 : size;//希望（60-100）kb
-            } else if ( height < 4990) {
+            } else if (height < 4990) {
                 thumbW = width / 2;
                 thumbH = height / 2;
                 size = (thumbW * thumbH) / Math.pow(2495, 2) * 300;
                 size = size < 60 ? 60 : size;//希望（60-300）kb
-            } else if ( height < 10240) {
+            } else if (height < 10240) {
                 thumbW = width / 4;
                 thumbH = height / 4;
                 size = (thumbW * thumbH) / Math.pow(2560, 2) * 300;

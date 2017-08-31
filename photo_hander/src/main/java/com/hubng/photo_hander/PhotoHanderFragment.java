@@ -2,6 +2,7 @@ package com.hubng.photo_hander;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,7 +20,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
@@ -33,17 +33,17 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.hubng.photo_hander.adapter.FolderAdapter;
 import com.hubng.photo_hander.adapter.ImageGridAdapter;
 import com.hubng.photo_hander.bean.Folder;
 import com.hubng.photo_hander.bean.Image;
 import com.hubng.photo_hander.utils.FileUtils;
 import com.hubng.photo_hander.utils.ScreenUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Multi image selector Fragment
@@ -308,10 +308,9 @@ public class PhotoHanderFragment extends Fragment {
      * Open camera
      */
     private void showCameraAction() {
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    getString(R.string.mis_permission_rationale_write_storage),
+        String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (!((PhotoHanderActivity) getActivity()).checkSelfPermission(permission)) {
+            requestPermission(permission, getString(R.string.mis_permission_rationale_camera),
                     REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
         } else {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -322,8 +321,19 @@ public class PhotoHanderFragment extends Fragment {
                     e.printStackTrace();
                 }
                 if (mTmpFile != null && mTmpFile.exists()) {
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-                    startActivityForResult(intent, REQUEST_CAMERA);
+
+                       /*获取当前系统的android版本号*/
+                    int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+                    if (currentapiVersion < 24) {
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
+                        startActivityForResult(intent, REQUEST_CAMERA);
+                    } else {
+                        ContentValues contentValues = new ContentValues(1);
+                        contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
+                        Uri uri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                        startActivityForResult(intent, REQUEST_CAMERA);
+                    }
                 } else {
                     Toast.makeText(getActivity(), R.string.mis_error_image_not_exist, Toast.LENGTH_SHORT).show();
                 }
@@ -333,7 +343,15 @@ public class PhotoHanderFragment extends Fragment {
         }
     }
 
-    private void requestPermission(final String permission, String rationale, final int requestCode) {
+
+    /**
+     * 作者　　: 李坤
+     * 创建时间: 2017/8/30 0030 22:52
+     * <p>
+     * 方法功能：请求权限
+     */
+
+    private void requestPermission(final String[] permission, String rationale, final int requestCode) {
         if (shouldShowRequestPermissionRationale(permission)) {
             new AlertDialog.Builder(getContext())
                     .setTitle(R.string.mis_permission_dialog_title)
@@ -341,20 +359,39 @@ public class PhotoHanderFragment extends Fragment {
                     .setPositiveButton(R.string.mis_permission_dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            requestPermissions(new String[]{permission}, requestCode);
+                            requestPermissions(permission, requestCode);
                         }
                     })
                     .setNegativeButton(R.string.mis_permission_dialog_cancel, null)
                     .create().show();
         } else {
-            requestPermissions(new String[]{permission}, requestCode);
+            requestPermissions(permission, requestCode);
         }
     }
+
+    //是否拒绝过一次权限
+    public boolean shouldShowRequestPermissionRationale(String[] permissions) {
+        if (permissions == null) return true;
+        for (String p : permissions) {
+            if (shouldShowRequestPermissionRationale(p)) {
+                return true;
+            }
+        }
+        return false;
+
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_STORAGE_WRITE_ACCESS_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            boolean result = true;
+            for (int p : grantResults) {
+                if (p != PackageManager.PERMISSION_GRANTED) {
+                    result = false;
+                }
+            }
+            if (result) {
                 showCameraAction();
             }
         } else {
@@ -522,4 +559,6 @@ public class PhotoHanderFragment extends Fragment {
 
         void onCameraShot(File imageFile);
     }
+
+
 }

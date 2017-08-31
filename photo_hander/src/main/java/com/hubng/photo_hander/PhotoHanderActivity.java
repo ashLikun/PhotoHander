@@ -1,13 +1,19 @@
 package com.hubng.photo_hander;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -24,18 +30,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static android.R.attr.mode;
 import static com.hubng.photo_hander.crop.Crop.Extra.SHOW_CIRCLE;
 
 /**
  * 作者　　: 李坤
  * 创建时间: 16:32 Administrator
  * 邮箱　　：496546144@qq.com
- *
+ * <p>
  * 功能介绍：图片选择主界面
  */
 
 public class PhotoHanderActivity extends AppCompatActivity
         implements PhotoHanderFragment.Callback {
+    protected static final int REQUEST_STORAGE_READ_ACCESS_PERMISSION = 101;
 
     // Single choice
     public static final int MODE_SINGLE = 0;
@@ -67,7 +75,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     public static final String EXTRA_CROP_HEIGHT = "crop_height";
     public static final String EXTRA_IS_CROP = "is_crop";
     public static final String EXTRA_IS_COMPRESS = "is_compress";
-    public static final String EXTRA_COMPRESS_RANK = "is_compress";
+    public static final String EXTRA_COMPRESS_RANK = "is_compress_rank";
     // Default image size
     private static final int DEFAULT_IMAGE_SIZE = 9;
 
@@ -83,6 +91,9 @@ public class PhotoHanderActivity extends AppCompatActivity
     private boolean isCompress = false;//是否压缩
     private int compressRank = Luban.THIRD_GEAR;//压缩等级
     ProgressDialog compressDialog;
+    private boolean isShowCamera = false;
+
+    private int selectMode = MODE_MULTI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +118,8 @@ public class PhotoHanderActivity extends AppCompatActivity
         final Intent intent = getIntent();
         mDefaultCount = intent.getIntExtra(EXTRA_SELECT_COUNT, DEFAULT_IMAGE_SIZE);
 
-        final int mode = intent.getIntExtra(EXTRA_SELECT_MODE, MODE_MULTI);
-        final boolean isShow = intent.getBooleanExtra(EXTRA_SHOW_CAMERA, true);
+        selectMode = intent.getIntExtra(EXTRA_SELECT_MODE, MODE_MULTI);
+        isShowCamera = intent.getBooleanExtra(EXTRA_SHOW_CAMERA, true);
 
         if (mode == MODE_MULTI && intent.hasExtra(EXTRA_DEFAULT_SELECTED_LIST)) {
             resultList = intent.getStringArrayListExtra(EXTRA_DEFAULT_SELECTED_LIST);
@@ -143,17 +154,29 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
 
         if (savedInstanceState == null) {
+            addFragment();
+        }
+
+    }
+
+    public void addFragment() {
+        String[] permission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        //请求读写权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
+                && !checkSelfPermission(permission)) {
+            requestPermission(permission,
+                    getString(R.string.mis_permission_rationale),
+                    REQUEST_STORAGE_READ_ACCESS_PERMISSION);
+        } else {
             Bundle bundle = new Bundle();
             bundle.putInt(PhotoHanderFragment.EXTRA_SELECT_COUNT, mDefaultCount);
-            bundle.putInt(PhotoHanderFragment.EXTRA_SELECT_MODE, mode);
-            bundle.putBoolean(PhotoHanderFragment.EXTRA_SHOW_CAMERA, isShow);
+            bundle.putInt(PhotoHanderFragment.EXTRA_SELECT_MODE, selectMode);
+            bundle.putBoolean(PhotoHanderFragment.EXTRA_SHOW_CAMERA, isShowCamera);
             bundle.putStringArrayList(PhotoHanderFragment.EXTRA_DEFAULT_SELECTED_LIST, resultList);
-
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle))
                     .commit();
         }
-
     }
 
     @Override
@@ -323,11 +346,66 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
     }
 
-    /*
-      * 比较两个字符串
-      */
     private boolean isEquals(String actual, String expected) {
         return actual == expected
                 || (actual == null ? expected == null : actual.equals(expected));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_STORAGE_READ_ACCESS_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                addFragment();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    public boolean checkSelfPermission(String[] permission) {
+        if (permission == null) return true;
+        for (String p : permission) {
+            if (ActivityCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 作者　　: 李坤
+     * 创建时间: 2017/8/30 0030 22:52
+     * <p>
+     * 方法功能：请求权限
+     */
+
+    private void requestPermission(final String[] permission, String rationale, final int requestCode) {
+        if (shouldShowRequestPermissionRationale(permission)) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.mis_permission_dialog_title)
+                    .setMessage(rationale)
+                    .setPositiveButton(R.string.mis_permission_dialog_ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(PhotoHanderActivity.this, permission, requestCode);
+                        }
+                    })
+                    .setNegativeButton(R.string.mis_permission_dialog_cancel, null)
+                    .create().show();
+        } else {
+            ActivityCompat.requestPermissions(this, permission, requestCode);
+        }
+    }
+
+    //是否拒绝过一次权限
+    public boolean shouldShowRequestPermissionRationale(String[] permissions) {
+        if (permissions == null) return true;
+        for (String p : permissions) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, p)) {
+                return true;
+            }
+        }
+        return false;
+
     }
 }
