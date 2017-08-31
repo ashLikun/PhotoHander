@@ -491,7 +491,6 @@ public class Luban {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         int options = 100;//图片质量
         bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);//压缩图片
-
         while (stream.toByteArray().length / 1024.0 > size && options > 6) {
             stream.reset();
             options -= 6;
