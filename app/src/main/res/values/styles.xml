@@ -1,12 +1,13 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-    </style>
+    <!-- ****************************************主题 开始**************************************-->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimary</item>
 
-    <style name="NO_ACTION_BAR" parent="Theme.AppCompat.Light.NoActionBar">
-
+        <item name="android:statusBarColor">@color/colorPrimary</item>
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
 </resources>

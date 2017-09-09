@@ -20,7 +20,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name="com.hubng.photo_hander.PhotoHanderActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="图片选择" />
+        <activity
+            android:name="com.hubng.photo_hander.crop.CropImageActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="图片裁剪" />
     </application>
 
 </manifest>
