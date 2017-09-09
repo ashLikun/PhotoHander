@@ -99,10 +99,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         setTheme(R.style.MIS_NO_ACTIONBAR);
         setContentView(R.layout.mis_activity_default);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimary));
-        }
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);

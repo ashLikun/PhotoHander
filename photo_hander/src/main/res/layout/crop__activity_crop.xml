@@ -13,6 +13,6 @@
         android:layout_height="match_parent"
         android:layout_below="@id/done_cancel_bar"
         android:background="@drawable/crop__texture"
-        app:highlightColor="@color/colorPrimary" />
+        app:highlightColor="?colorPrimary" />
 
 </RelativeLayout>
