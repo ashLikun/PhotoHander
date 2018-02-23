@@ -7,7 +7,7 @@
         android:id="@+id/done_cancel_bar"
         layout="@layout/crop__layout_done_cancel" />
 
-    <com.hubng.photo_hander.crop.CropImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+    <com.ashlikun.photo_hander.crop.CropImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/crop_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

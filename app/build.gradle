@@ -28,8 +28,17 @@ android {
 }
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile rootProject.ext.v7AppCompat
     compile project(':photo_hander')
-    compile 'com.bm.photoview:library:1.4.1'
-
+    compile 'com.github.chrisbanes:PhotoView:2.1.3'
+    compile 'com.github.ashLikun.frame:glideutils:2.0.1'
+    //okhttp
+    compile 'com.squareup.okhttp3:okhttp:3.9.1'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.github.ashLikun:OkHttpUtils:1.4.2'
+    //图片加载
+    compile 'com.github.bumptech.glide:glide:4.5.0'
+    compile 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
+    compile 'jp.wasabeef:glide-transformations:2.0.1'
+    compile 'com.android.support:recyclerview-v7:' + rootProject.ext.superVersion
 }

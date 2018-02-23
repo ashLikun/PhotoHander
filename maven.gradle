@@ -1,6 +1,6 @@
 apply plugin: 'com.github.dcendents.android-maven'
 // GitHub账户名
-group = 'com.github.ashLikun'
+group = 'com.github.ashlikun'
 
 // 指定编码
 tasks.withType(JavaCompile) {

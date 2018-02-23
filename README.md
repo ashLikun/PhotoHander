@@ -1,5 +1,25 @@
-# PhotoHander
+[![Release](https://jitpack.io/v/ashLikun/PhotoHander.svg)](https://jitpack.io/#ashLikun/PhotoHander)
+
+
+# **PhotoHander**
 # 图片选择  图片裁剪 图片压缩
+## 使用方法
+
+build.gradle文件中添加:
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+并且:
+
+```gradle
+dependencies {
+    compile 'com.github.ashLikun:OkHttpUtils:{latest version}'
+}
+
 ## 权限
     - READ_EXTERNAL_STORAGE
     - WRITE_EXTERNAL_STORAGE
@@ -53,11 +73,11 @@
             <uses-permission android:name="android.permission.CAMERA" />
 ####    引用activity
             <activity
-                android:name="com.hubng.photo_hander.PhotoHanderActivity"
+                android:name="com.ashlikun.photo_hander.PhotoHanderActivity"
                 android:configChanges="orientation|screenSize"
                 android:label="图片选择" />
             <activity
-                android:name="com.hubng.photo_hander.crop.CropImageActivity"
+                android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
                 android:configChanges="orientation|screenSize"
                 android:label="图片裁剪" />
 ####    Java代码

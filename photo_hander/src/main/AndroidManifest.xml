@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hubng.photo_hander">
+    package="com.ashlikun.photo_hander">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -8,11 +8,11 @@
     <application android:allowBackup="true">
 
         <activity
-            android:name="com.hubng.photo_hander.PhotoHanderActivity"
+            android:name="com.ashlikun.photo_hander.PhotoHanderActivity"
             android:configChanges="orientation|screenSize"
             android:label="图片选择" />
         <activity
-            android:name="com.hubng.photo_hander.crop.CropImageActivity"
+            android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
             android:configChanges="orientation|screenSize"
             android:label="图片裁剪" />
     </application>

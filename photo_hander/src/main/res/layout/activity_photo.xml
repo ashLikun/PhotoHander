@@ -5,10 +5,10 @@
     android:orientation="vertical">
 
 
-    <com.hubng.photo_hander.photoBrowse.PhotoViewPager
+    <com.ashlikun.photo_hander.photoBrowse.PhotoViewPager
         android:id="@+id/photoViewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></com.hubng.photo_hander.photoBrowse.PhotoViewPager>
+        android:layout_height="match_parent"></com.ashlikun.photo_hander.photoBrowse.PhotoViewPager>
 
     <TextView
         android:id="@+id/numberTv"
