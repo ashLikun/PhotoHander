@@ -31,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -59,7 +60,7 @@ import io.reactivex.schedulers.Schedulers;
  * 功能介绍：图片裁剪
  */
 
-public class CropImageActivity extends MonitoredActivity {
+public class CropImageActivity extends AppCompatActivity {
 
     private static final int SIZE_DEFAULT = 2048;
     private static final int SIZE_LIMIT = 4096;
@@ -123,6 +124,7 @@ public class CropImageActivity extends MonitoredActivity {
         });
 
         findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 setResult(RESULT_CANCELED);
                 finish();
@@ -130,6 +132,7 @@ public class CropImageActivity extends MonitoredActivity {
         });
 
         findViewById(R.id.btn_done).setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
                 onSaveClicked();
             }
@@ -299,6 +302,7 @@ public class CropImageActivity extends MonitoredActivity {
 
         public void crop() {
             handler.post(new Runnable() {
+                @Override
                 public void run() {
                     makeDefault();
                     imageView.invalidate();
