@@ -19,10 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 文件夹Adapter
- * Created by Nereo on 2015/4/7.
- * Updated by nereo on 2016/1/19.
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 13:23
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：文件夹Adapter
  */
+
 public class FolderAdapter extends BaseAdapter {
 
     private Context mContext;
@@ -60,7 +63,9 @@ public class FolderAdapter extends BaseAdapter {
 
     @Override
     public Folder getItem(int i) {
-        if (i == 0) return null;
+        if (i == 0) {
+            return null;
+        }
         return mFolders.get(i - 1);
     }
 

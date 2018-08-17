@@ -9,6 +9,14 @@ import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
+/**
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 16:14
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：裁剪界面的显示图片控件
+ */
+
 public class CropImageView extends ImageViewTouchBase {
 
     ArrayList<HighlightView> highlightViews = new ArrayList<HighlightView>();
@@ -100,7 +108,7 @@ public class CropImageView extends ImageViewTouchBase {
                         motionHighlightView = hv;
                         lastX = event.getX();
                         lastY = event.getY();
-                        // Prevent multiple touches from interfering with crop area re-sizing
+                        // 防止多次接触干扰作物面积的重新调整
                         validPointerId = event.getPointerId(event.getActionIndex());
                         motionHighlightView.setMode((edge == HighlightView.MOVE)
                                 ? HighlightView.ModifyMode.Move
@@ -124,9 +132,8 @@ public class CropImageView extends ImageViewTouchBase {
                     lastX = event.getX();
                     lastY = event.getY();
                 }
-
-                // If we're not zoomed then there's no point in even allowing the user to move the image around.
-                // This call to center puts it back to the normalized location.
+                // 如果我们没有缩放，那么即使允许用户移动图像也没有意义。
+                // 把它放回到标准化的位置。
                 if (getScale() == 1F) {
                     center();
                 }
@@ -136,7 +143,11 @@ public class CropImageView extends ImageViewTouchBase {
         return true;
     }
 
-    // Pan the displayed image to make sure the cropping rectangle is visible.
+    /**
+     * Pan the displayed image to make sure the cropping rectangle is visible.
+     *
+     * @param hv
+     */
     private void ensureVisible(HighlightView hv) {
         Rect r = hv.drawRect;
 
@@ -154,8 +165,11 @@ public class CropImageView extends ImageViewTouchBase {
         }
     }
 
-    // If the cropping rectangle's size changed significantly, change the
-    // view's center and scale according to the cropping rectangle.
+    /**
+     * 如果裁剪的矩形的大小发生了很大的变化，改变根据裁剪的矩形，视图的中心和刻度。
+     *
+     * @param hv
+     */
     private void centerBasedOnHighlightView(HighlightView hv) {
         Rect drawRect = hv.drawRect;
 

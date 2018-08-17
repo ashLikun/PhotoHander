@@ -17,14 +17,13 @@ allprojects {
 
 ```gradle
 dependencies {
-    compile 'com.github.ashLikun:OkHttpUtils:{latest version}'
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    implementation 'com.github.ashLikun:PhotoHander:{latest version}'
 }
-
-## 权限
-    - READ_EXTERNAL_STORAGE
-    - WRITE_EXTERNAL_STORAGE
+```
     - CAMERA
 ## 鲁班压缩算法
+
 ### 判断图片比例值，是否处于以下区间内；
     [1, 0.5625) 即图片处于 [1:1 ~ 9:16) 比例范围内
     [0.5625, 0.5) 即图片处于 [9:16 ~ 1:2) 比例范围内
@@ -57,11 +56,11 @@ dependencies {
 ### 效果与对比
 |       方式      |      原图      |    Luban     |    Wechat   |
 |-----------------|---------------|---------------|-------------|
-|截屏 720P|720*1280,390k|720*1280,87k|720*1280,56k|
-|截屏 1080P|1080*1920,2.21M|1080*1920,104k|1080*1920,112k|
-|拍照 13M(4:3)|3096*4128,3.12M|1548*2064,141k|1548*2064,147k|
-|拍照 9.6M(16:9)|4128*2322,4.64M|1032*581,97k|1032*581,74k|
-|滚动截屏 1080*6433|1080*6433,1.56M|1080*6433,351k|1080*6433,482k|
+|截屏 720P        |720x1280,390k  |720x1280,87k   |720x1280,56k  |
+|截屏 1080P       |1080x1920,2.21M|1080x1920,104k |1080x1920,112k|
+|拍照 13M(4:3)    |3096x4128,3.12M|1548x2064,141k |1548x2064,147k|
+|拍照 9.6M(16:9)  |4128x2322,4.64M|1032x581,97k   |1032x581,74k  |
+|滚动截屏 1080x6433|1080x6433,1.56M|1080x6433,351k|1080x6433,482k|
 
 ## 截图
 ![image1](art/image1.png) ![image2](art/image2.png) ![image3](art/image3.png) ![image4](art/image4.png)
@@ -81,6 +80,7 @@ dependencies {
                 android:configChanges="orientation|screenSize"
                 android:label="图片裁剪" />
 ####    Java代码
+```java
             PhotoHander selector = PhotoHander.create();
             selector.showCamera(showCamera);
             selector.count(maxNum);
@@ -105,6 +105,7 @@ dependencies {
                     }
                 }
             }
+```
 ####    依赖
             compile 'com.github.bumptech.glide:glide:3.7.0'
             //rxjava

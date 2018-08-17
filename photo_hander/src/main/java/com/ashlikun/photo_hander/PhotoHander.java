@@ -4,10 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.util.SparseArray;
 
+import com.ashlikun.photo_hander.bean.ImageSelectData;
 import com.ashlikun.photo_hander.compress.Luban;
-import com.ashlikun.photo_hander.crop.Crop;
 
 import java.util.ArrayList;
 
@@ -20,129 +19,200 @@ import java.util.ArrayList;
  */
 
 public class PhotoHander {
-    private Intent intent;
-    public static final String EXTRA_RESULT = PhotoHanderActivity.EXTRA_RESULT;
-    //未压缩的图片与原图的对应关系
-    private SparseArray<String> mRelationMap = new SparseArray();
-    private ArrayList<String> mOriginData;
-    private static PhotoHander sSelector;
+    /**
+     * 已经选择的数据
+     */
+    private ArrayList<ImageSelectData> mOriginData;
+    /**
+     * 配置参数
+     */
+    private PhotoOptionData optionData;
 
 
     private PhotoHander() {
-    }
-
-    public SparseArray<String> getmRelationMap() {
-        return mRelationMap;
+        optionData = new PhotoOptionData();
     }
 
     public static PhotoHander create() {
-        if (sSelector == null) {
-            sSelector = new PhotoHander();
-        }
-        sSelector.intent = new Intent();
-        return sSelector;
+        //返回一个实例
+        return new PhotoHander();
     }
 
-    //是否显示摄像头
+    /**
+     * 是否显示摄像头
+     *
+     * @param mShowCamera
+     * @return
+     */
     public PhotoHander showCamera(boolean mShowCamera) {
-        intent.putExtra(PhotoHanderActivity.EXTRA_SHOW_CAMERA, mShowCamera);
-        return sSelector;
+        optionData.isShowCamera = mShowCamera;
+        return this;
     }
 
-    //最大多少张
+    /**
+     * 最大多少张
+     *
+     * @param count
+     * @return
+     */
     public PhotoHander count(int count) {
-        intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_COUNT, count);
-        return sSelector;
+        optionData.mDefaultCount = count;
+        return this;
     }
 
-    //单选
+    /**
+     * 单选
+     *
+     * @return
+     */
     public PhotoHander single() {
-        intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_MODE, PhotoHanderActivity.MODE_SINGLE);
-        return sSelector;
+        optionData.selectMode = PhotoOptionData.MODE_SINGLE;
+        return this;
     }
 
-    //多选
+    /**
+     * 多选
+     *
+     * @return
+     */
     public PhotoHander multi() {
-        intent.putExtra(PhotoHanderActivity.EXTRA_SELECT_MODE, PhotoHanderActivity.MODE_MULTI);
-        return sSelector;
+        optionData.selectMode = PhotoOptionData.MODE_MULTI;
+        return this;
     }
 
-    //已选
-    public PhotoHander origin(ArrayList<String> images) {
+    /**
+     * 已选
+     *
+     * @param images
+     * @return
+     */
+    public PhotoHander origin(ArrayList<ImageSelectData> images) {
         mOriginData = images;
-        return sSelector;
+        return this;
     }
 
-    //压缩
+    /**
+     * 压缩
+     *
+     * @param isCompress
+     * @return
+     */
     public PhotoHander compress(boolean isCompress) {
-        intent.putExtra(PhotoHanderActivity.EXTRA_IS_COMPRESS, isCompress);
-        return sSelector;
+        optionData.isCompress = isCompress;
+        return this;
     }
 
-    //压缩等级  高
+    /**
+     * 压缩等级  高
+     *
+     * @return
+     */
     public PhotoHander compressRankThird() {
-        intent.putExtra(PhotoHanderActivity.EXTRA_COMPRESS_RANK, Luban.THIRD_GEAR);
-        return sSelector;
+        optionData.compressRank = Luban.THIRD_GEAR;
+        return this;
     }
 
-    //压缩等级 低
+    /**
+     * 压缩等级 低
+     *
+     * @return
+     */
     public PhotoHander compressRankFirst() {
-        intent.putExtra(PhotoHanderActivity.EXTRA_COMPRESS_RANK, Luban.FIRST_GEAR);
-        return sSelector;
+        optionData.compressRank = Luban.FIRST_GEAR;
+        return this;
     }
 
-    //裁剪
+    /**
+     * 裁剪
+     *
+     * @param isCrop
+     * @return
+     */
     public PhotoHander crop(boolean isCrop) {
-        intent.putExtra(PhotoHanderActivity.EXTRA_IS_CROP, isCrop);
-        return sSelector;
+        optionData.mIsCrop = isCrop;
+        return this;
     }
 
-    //裁剪
+    /**
+     * 裁剪框
+     *
+     * @param cropWidth
+     * @param cropHeight
+     * @return
+     */
     public PhotoHander crop(int cropWidth, int cropHeight) {
         crop(true);
-        intent.putExtra(PhotoHanderActivity.EXTRA_CROP_WIDTH, cropWidth);
-        intent.putExtra(PhotoHanderActivity.EXTRA_CROP_HEIGHT, cropHeight);
-        return sSelector;
+        optionData.cropWidth = cropWidth;
+        optionData.cropHeight = cropHeight;
+        return this;
     }
 
-    //裁剪圆形
+    /**
+     * 裁剪框圆形
+     *
+     * @param showCircle
+     * @return
+     */
     public PhotoHander cropCircle(boolean showCircle) {
-        intent.putExtra(Crop.Extra.CROP_CIRCLE, showCircle);
-        return sSelector;
+        crop(true);
+        optionData.cropShowCircle = showCircle;
+        return this;
     }
 
-    //裁剪框颜色
+    /**
+     * 裁剪框颜色
+     *
+     * @param color
+     * @return
+     */
     public PhotoHander color(int color) {
-        intent.putExtra(Crop.Extra.COLOR, color);
-        return sSelector;
+        optionData.cropColor = color;
+        return this;
     }
 
-
-    //开启
+    /**
+     * 开启
+     *
+     * @param activity
+     * @param requestCode
+     */
     public void start(Activity activity, int requestCode) {
         final Context context = activity;
         activity.startActivityForResult(createIntent(context), requestCode);
-        intent = null;
     }
 
+    /**
+     * 开启
+     *
+     * @param fragment
+     * @param requestCode
+     */
     public void start(Fragment fragment, int requestCode) {
         final Context context = fragment.getContext();
         fragment.startActivityForResult(createIntent(context), requestCode);
-        intent = null;
     }
 
     private Intent createIntent(Context context) {
+        Intent intent = new Intent();
         intent.setClass(context, PhotoHanderActivity.class);
-        if (mOriginData != null) {
-            intent.putStringArrayListExtra(PhotoHanderActivity.EXTRA_DEFAULT_SELECTED_LIST, mOriginData);
+        //只有多选才会有原始数据
+        if (optionData.isModeMulti() && mOriginData != null) {
+            intent.putParcelableArrayListExtra(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, mOriginData);
         }
-
+        intent.putExtra(IntentKey.EXTRA_OPTION_DATA, optionData);
+        optionData = null;
+        mOriginData = null;
         return intent;
     }
 
-    //获取照片选择后的地址
-    public static ArrayList<String> getIntentResult(Intent data) {
-        return data.getStringArrayListExtra(PhotoHander.EXTRA_RESULT);
+    /**
+     * 获取照片选择后的地址
+     *
+     * @param data
+     * @return
+     */
+    public static ArrayList<ImageSelectData> getIntentResult(Intent data) {
+        return data.getParcelableArrayListExtra(IntentKey.EXTRA_RESULT);
     }
 
 }

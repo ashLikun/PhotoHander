@@ -5,14 +5,14 @@
 
     <include
         android:id="@+id/done_cancel_bar"
-        layout="@layout/crop__layout_done_cancel" />
+        layout="@layout/crop_layout_done_cancel" />
 
     <com.ashlikun.photo_hander.crop.CropImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/crop_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/done_cancel_bar"
-        android:background="@drawable/crop__texture"
-        app:highlightColor="?colorPrimary" />
+        android:background="@drawable/crop_texture"
+        app:highlightColor="?attr/colorPrimary" />
 
 </RelativeLayout>

@@ -7,8 +7,8 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.support.annotation.NonNull;
 
-import com.ashlikun.photo_hander.PhotoHander;
-import com.ashlikun.photo_hander.utils.FileUtils;
+import com.ashlikun.photo_hander.bean.ImageSelectData;
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -25,7 +25,6 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.ashlikun.photo_hander.compress.Preconditions.checkNotNull;
 
 /**
  * 作者　　: 李坤
@@ -70,6 +69,9 @@ public class Luban {
 
     public static final int FIRST_GEAR = 1;//1级压缩
     public static final int THIRD_GEAR = 3;//3级压缩
+    /**
+     * 缓存文件大于100个自动删除
+     */
     public static final int MAX_SAVE_FILS = 100;
 
     private static final String TAG = "Luban";
@@ -82,7 +84,7 @@ public class Luban {
     private OnCompressListener compressListener;
     private int gear = THIRD_GEAR;
     private ArrayList<String> mFiles = new ArrayList<>();
-    private ArrayList<String> compressFiles = new ArrayList<String>();
+    private ArrayList<ImageSelectData> compressFiles = new ArrayList<ImageSelectData>();
 
     private Luban(File cacheDir) {
         mCacheDir = cacheDir;
@@ -106,28 +108,32 @@ public class Luban {
 
 
     private static synchronized File getPhotoCacheDir(Context context) {
-        return FileUtils.getPhotoCacheDir(context, Luban.DEFAULT_DISK_CACHE_DIR);
+        return PhotoHanderUtils.getPhotoCacheDir(context, Luban.DEFAULT_DISK_CACHE_DIR);
     }
 
 
     public static Luban get(Context context) {
-        if (INSTANCE == null) INSTANCE = new Luban(Luban.getPhotoCacheDir(context));
+        if (INSTANCE == null) {
+            INSTANCE = new Luban(Luban.getPhotoCacheDir(context));
+        }
         return INSTANCE;
     }
 
     public Luban launch() {
 
-        //checkNotNull(mFile, "the image file cannot be null, please call .load() before this method!");
-        if (compressListener != null) compressListener.onStart();
+        if (compressListener != null) {
+            compressListener.onStart();
+        }
 
         Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> e) throws Exception {
+                deleteDir(mCacheDir);
                 compressFiles.clear();
                 for (String f : mFiles) {
                     File ff = compress(f);
                     if (ff != null && ff.exists()) {
-                        compressFiles.add(ff.getPath());
+                        compressFiles.add(new ImageSelectData(f, ff.getPath()));
                         int progress = mFiles.indexOf(f) + 1;
                         e.onNext(progress);
                     }
@@ -139,21 +145,25 @@ public class Luban {
                 .doOnError(new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) {
-                        if (compressListener != null) compressListener.onError(throwable);
+                        if (compressListener != null) {
+                            compressListener.onError(throwable);
+                        }
                     }
                 })
                 .doOnComplete(new Action() {
                     @Override
                     public void run() throws Exception {
-                        if (compressListener != null) compressListener.onSuccess(compressFiles);
-                        deleteDir(mCacheDir);
+                        if (compressListener != null) {
+                            compressListener.onSuccess(compressFiles);
+                        }
                     }
                 })
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(Integer progress) {
-                        if (compressListener != null)
+                        if (compressListener != null) {
                             compressListener.onLoading(progress, mFiles.size());
+                        }
                     }
                 });
 
@@ -167,26 +177,10 @@ public class Luban {
      * <p>
      * 方法功能：放入待压缩的图片文件集合
      */
-
-
     public Luban load(List<String> file) {
         mFiles.clear();
         mFiles.addAll(file);
         return this;
-    }
-
-    /**
-     * 作者　　: 李坤
-     * 创建时间: 2016/12/30 16:59
-     * <p>
-     * 方法功能：对照片处理 判断是否是之前已经是加密后的照片
-     */
-    public void filesHander(List<String> resultList) {
-        for (int i = 0; i < resultList.size(); i++) {
-            if (PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()) != null) {//是加密图片
-                resultList.set(i, PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()));
-            }
-        }
     }
 
 
@@ -205,7 +199,9 @@ public class Luban {
         try {
             //是否存在缓存
             File tempFile = getTempFile(file);
-            if (tempFile != null) return tempFile;
+            if (tempFile != null) {
+                return tempFile;
+            }
             File ff = new File(file);
             if (gear == Luban.THIRD_GEAR) {
 
@@ -226,28 +222,7 @@ public class Luban {
 
     }
 
-    public Observable<Integer> asObservable() {
-
-        return Observable.create(new ObservableOnSubscribe<Integer>() {
-            @Override
-            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
-                compressFiles.clear();
-                for (String f : mFiles) {
-                    File ff = compress(f);
-                    if (ff != null && ff.exists()) {
-                        compressFiles.add(ff.getPath());
-                        int progress = mFiles.indexOf(f) + 1;
-                        e.onNext(progress);
-                    }
-                }
-                e.onComplete();
-            }
-        });
-    }
-
     private File thirdCompress(@NonNull File file) {
-
-
         double size;//期望大小  kb
         String filePath = file.getAbsolutePath();
         int[] imgSize = getImageSize(filePath);
@@ -261,46 +236,59 @@ public class Luban {
         width = thumbW > thumbH ? thumbH : thumbW;
         height = thumbW > thumbH ? thumbW : thumbH;
 
-
-        double scale = ((double) width / height);//（1，0）
-
-        if (scale <= 1 && scale > 0.5625) {//即图片处于 [1:1 ~ 9:16) 比例范围内
+        //（1，0）
+        double scale = ((double) width / height);
+        //即图片处于 [1:1 ~ 9:16) 比例范围内
+        if (scale <= 1 && scale > 0.5625) {
             if (height < 1664) {
-                if (file.length() / 1024 < 100) return file;//文件大小小于100kb  就不压缩
+                if (file.length() / 1024 < 100) {
+                    //文件大小小于100kb  就不压缩
+                    return file;
+                }
 
                 size = (width * height) / Math.pow(1664, 2) * 100;
-                size = size < 60 ? 60 : size;//希望（60-100）kb
+                //希望（60-100）kb
+                size = size < 60 ? 60 : size;
             } else if (height < 4990) {
                 thumbW = width / 2;
                 thumbH = height / 2;
                 size = (thumbW * thumbH) / Math.pow(2495, 2) * 300;
-                size = size < 60 ? 60 : size;//希望（60-300）kb
+                //希望（60-300）kb
+                size = size < 60 ? 60 : size;
             } else if (height < 10240) {
                 thumbW = width / 4;
                 thumbH = height / 4;
                 size = (thumbW * thumbH) / Math.pow(2560, 2) * 300;
-                size = size < 100 ? 100 : size;//希望（100-300）kb
+                //希望（100-300）kb
+                size = size < 100 ? 100 : size;
             } else {
                 int multiple = height / 1280 == 0 ? 1 : height / 1280;
                 thumbW = width / multiple;
                 thumbH = height / multiple;
                 size = (thumbW * thumbH) / Math.pow(2560, 2) * 300;
-                size = size < 100 ? 100 : size;//希望（100-300）kb
+                //希望（100-300）kb
+                size = size < 100 ? 100 : size;
             }
-        } else if (scale <= 0.5625 && scale > 0.5) {//即图片处于 [9:16 ~ 1:2) 比例范围内
-            if (height < 1280 && file.length() / 1024 < 100) return file;//文件大小小于100kb  就不压缩
-
+        } else if (scale <= 0.5625 && scale > 0.5) {
+            //即图片处于 [9:16 ~ 1:2) 比例范围内
+            if (height < 1280 && file.length() / 1024 < 100) {
+                //文件大小小于100kb  就不压缩
+                return file;
+            }
             int multiple = height / 1280 == 0 ? 1 : height / 1280;
             thumbW = width / multiple;
             thumbH = height / multiple;
             size = (thumbW * thumbH) / (1440.0 * 2560.0) * 400;
-            size = size < 100 ? 100 : size;//希望（100-400）kb
-        } else {//即图片处于 [1:2 ~ 1:∞) 比例范围内
+            //希望（100-400）kb
+            size = size < 100 ? 100 : size;
+        } else {
+            //即图片处于 [1:2 ~ 1:∞) 比例范围内
             int multiple = (int) Math.ceil(height / (1280.0 / scale));
             thumbW = width / multiple;
             thumbH = height / multiple;
             size = ((thumbW * thumbH) / (1280.0 * (1280 / scale))) * 500;
-            size = size < 100 ? 100 : size;//希望（100-500）kb
+            //希望（100-500）kb
+            size = size < 100 ? 100 : size;
         }
 
         return compress(filePath, createTempFile(filePath), thumbW, thumbH, angle, (long) size);
@@ -347,9 +335,7 @@ public class Luban {
     }
 
     /**
-     * obtain the image's width and height
-     *
-     * @param imagePath the path of image
+     * 获取图片的宽高
      */
     public int[] getImageSize(String imagePath) {
         int[] res = new int[2];
@@ -366,11 +352,11 @@ public class Luban {
     }
 
     /**
-     * obtain the thumbnail that specify the size
+     * 按照指定的宽高压缩
      *
-     * @param imagePath the target image path
-     * @param width     the width of thumbnail
-     * @param height    the height of thumbnail
+     * @param imagePath 目标图片
+     * @param width     压缩宽度
+     * @param height    压缩高度
      * @return {@link Bitmap}
      */
     private Bitmap compress(String imagePath, int width, int height) {
@@ -411,9 +397,9 @@ public class Luban {
     }
 
     /**
-     * obtain the image rotation angle
+     * 获得图像旋转角度
      *
-     * @param path path of target image
+     * @param path 目标文件路径
      */
     private int getImageSpinAngle(String path) {
         int degree = 0;
@@ -439,7 +425,6 @@ public class Luban {
 
     /**
      * 指定参数压缩图片
-     * create the thumbnail with the true rotate angle
      *
      * @param largeImagePath the big image path
      * @param thumbFilePath  the thumbnail path
@@ -481,18 +466,14 @@ public class Luban {
      * @param size     the file size of image   期望大小
      */
     private File saveImage(String filePath, Bitmap bitmap, long size) {
-        checkNotNull(bitmap, TAG + "bitmap cannot be null");
-        if (filePath == null) {
+        if (filePath == null || bitmap == null) {
             return null;
         }
-
-//        File result = new File(filePath.substring(0, filePath.lastIndexOf("/")));
-//
-//        if (!result.exists() && !result.mkdirs()) return null;
-
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        int options = 100;//图片质量
-        bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);//压缩图片
+        //图片质量
+        int options = 100;
+        //压缩图片
+        bitmap.compress(Bitmap.CompressFormat.JPEG, options, stream);
         while (stream.toByteArray().length / 1024.0 > size && options > 6) {
             stream.reset();
             options -= 6;
@@ -514,7 +495,7 @@ public class Luban {
 
     public String createTempFile(String orginFile) {
         try {
-            File file = new File(mCacheDir, Math.abs(orginFile.hashCode()) + FileUtils.getFileSuffix(orginFile));
+            File file = new File(mCacheDir, Math.abs(orginFile.hashCode()) + PhotoHanderUtils.getFileSuffix(orginFile));
             file.createNewFile();
             return file.getAbsolutePath();
         } catch (IOException e) {
@@ -529,7 +510,7 @@ public class Luban {
 
     public File getTempFile(String orginFile) {
         String tempPath = mCacheDir.getAbsolutePath() + File.separator +
-                Math.abs(orginFile.hashCode()) + FileUtils.getFileSuffix(orginFile);
+                Math.abs(orginFile.hashCode()) + PhotoHanderUtils.getFileSuffix(orginFile);
         File file = new File(tempPath);
         if (file.exists()) {
             return file;

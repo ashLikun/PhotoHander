@@ -34,28 +34,36 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/*
- * Modified from original in AOSP.
+/**
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 16:15
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：裁剪的工具
  */
+
 class CropUtil {
 
     private static final String SCHEME_FILE = "file";
     private static final String SCHEME_CONTENT = "content";
 
     public static void closeSilently(@Nullable Closeable c) {
-        if (c == null) return;
+        if (c == null) {
+            return;
+        }
         try {
             c.close();
         } catch (Throwable t) {
-            // Do nothing
         }
     }
 
     public static int getExifRotation(File imageFile) {
-        if (imageFile == null) return 0;
+        if (imageFile == null) {
+            return 0;
+        }
         try {
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-            // We only recognize a subset of orientation tag values
+            // 我们只识别了方向标签值的一个子集
             switch (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     return 90;
@@ -73,7 +81,9 @@ class CropUtil {
     }
 
     public static boolean copyExifRotation(File sourceFile, File destFile) {
-        if (sourceFile == null || destFile == null) return false;
+        if (sourceFile == null || destFile == null) {
+            return false;
+        }
         try {
             ExifInterface exifSource = new ExifInterface(sourceFile.getAbsolutePath());
             ExifInterface exifDest = new ExifInterface(destFile.getAbsolutePath());
@@ -88,7 +98,9 @@ class CropUtil {
 
     @Nullable
     public static File getFromMediaUri(Context context, ContentResolver resolver, Uri uri) {
-        if (uri == null) return null;
+        if (uri == null) {
+            return null;
+        }
 
         if (SCHEME_FILE.equals(uri.getScheme())) {
             return new File(uri.getPath());
@@ -110,12 +122,14 @@ class CropUtil {
                     }
                 }
             } catch (IllegalArgumentException e) {
-                // Google Drive images
+                // Google Drive图片
                 return getFromMediaUriPfd(context, resolver, uri);
             } catch (SecurityException ignored) {
-                // Nothing we can do
+                // 什么我们可以做的
             } finally {
-                if (cursor != null) cursor.close();
+                if (cursor != null) {
+                    cursor.close();
+                }
             }
         }
         return null;
@@ -129,7 +143,9 @@ class CropUtil {
 
     @Nullable
     private static File getFromMediaUriPfd(Context context, ContentResolver resolver, Uri uri) {
-        if (uri == null) return null;
+        if (uri == null) {
+            return null;
+        }
 
         FileInputStream input = null;
         FileOutputStream output = null;
@@ -148,15 +164,13 @@ class CropUtil {
             }
             return new File(tempFilename);
         } catch (IOException ignored) {
-            // Nothing we can do
+            // 什么我们可以做的
         } finally {
             closeSilently(input);
             closeSilently(output);
         }
         return null;
     }
-
-
 
 
 }

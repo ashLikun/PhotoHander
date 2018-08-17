@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2007 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.ashlikun.photo_hander.crop;
 
 import android.annotation.SuppressLint;
@@ -33,14 +17,14 @@ import android.view.View;
 
 import com.ashlikun.photo_hander.R;
 
-/*
- * Modified from version in AOSP.
- *
- * This class is used to display a highlighted cropping rectangle
- * overlayed on the image. There are two coordinate spaces in use. One is
- * image, another is screen. computeLayout() uses matrix to map from image
- * space to screen space.
+/**
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 16:16
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：裁剪边框的一些view抽离的代码
  */
+
 class HighlightView {
 
     public static final int GROW_NONE = (1 << 0);
@@ -58,16 +42,25 @@ class HighlightView {
 
     enum HandleMode {Changing, Always, Never}
 
-    RectF cropRect; // Image space
-    Rect drawRect; // Screen space
+    /**
+     * 裁剪大小
+     */
+    RectF cropRect;
+    /**
+     * 绘制的区域大小
+     */
+    Rect drawRect;
     Matrix matrix;
-    private RectF imageRect; // Image space
+    /**
+     * 图像大小
+     */
+    private RectF imageRect;
 
     private final Paint outsidePaint = new Paint();
     private final Paint outlinePaint = new Paint();
     private final Paint handlePaint = new Paint();
 
-    private View viewContext; // View displaying image
+    private View viewContext;
     private boolean showThirds;
     private boolean showCircle;
     private int highlightColor;
@@ -173,8 +166,8 @@ class HighlightView {
         }
     }
 
-    /*
-     * Fall back to naive method for darkening outside crop area
+    /**
+     * 退回到幼稚的方法来让作物区域变暗
      */
     private void drawOutsideFallback(Canvas canvas) {
         canvas.drawRect(0, 0, canvas.getWidth(), drawRect.top, outsidePaint);
@@ -183,10 +176,8 @@ class HighlightView {
         canvas.drawRect(drawRect.right, drawRect.top, canvas.getWidth(), drawRect.bottom, outsidePaint);
     }
 
-    /*
-     * Clip path is broken, unreliable or not supported on:
-     * - JellyBean MR1
-     * - ICS & ICS MR1 with hardware acceleration turned on
+    /**
+     * 与硬件加速有关
      */
     @SuppressLint("NewApi")
     private boolean isClipPathSupported(Canvas canvas) {
@@ -237,20 +228,25 @@ class HighlightView {
         }
     }
 
-    // Determines which edges are hit by touching at (x, y)
+    /**
+     * 这个触摸点是否在边框上
+     *
+     * @param x
+     * @param y
+     * @return
+     */
     public int getHit(float x, float y) {
         Rect r = computeLayout();
         final float hysteresis = 20F;
         int retval = GROW_NONE;
 
-        // verticalCheck makes sure the position is between the top and
-        // the bottom edge (with some tolerance). Similar for horizCheck.
+        // verticalCheck确保位置位于顶部和底部之间（具有一定的公差）。horizCheck相似。
         boolean verticalCheck = (y >= r.top - hysteresis)
                 && (y < r.bottom + hysteresis);
         boolean horizCheck = (x >= r.left - hysteresis)
                 && (x < r.right + hysteresis);
 
-        // Check whether the position is near some edge(s)
+        // 检查这个位置是否接近某个边缘（s）
         if ((Math.abs(r.left - x) < hysteresis) && verticalCheck) {
             retval |= GROW_LEFT_EDGE;
         }
@@ -264,19 +260,24 @@ class HighlightView {
             retval |= GROW_BOTTOM_EDGE;
         }
 
-        // Not near any edge but inside the rectangle: move
+        // 不是在任何边缘，而是在矩形内部：移动
         if (retval == GROW_NONE && r.contains((int) x, (int) y)) {
             retval = MOVE;
         }
         return retval;
     }
 
-    // Handles motion (dx, dy) in screen space.
-    // The "edge" parameter specifies which edges the user is dragging.
+    /**
+     * 在屏幕空间中处理动作（dx，dy）。“edge”参数指定用户拖动的边。
+     *
+     * @param edge
+     * @param dx
+     * @param dy
+     */
     void handleMotion(int edge, float dx, float dy) {
         Rect r = computeLayout();
         if (edge == MOVE) {
-            // Convert to image space before sending to moveBy()
+            // 在发送到moveBy（）之前转换成图像空间
             moveBy(dx * (cropRect.width() / r.width()),
                     dy * (cropRect.height() / r.height()));
         } else {
@@ -288,7 +289,7 @@ class HighlightView {
                 dy = 0;
             }
 
-            // Convert to image space before sending to growBy()
+            // 在发送到growBy（）之前，转换成图像空间
             float xDelta = dx * (cropRect.width() / r.width());
             float yDelta = dy * (cropRect.height() / r.height());
             growBy((((edge & GROW_LEFT_EDGE) != 0) ? -1 : 1) * xDelta,
@@ -296,13 +297,18 @@ class HighlightView {
         }
     }
 
-    // Grows the cropping rectangle by (dx, dy) in image space
+    /**
+     * 在图像空间中增加（dx，dy）的裁剪矩形
+     *
+     * @param dx
+     * @param dy
+     */
     void moveBy(float dx, float dy) {
         Rect invalRect = new Rect(drawRect);
 
         cropRect.offset(dx, dy);
 
-        // Put the cropping rectangle inside image rectangle
+        // 将裁剪矩形放入图像矩形中
         cropRect.offset(
                 Math.max(0, imageRect.left - cropRect.left),
                 Math.max(0, imageRect.top - cropRect.top));
@@ -317,7 +323,12 @@ class HighlightView {
         viewContext.invalidate(invalRect);
     }
 
-    // Grows the cropping rectangle by (dx, dy) in image space.
+    /**
+     * 在图像空间中增加（dx，dy）的裁剪矩形。
+     *
+     * @param dx
+     * @param dy
+     */
     void growBy(float dx, float dy) {
         if (maintainAspectRatio) {
             if (dx != 0) {
@@ -327,9 +338,9 @@ class HighlightView {
             }
         }
 
-        // Don't let the cropping rectangle grow too fast.
-        // Grow at most half of the difference between the image rectangle and
-        // the cropping rectangle.
+        // 不要让种植的长方形长得太快。
+        //在图像矩形和图像矩形之间的差异的一半
+        //裁剪矩形。
         RectF r = new RectF(cropRect);
         if (dx > 0F && r.width() + 2 * dx > imageRect.width()) {
             dx = (imageRect.width() - r.width()) / 2F;
@@ -346,7 +357,7 @@ class HighlightView {
 
         r.inset(-dx, -dy);
 
-        // Don't let the cropping rectangle shrink too fast
+        // 不要让裁剪的矩形收缩得太快
         final float widthCap = 25F;
         if (r.width() < widthCap) {
             r.inset(-(widthCap - r.width()) / 2F, 0F);
@@ -358,7 +369,7 @@ class HighlightView {
             r.inset(0F, -(heightCap - r.height()) / 2F);
         }
 
-        // Put the cropping rectangle inside the image rectangle
+        //把裁剪的矩形放在图像矩形中
         if (r.left < imageRect.left) {
             r.offset(imageRect.left - r.left, 0F);
         } else if (r.right > imageRect.right) {
@@ -375,13 +386,22 @@ class HighlightView {
         viewContext.invalidate();
     }
 
-    // Returns the cropping rectangle in image space with specified scale
+    /**
+     * 在图像空间中以指定的比例返回裁剪矩形
+     *
+     * @param scale
+     * @return
+     */
     public Rect getScaledCropRect(float scale) {
         return new Rect((int) (cropRect.left * scale), (int) (cropRect.top * scale),
                 (int) (cropRect.right * scale), (int) (cropRect.bottom * scale));
     }
 
-    // Maps the cropping rectangle from image space to screen space
+    /**
+     * 将裁剪矩形从图像空间映射到屏幕空间
+     *
+     * @return
+     */
     private Rect computeLayout() {
         RectF r = new RectF(cropRect.left, cropRect.top,
                 cropRect.right, cropRect.bottom);

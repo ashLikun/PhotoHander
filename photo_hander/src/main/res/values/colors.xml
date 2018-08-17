@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="mis_actionbar_color">#21282C</color>
-    <color name="crop__button_bar">#f3f3f3</color>
-    <color name="crop__button_text">#666666</color>
-    <color name="crop__selector_pressed">#1a000000</color>
-    <color name="crop__selector_focused">#77000000</color>
+    <color name="crop_background_color">#f3f3f3</color>
+    <color name="crop_text_color">#666666</color>
+    <color name="crop_selector_pressed">#1a000000</color>
+    <color name="crop_selector_focused">#77000000</color>
+    <!--分割线颜色-->
+    <color name="mis_space_color">#000000</color>
+    <!--顶部发送的字体颜色-->
+    <color name="mis_ok_text_color_no">#337523</color>
+    <color name="mis_ok_text_color">#44BF1A</color>
+    <!--照片查看底部小的RecycleView选中颜色-->
+    <color name="mis_minirecycle_select_color">#44BF1A</color>
+    <!--照片查看底部的线条-->
+    <color name="mis_lookphoto_bottom_line">#666666</color>
 </resources>

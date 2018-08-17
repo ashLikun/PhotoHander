@@ -19,9 +19,14 @@ package com.ashlikun.photo_hander.crop;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
-/*
- * Modified from original in AOSP.
+/**
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 16:17
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：旋转图片用的
  */
+
 class RotateBitmap {
 
     private Bitmap bitmap;
@@ -49,12 +54,12 @@ class RotateBitmap {
     }
 
     public Matrix getRotateMatrix() {
-        // By default this is an identity matrix
+        // 默认情况下，这是一个单位矩阵
         Matrix matrix = new Matrix();
         if (bitmap != null && rotation != 0) {
-            // We want to do the rotation at origin, but since the bounding
-            // rectangle will be changed after rotation, so the delta values
-            // are based on old & new width/height respectively.
+            // 我们想要在原点处进行旋转，但是从边界开始
+            //矩形会在旋转后改变，所以delta值
+            //分别基于旧的和新的高度/高度。
             int cx = bitmap.getWidth() / 2;
             int cy = bitmap.getHeight() / 2;
             matrix.preTranslate(-cx, -cy);
@@ -69,7 +74,9 @@ class RotateBitmap {
     }
 
     public int getHeight() {
-        if (bitmap == null) return 0;
+        if (bitmap == null) {
+            return 0;
+        }
         if (isOrientationChanged()) {
             return bitmap.getWidth();
         } else {
@@ -78,7 +85,9 @@ class RotateBitmap {
     }
 
     public int getWidth() {
-        if (bitmap == null) return 0;
+        if (bitmap == null) {
+            return 0;
+        }
         if (isOrientationChanged()) {
             return bitmap.getHeight();
         } else {

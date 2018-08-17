@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2009 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.ashlikun.photo_hander.crop;
 
 import android.content.Context;
@@ -26,37 +10,46 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.widget.ImageView;
 
-/*
- * Modified from original in AOSP.
+/**
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 16:16
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：裁剪view父类
  */
+
 abstract class ImageViewTouchBase extends ImageView {
 
     private static final float SCALE_RATE = 1.25F;
 
-    // This is the base transformation which is used to show the image
-    // initially.  The current computation for this shows the image in
-    // it's entirety, letterboxing as needed.  One could choose to
-    // show the image as cropped instead.
-    //
-    // This matrix is recomputed when we go from the thumbnail image to
-    // the full size image.
+    /**
+     * 这是基本的转换，用于显示最初的图像。当前的计算显示了完整的图像，需要的字母。
+     * 你可以选择将图片显示为裁剪。当我们从缩略图到全尺寸图像时，这个矩阵被重新计算。
+     */
     protected Matrix baseMatrix = new Matrix();
 
-    // This is the supplementary transformation which reflects what
-    // the user has done in terms of zooming and panning.
-    //
-    // This matrix remains the same when we go from the thumbnail image
-    // to the full size image.
+    /**
+     * 这是一个补充变换反映了什么
+     * 用户已经完成了缩放和平移操作。
+     * 当我们从缩略图图像开始时这个矩阵仍然是一样的
+     * 全尺寸的图像。
+     */
     protected Matrix suppMatrix = new Matrix();
 
-    // This is the final matrix which is computed as the concatentation
-    // of the base matrix and the supplementary matrix.
+    /**
+     * 这是最终的矩阵它被计算为共结
+     * 基本矩阵和补充矩阵的基础。
+     */
     private final Matrix displayMatrix = new Matrix();
 
-    // Temporary buffer used for getting the values out of a matrix.
+    /**
+     * 用于从矩阵中获取值的临时缓冲区。
+     */
     private final float[] matrixValues = new float[9];
 
-    // The current bitmap being displayed.
+    /**
+     * 当前位图显示。
+     */
     protected final RotateBitmap bitmapDisplayed = new RotateBitmap(null, 0);
 
     int thisWidth = -1;
@@ -68,8 +61,10 @@ abstract class ImageViewTouchBase extends ImageView {
 
     protected Handler handler = new Handler();
 
-    // ImageViewTouchBase will pass a Bitmap to the Recycler if it has finished
-    // its use of that Bitmap
+    /**
+     * ImageViewTouchBase会将位图传递给回收者，如果它已经完成了
+     * 它对位图的使用
+     */
     public interface Recycler {
         public void recycle(Bitmap b);
     }
@@ -124,8 +119,7 @@ abstract class ImageViewTouchBase extends ImageView {
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.isTracking() && !event.isCanceled()) {
             if (getScale() > 1.0f) {
-                // If we're zoomed in, pressing Back jumps out to show the
-                // entire image, otherwise Back returns the user to the gallery
+                // 如果我们放大，按下跳来显示整个图像，否则返回给用户
                 zoomTo(1.0f);
                 return true;
             }
@@ -159,8 +153,13 @@ abstract class ImageViewTouchBase extends ImageView {
     }
 
 
-    // This function changes bitmap, reset base matrix according to the size
-    // of the bitmap, and optionally reset the supplementary matrix
+    /**
+     * 这个函数改变位图，根据大小重置基本矩阵
+     * 位图，并可选地重置补充矩阵
+     *
+     * @param bitmap
+     * @param resetSupp
+     */
     public void setImageBitmapResetBase(final Bitmap bitmap, final boolean resetSupp) {
         setImageRotateBitmapResetBase(new RotateBitmap(bitmap, 0), resetSupp);
     }
@@ -168,8 +167,9 @@ abstract class ImageViewTouchBase extends ImageView {
     public void setImageRotateBitmapResetBase(final RotateBitmap bitmap, final boolean resetSupp) {
         final int viewWidth = getWidth();
 
-        if (viewWidth <= 0)  {
+        if (viewWidth <= 0) {
             onLayoutRunnable = new Runnable() {
+                @Override
                 public void run() {
                     setImageRotateBitmapResetBase(bitmap, resetSupp);
                 }
@@ -192,9 +192,10 @@ abstract class ImageViewTouchBase extends ImageView {
         maxZoom = calculateMaxZoom();
     }
 
-    // Center as much as possible in one or both axis.  Centering is defined as follows:
-    // * If the image is scaled down below the view's dimensions then center it.
-    // * If the image is scaled larger than the view and is translated out of view then translate it back into view.
+    /**
+     * 在一个或两个轴上尽可能多的中心。如果图像在视图的维度下缩放，那么中心就会被定义为如下所示。
+     * 如果图像比视图放大，并被翻译成视图，然后将其转换回视图。
+     */
     protected void center() {
         final Bitmap bitmap = bitmapDisplayed.getBitmap();
         if (bitmap == null) {
@@ -206,7 +207,7 @@ abstract class ImageViewTouchBase extends ImageView {
         m.mapRect(rect);
 
         float height = rect.height();
-        float width  = rect.width();
+        float width = rect.width();
 
         float deltaX = 0, deltaY = 0;
 
@@ -250,7 +251,12 @@ abstract class ImageViewTouchBase extends ImageView {
         return matrixValues[whichValue];
     }
 
-    // Get the scale factor out of the matrix.
+    /**
+     * 从矩阵中得到比例因子。
+     *
+     * @param matrix
+     * @return
+     */
     protected float getScale(Matrix matrix) {
         return getValue(matrix, Matrix.MSCALE_X);
     }
@@ -259,7 +265,13 @@ abstract class ImageViewTouchBase extends ImageView {
         return getScale(suppMatrix);
     }
 
-    // Setup the base matrix so that the image is centered and scaled properly.
+    /**
+     * 设置基本矩阵，使图像居中并适当缩放。
+     *
+     * @param bitmap
+     * @param matrix
+     * @param includeRotation
+     */
     private void getProperBaseMatrix(RotateBitmap bitmap, Matrix matrix, boolean includeRotation) {
         float viewWidth = getWidth();
         float viewHeight = getHeight();
@@ -268,7 +280,9 @@ abstract class ImageViewTouchBase extends ImageView {
         float h = bitmap.getHeight();
         matrix.reset();
 
-        // We limit up-scaling to 3x otherwise the result may look bad if it's a small icon
+        /**
+         * 我们将缩放比例限制为3x否则结果可能看起来很糟糕如果它是一个小图标
+         */
         float widthScale = Math.min(viewWidth / w, 3.0f);
         float heightScale = Math.min(viewHeight / h, 3.0f);
         float scale = Math.min(widthScale, heightScale);
@@ -277,19 +291,23 @@ abstract class ImageViewTouchBase extends ImageView {
             matrix.postConcat(bitmap.getRotateMatrix());
         }
         matrix.postScale(scale, scale);
-        matrix.postTranslate((viewWidth  - w * scale) / 2F, (viewHeight - h * scale) / 2F);
+        matrix.postTranslate((viewWidth - w * scale) / 2F, (viewHeight - h * scale) / 2F);
     }
 
-    // Combine the base matrix and the supp matrix to make the final matrix
+    /**
+     * 将基本矩阵和supp矩阵组合成最终的矩阵
+     *
+     * @return
+     */
     protected Matrix getImageViewMatrix() {
-        // The final matrix is computed as the concatentation of the base matrix
-        // and the supplementary matrix
+        //最后的矩阵是根据基矩阵的表示来计算的
+        //和补充矩阵
         displayMatrix.set(baseMatrix);
         displayMatrix.postConcat(suppMatrix);
         return displayMatrix;
     }
 
-    public Matrix getUnrotatedMatrix(){
+    public Matrix getUnrotatedMatrix() {
         Matrix unrotated = new Matrix();
         getProperBaseMatrix(bitmapDisplayed, unrotated, false);
         unrotated.postConcat(suppMatrix);
@@ -301,9 +319,10 @@ abstract class ImageViewTouchBase extends ImageView {
             return 1F;
         }
 
-        float fw = (float) bitmapDisplayed.getWidth()  / (float) thisWidth;
+        float fw = (float) bitmapDisplayed.getWidth() / (float) thisWidth;
         float fh = (float) bitmapDisplayed.getHeight() / (float) thisHeight;
-        return Math.max(fw, fh) * 4; // 400%
+        // 400%
+        return Math.max(fw, fh) * 4;
     }
 
     protected void zoomTo(float scale, float centerX, float centerY) {
@@ -326,6 +345,7 @@ abstract class ImageViewTouchBase extends ImageView {
         final long startTime = System.currentTimeMillis();
 
         handler.post(new Runnable() {
+            @Override
             public void run() {
                 long now = System.currentTimeMillis();
                 float currentMs = Math.min(durationMs, now - startTime);
@@ -355,7 +375,8 @@ abstract class ImageViewTouchBase extends ImageView {
 
     protected void zoomIn(float rate) {
         if (getScale() >= maxZoom) {
-            return; // Don't let the user zoom into the molecular level
+            // 不要让用户放大到分子水平
+            return;
         }
         if (bitmapDisplayed.getBitmap() == null) {
             return;
@@ -376,7 +397,7 @@ abstract class ImageViewTouchBase extends ImageView {
         float cx = getWidth() / 2F;
         float cy = getHeight() / 2F;
 
-        // Zoom out to at most 1x
+        // 放大到最多1倍
         Matrix tmp = new Matrix(suppMatrix);
         tmp.postScale(1F / rate, 1F / rate, cx, cy);
 

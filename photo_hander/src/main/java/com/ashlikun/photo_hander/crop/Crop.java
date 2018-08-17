@@ -1,122 +1,125 @@
 package com.ashlikun.photo_hander.crop;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.ashlikun.photo_hander.R;
 
 /**
- * Builder for crop Intents and utils for handling result
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 13:49
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：裁剪的辅助类，设置一些参数然后启动
  */
+
 public class Crop {
 
     public static final int REQUEST_CROP = 6709;
     public static final int REQUEST_PICK = 9162;
     public static final int RESULT_ERROR = 404;
 
-    public interface Extra {
-        String ASPECT_X = "aspect_x";
-        String ASPECT_Y = "aspect_y";
-        String MAX_X = "max_x";
-        String MAX_Y = "max_y";
-        String AS_PNG = "as_png";
-        String COLOR = "color";
-        String CROP_CIRCLE = "show_circle";
-        String ERROR = "error";
-    }
-
-    private Intent cropIntent;
+    CropOptionData optionData;
 
     /**
-     * Create a crop Intent builder with source and destination image Uris
+     * 图像uri创建Crop
      *
-     * @param source      Uri for image to crop
-     * @param destination Uri for saving the cropped image
+     * @param source  原始图片
+     * @param saveUri 生成的图片
      */
-    public static Crop of(Uri source, Uri destination) {
-        return new Crop(source, destination);
+    public static Crop of(Uri source, Uri saveUri) {
+        return new Crop(source, saveUri);
     }
 
-    private Crop(Uri source, Uri destination) {
-        cropIntent = new Intent();
-        cropIntent.setData(source);
-        cropIntent.putExtra(MediaStore.EXTRA_OUTPUT, destination);
+    private Crop(Uri source, Uri saveUri) {
+        optionData = new CropOptionData();
+        optionData.source = source;
+        optionData.saveUri = saveUri;
     }
 
     /**
-     * Set fixed aspect ratio for crop area
+     * 裁剪框的宽高
      *
-     * @param x Aspect X
-     * @param y Aspect Y
+     * @param cropWidth  宽
+     * @param cropHeight 高
      */
-    public Crop withAspect(int x, int y) {
-        cropIntent.putExtra(Extra.ASPECT_X, x);
-        cropIntent.putExtra(Extra.ASPECT_Y, y);
+    public Crop withSize(int cropWidth, int cropHeight) {
+        optionData.cropWidth = cropWidth;
+        optionData.cropHeight = cropHeight;
         return this;
     }
 
     /**
-     * Crop area with fixed 1:1 aspect ratio
+     * 裁剪框的宽高1:1,就是正方形
      */
     public Crop asSquare() {
-        cropIntent.putExtra(Extra.ASPECT_X, 1);
-        cropIntent.putExtra(Extra.ASPECT_Y, 1);
+        withSize(1, 1);
         return this;
     }
 
     /**
-     * Set maximum crop size
+     * 设置生成的图片最大大小
      *
      * @param width  Max width
      * @param height Max height
      */
     public Crop withMaxSize(int width, int height) {
-        cropIntent.putExtra(Extra.MAX_X, width);
-        cropIntent.putExtra(Extra.MAX_Y, height);
+        optionData.outMaxWidth = width;
+        optionData.outMaxHeight = height;
         return this;
     }
 
     /**
-     * Set whether to save the result as a PNG or not. Helpful to preserve alpha.
+     * 生成png
      *
-     * @param asPng whether to save the result as a PNG or not
+     * @param asPng
      */
     public Crop asPng(boolean asPng) {
-        cropIntent.putExtra(Extra.AS_PNG, asPng);
-        return this;
-    }
-
-    public Crop color(int color) {
-        cropIntent.putExtra(Extra.COLOR, color);
-        return this;
-    }
-
-    public Crop showCircle(boolean showCircle) {
-        cropIntent.putExtra(Extra.CROP_CIRCLE, showCircle);
+        optionData.outAsPng = asPng;
         return this;
     }
 
     /**
-     * Send the crop Intent from an Activity
+     * 边框颜色
      *
-     * @param activity Activity to receive result
+     * @param color
+     * @return
+     */
+    public Crop color(int color) {
+        optionData.color = color;
+        return this;
+    }
+
+    /**
+     * 圆形裁剪
+     *
+     * @param showCircle
+     * @return
+     */
+    public Crop showCircle(boolean showCircle) {
+        optionData.showCircle = showCircle;
+        return this;
+    }
+
+    /**
+     * 开始启动裁剪界面
+     *
+     * @param activity
      */
     public void start(Activity activity) {
         start(activity, REQUEST_CROP);
     }
 
     /**
-     * Send the crop Intent from an Activity with a custom request code
+     * 开始启动裁剪界面
      *
-     * @param activity    Activity to receive result
+     * @param activity
      * @param requestCode requestCode for result
      */
     public void start(Activity activity, int requestCode) {
@@ -124,7 +127,7 @@ public class Crop {
     }
 
     /**
-     * Send the crop Intent from a Fragment
+     * 开始启动裁剪界面
      *
      * @param context  Context
      * @param fragment Fragment to receive result
@@ -134,7 +137,7 @@ public class Crop {
     }
 
     /**
-     * Send the crop Intent from a support library Fragment
+     * 开始启动裁剪界面
      *
      * @param context  Context
      * @param fragment Fragment to receive result
@@ -144,19 +147,18 @@ public class Crop {
     }
 
     /**
-     * Send the crop Intent with a custom request code
+     * 开始启动裁剪界面
      *
      * @param context     Context
      * @param fragment    Fragment to receive result
      * @param requestCode requestCode for result
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void start(Context context, Fragment fragment, int requestCode) {
         fragment.startActivityForResult(getIntent(context), requestCode);
     }
 
     /**
-     * Send the crop Intent with a custom request code
+     * 开始启动裁剪界面
      *
      * @param context     Context
      * @param fragment    Fragment to receive result
@@ -167,18 +169,19 @@ public class Crop {
     }
 
     /**
-     * Get Intent to start crop Activity
+     * 获取启动裁剪页面的意图
      *
      * @param context Context
      * @return Intent for CropImageActivity
      */
     public Intent getIntent(Context context) {
-        cropIntent.setClass(context, CropImageActivity.class);
+        Intent cropIntent = new Intent(context, CropImageActivity.class);
+        cropIntent.putExtra(IntentKey.EXTRA_OPTION_DATA, optionData);
         return cropIntent;
     }
 
     /**
-     * Retrieve URI for cropped image, as set in the Intent builder
+     * 获取返回的图片url
      *
      * @param result Output Image URI
      */
@@ -187,17 +190,17 @@ public class Crop {
     }
 
     /**
-     * Retrieve error that caused crop to fail
+     * 提供给其他界面获取错误信息
      *
      * @param result Result Intent
      * @return Throwable handled in CropImageActivity
      */
     public static Throwable getError(Intent result) {
-        return (Throwable) result.getSerializableExtra(Extra.ERROR);
+        return (Throwable) result.getSerializableExtra(IntentKey.EXTRA_ERROR);
     }
 
     /**
-     * Pick image from an Activity
+     * 从图库里面选择图片
      *
      * @param activity Activity to receive result
      */
@@ -206,7 +209,7 @@ public class Crop {
     }
 
     /**
-     * Pick image from a Fragment
+     * 从图库里面选择图片
      *
      * @param context  Context
      * @param fragment Fragment to receive result
@@ -216,7 +219,7 @@ public class Crop {
     }
 
     /**
-     * Pick image from a support library Fragment
+     * 从图库里面选择图片
      *
      * @param context  Context
      * @param fragment Fragment to receive result
@@ -226,7 +229,7 @@ public class Crop {
     }
 
     /**
-     * Pick image from an Activity with a custom request code
+     * 从图库里面选择图片
      *
      * @param activity    Activity to receive result
      * @param requestCode requestCode for result
@@ -240,13 +243,12 @@ public class Crop {
     }
 
     /**
-     * Pick image from a Fragment with a custom request code
+     * 从图库里面选择图片
      *
      * @param context     Context
      * @param fragment    Fragment to receive result
      * @param requestCode requestCode for result
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static void pickImage(Context context, Fragment fragment, int requestCode) {
         try {
             fragment.startActivityForResult(getImagePicker(), requestCode);
@@ -256,7 +258,7 @@ public class Crop {
     }
 
     /**
-     * Pick image from a support library Fragment with a custom request code
+     * 从图库里面选择图片
      *
      * @param context     Context
      * @param fragment    Fragment to receive result

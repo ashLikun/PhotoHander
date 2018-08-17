@@ -1,6 +1,5 @@
 package com.ashlikun.photo_hander.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Build;
@@ -11,19 +10,22 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.ashlikun.photo_hander.R;
 import com.ashlikun.photo_hander.bean.Image;
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 图片Adapter
- * Created by Nereo on 2015/4/7.
- * Updated by nereo on 2016/1/19.
+ * @author　　: 李坤
+ * 创建时间: 2018/8/15 13:19
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：显示图片Adapter
  */
 public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.ViewHolder> {
 
@@ -33,7 +35,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     private Context mContext;
 
     private LayoutInflater mInflater;
-    private boolean showCamera = true;
+    private boolean showCamera;
     private boolean showSelectIndicator = true;
 
     private List<Image> mImages = new ArrayList<>();
@@ -158,6 +160,14 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
                     onItemClickListener.onItemClick(v, getItem(position), position);
                 }
             });
+            if (holder.indicator != null) {
+                holder.indicator.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        onItemClickListener.onItemCheckClick(v, getItem(position), position);
+                    }
+                });
+            }
         }
     }
 
@@ -195,6 +205,14 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         this.onItemClickListener = onItemClickListener;
     }
 
+    public void setSelectDatas(ArrayList<Image> selectDatas) {
+        this.mSelectedImages = selectDatas;
+        if (mSelectedImages == null) {
+            mSelectedImages = new ArrayList<>();
+        }
+        notifyDataSetChanged();
+    }
+
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
@@ -217,22 +235,15 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
             // 处理单选和多选状态
             if (showSelectIndicator) {
                 indicator.setVisibility(View.VISIBLE);
-                if (mSelectedImages.contains(data)) {
-                    // 设置选中状态
-                    indicator.setImageResource(R.drawable.mis_btn_selected);
-                    mask.setVisibility(View.VISIBLE);
-                } else {
-                    // 未选择
-                    indicator.setImageResource(R.drawable.mis_btn_unselected);
-                    mask.setVisibility(View.GONE);
-                }
+                PhotoHanderUtils.setCheck(indicator, mSelectedImages.contains(data));
+                mask.setVisibility(mSelectedImages.contains(data) ? View.VISIBLE : View.GONE);
             } else {
                 indicator.setVisibility(View.GONE);
             }
             File imageFile = new File(data.path);
             if (imageFile.exists()) {
                 // 显示图片
-                Glide.with((Activity) mContext)
+                Glide.with(mContext)
                         .load(imageFile)
                         .apply(new RequestOptions().placeholder(R.drawable.mis_default_error)
                                 .override(mGridWidth, mGridWidth)
@@ -244,8 +255,31 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         }
     }
 
-    public interface OnItemClickListener {
+    public ArrayList<Image> getImages() {
+        return (ArrayList<Image>) mImages;
+    }
 
+    public ArrayList<Image> getSelectedImages() {
+        return (ArrayList<Image>) mSelectedImages;
+    }
+
+    public interface OnItemClickListener {
+        /**
+         * Check点击回掉
+         *
+         * @param view
+         * @param data
+         * @param position
+         */
+        void onItemCheckClick(View view, Image data, int position);
+
+        /**
+         * 整个Item点击回掉，用于查看图片
+         *
+         * @param view
+         * @param data
+         * @param position
+         */
         void onItemClick(View view, Image data, int position);
     }
 }

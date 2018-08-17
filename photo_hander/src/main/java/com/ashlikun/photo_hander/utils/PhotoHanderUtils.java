@@ -2,24 +2,79 @@ package com.ashlikun.photo_hander.utils;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
+import android.widget.ImageView;
+
+import com.ashlikun.photo_hander.R;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
 import static android.os.Environment.MEDIA_MOUNTED;
 
 /**
- * 文件操作类
- * Created by Nereo on 2015/4/8.
+ * 作者　　: 李坤
+ * 创建时间: 2018/8/16　18:07
+ * 邮箱　　：496546144@qq.com
+ * <p>
+ * 功能介绍：
  */
-public class FileUtils {
-
+public class PhotoHanderUtils {
     private static final String JPEG_FILE_PREFIX = "IMG_";
     private static final String JPEG_FILE_SUFFIX = ".jpg";
+
+    public static void setCheck(ImageView imageView, boolean isCheck) {
+        if (isCheck) {
+            // 设置选中状态
+            imageView.setImageResource(R.drawable.mis_btn_selected);
+            imageView.setColorFilter(imageView.getResources().getColor(R.color.mis_ok_text_color));
+        } else {
+            // 未选择
+            imageView.setImageResource(R.drawable.mis_btn_unselected);
+            imageView.setColorFilter(0xffffffff);
+        }
+    }
+
+    /**
+     * 作者　　: 李坤
+     * 创建时间: 2017/6/28 11:25
+     * <p>
+     * 方法功能：将dip或dp值转换为px值，保证尺寸大小不变
+     */
+
+    public static int dip2px(Context context, float dipValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dipValue * scale + 0.5f);
+    }
+
+    public static Point getScreenSize(Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point out = new Point();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            display.getSize(out);
+        } else {
+            int width = display.getWidth();
+            int height = display.getHeight();
+            out.set(width, height);
+        }
+        return out;
+    }
+
+    public static String timeFormat(long timeMillis, String pattern) {
+        SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.CHINA);
+        return format.format(new Date(timeMillis));
+    }
 
     public static File createTmpFile(Context context) throws IOException {
         return createTmpFile(context, "Camera");
@@ -97,7 +152,7 @@ public class FileUtils {
     }
 
     public static File getPhotoCacheDir(Context context, String cacheName) {
-        File cacheDir = FileUtils.getCacheDirectory(context, false);
+        File cacheDir = getCacheDirectory(context, false);
         if (cacheDir != null) {
             File result = new File(cacheDir, cacheName);
             if (!result.mkdirs() && (!result.exists() || !result.isDirectory())) {
@@ -184,5 +239,4 @@ public class FileUtils {
         }
         return res;
     }
-
 }

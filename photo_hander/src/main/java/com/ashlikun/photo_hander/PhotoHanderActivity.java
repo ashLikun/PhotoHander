@@ -5,31 +5,37 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ashlikun.photo_hander.bean.Image;
+import com.ashlikun.photo_hander.bean.ImageSelectData;
 import com.ashlikun.photo_hander.compress.Luban;
 import com.ashlikun.photo_hander.compress.OnCompressListener;
 import com.ashlikun.photo_hander.crop.Crop;
-import com.ashlikun.photo_hander.utils.FileUtils;
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
+import com.ashlikun.photoview.PhotoView;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
-import static com.ashlikun.photo_hander.crop.Crop.Extra.CROP_CIRCLE;
+import java.util.List;
 
 /**
  * 作者　　: 李坤
@@ -40,91 +46,58 @@ import static com.ashlikun.photo_hander.crop.Crop.Extra.CROP_CIRCLE;
  */
 
 public class PhotoHanderActivity extends AppCompatActivity
-        implements PhotoHanderFragment.Callback {
+        implements PhotoHanderFragment.Callback, PhotoLookFragment.OnCallback {
     protected static final int REQUEST_STORAGE_READ_ACCESS_PERMISSION = 101;
-    // 单选模式
-    public static final int MODE_SINGLE = 0;
-    // 多选模式
-    public static final int MODE_MULTI = 1;
 
-    //最大选择的图片数量
-    public static final String EXTRA_SELECT_COUNT = "max_select_count";
-    //选择的模式
-    public static final String EXTRA_SELECT_MODE = "select_count_mode";
-    //是否显示相机
-    public static final String EXTRA_SHOW_CAMERA = "show_camera";
-    //选择的结果
-    public static final String EXTRA_RESULT = "select_result";
-    //已选的数据
-    public static final String EXTRA_DEFAULT_SELECTED_LIST = "default_list";
-    //裁剪的宽度
-    public static final String EXTRA_CROP_WIDTH = "crop_width";
-    //裁剪的高度
-    public static final String EXTRA_CROP_HEIGHT = "crop_height";
-    //是否裁剪
-    public static final String EXTRA_IS_CROP = "is_crop";
-    //是否压缩
-    public static final String EXTRA_IS_COMPRESS = "is_compress";
-    //压缩比例
-    public static final String EXTRA_COMPRESS_RANK = "is_compress_rank";
-    // 默认的最大图片数量
-    private static final int DEFAULT_IMAGE_SIZE = 9;
-
-    //已选的数据
-    private ArrayList<String> resultList = new ArrayList<>();
-    private Button mSubmitButton;
-    private int mDefaultCount = DEFAULT_IMAGE_SIZE;
-    private int cropWidth = 0;
-    private int cropHeight = 0;
-    private boolean mIsCrop = false;//是否裁剪
-    private boolean cropShowCircle = false;//是否显示圆
-    private int cropColor;//裁剪的颜色
-    private boolean isCompress = false;//是否压缩
-    private int compressRank = Luban.THIRD_GEAR;//压缩等级
+    /**
+     * 已选的数据
+     */
+    ArrayList<ImageSelectData> resultList;
+    /**
+     * 提交按钮
+     */
+    private TextView mSubmitButton;
     ProgressDialog compressDialog;
-    private boolean isShowCamera = false;
-    private int selectMode = MODE_MULTI;
+    /**
+     * 配置参数
+     */
+    PhotoOptionData optionData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mis_activity_default);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
+        ((TextView) findViewById(R.id.titleView)).setText(getTitle());
+        mSubmitButton = findViewById(R.id.commit);
+        ImageView btnBack = findViewById(R.id.btn_back);
+        if (btnBack.getDrawable() == null) {
+            Drawable drawable = getResources().getDrawable(R.drawable.material_back);
+            drawable.mutate();
+            DrawableCompat.setTint(drawable, 0xffffffff);
+            btnBack.setImageDrawable(drawable);
         }
-
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        final Intent intent = getIntent();
-        mDefaultCount = intent.getIntExtra(EXTRA_SELECT_COUNT, DEFAULT_IMAGE_SIZE);
-
-        selectMode = intent.getIntExtra(EXTRA_SELECT_MODE, MODE_MULTI);
-        isShowCamera = intent.getBooleanExtra(EXTRA_SHOW_CAMERA, true);
-
-        if (selectMode == MODE_MULTI && intent.hasExtra(EXTRA_DEFAULT_SELECTED_LIST)) {
-            resultList = intent.getStringArrayListExtra(EXTRA_DEFAULT_SELECTED_LIST);
-            for (int i = 0; i < resultList.size(); i++) {
-                if (PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()) != null) {//是加密图片
-                    resultList.set(i, PhotoHander.create().getmRelationMap().get(resultList.get(i).hashCode()));
-                }
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
+        });
+
+        Intent intent = getIntent();
+        //配置属性
+        optionData = intent.getParcelableExtra(IntentKey.EXTRA_OPTION_DATA);
+        //已选数据
+        resultList = intent.getParcelableArrayListExtra(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
+        if (resultList == null) {
+            resultList = new ArrayList<>();
+        }
+        if (optionData == null) {
+            Toast.makeText(this, "缺少参数，无法启动照片选择", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        cropWidth = intent.getIntExtra(EXTRA_CROP_WIDTH, cropWidth);
-        cropHeight = intent.getIntExtra(EXTRA_CROP_HEIGHT, cropHeight);
-        mIsCrop = intent.getBooleanExtra(EXTRA_IS_CROP, mIsCrop);
-        cropShowCircle = intent.getBooleanExtra(CROP_CIRCLE, cropShowCircle);
-        cropColor = intent.getIntExtra(Crop.Extra.COLOR, cropColor);
-        isCompress = intent.getBooleanExtra(EXTRA_IS_COMPRESS, isCompress);
-        compressRank = intent.getIntExtra(EXTRA_COMPRESS_RANK, compressRank);
-
-        mSubmitButton = (Button) findViewById(R.id.commit);
-        if (selectMode == MODE_MULTI) {
+        if (optionData.isModeMulti()) {
             updateDoneText(resultList);
             mSubmitButton.setVisibility(View.VISIBLE);
             mSubmitButton.setOnClickListener(new View.OnClickListener() {
@@ -145,20 +118,18 @@ public class PhotoHanderActivity extends AppCompatActivity
     public void addFragment() {
         String[] permission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         //请求读写权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN // Permission was added in API Level 16
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && !checkSelfPermission(permission)) {
             requestPermission(permission,
                     getString(R.string.mis_permission_rationale),
                     REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
             Bundle bundle = new Bundle();
-            bundle.putInt(PhotoHanderFragment.EXTRA_SELECT_COUNT, mDefaultCount);
-            bundle.putInt(PhotoHanderFragment.EXTRA_SELECT_MODE, selectMode);
-            bundle.putBoolean(PhotoHanderFragment.EXTRA_SHOW_CAMERA, isShowCamera);
-            bundle.putStringArrayList(PhotoHanderFragment.EXTRA_DEFAULT_SELECTED_LIST, resultList);
+            bundle.putParcelable(IntentKey.EXTRA_OPTION_DATA, optionData);
+            bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, resultList);
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle))
-                    .commit();
+                    .add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle), "PhotoHanderFragment")
+                    .commitAllowingStateLoss();
         }
     }
 
@@ -174,11 +145,9 @@ public class PhotoHanderActivity extends AppCompatActivity
     }
 
     /**
-     * Update done button by select image data
-     *
-     * @param resultList selected image data
+     * 更新完成按钮的文字
      */
-    private void updateDoneText(ArrayList<String> resultList) {
+    private void updateDoneText(ArrayList<ImageSelectData> resultList) {
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
             mSubmitButton.setText(R.string.mis_action_done);
@@ -188,31 +157,31 @@ public class PhotoHanderActivity extends AppCompatActivity
             mSubmitButton.setEnabled(true);
         }
         mSubmitButton.setText(getString(R.string.mis_action_button_string,
-                getString(R.string.mis_action_done), size, mDefaultCount));
+                getString(R.string.mis_action_done), size, optionData.mDefaultCount));
     }
 
     @Override
     public void onSingleImageSelected(String path) {
-        if (mIsCrop) {
+        if (optionData.mIsCrop) {
             Uri destination = null;
             Uri source = Uri.fromFile(new File(path));
             try {
-                destination = Uri.fromFile(FileUtils.createCacheTmpFile(this, "crop"));
+                destination = Uri.fromFile(PhotoHanderUtils.createCacheTmpFile(this, "crop"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
             if (destination != null && source != null) {
                 Crop.of(source, destination)
-                        .withAspect(cropWidth, cropHeight)
-                        .showCircle(cropShowCircle)
-                        .color(cropColor)
+                        .withSize(optionData.cropWidth, optionData.cropHeight)
+                        .showCircle(optionData.cropShowCircle)
+                        .color(optionData.cropColor)
                         .start(this);
             } else {
                 Toast.makeText(this, R.string.mis_error_image_not_exist, Toast.LENGTH_SHORT).show();
             }
 
         } else {
-            resultList.add(path);
+            resultList.add(new ImageSelectData(path));
             completeSelect();
         }
     }
@@ -220,16 +189,21 @@ public class PhotoHanderActivity extends AppCompatActivity
     @Override
     public void onImageSelected(String path) {
         if (!resultList.contains(path)) {
-            resultList.add(path);
+            resultList.add(new ImageSelectData(path));
         }
         updateDoneText(resultList);
     }
 
     @Override
     public void onImageUnselected(String path) {
-        if (resultList.contains(path)) {
-            resultList.remove(path);
+        ImageSelectData delete = null;
+        for (ImageSelectData d : resultList) {
+            if (TextUtils.equals(path, d.originPath)) {
+                delete = d;
+                break;
+            }
         }
+        resultList.remove(delete);
         updateDoneText(resultList);
     }
 
@@ -243,14 +217,28 @@ public class PhotoHanderActivity extends AppCompatActivity
     }
 
     /**
+     * 查看照片
+     *
+     * @param imageList   整个数据集合
+     * @param selectList  已经选择的数据集合
+     * @param position    点击的位置
+     * @param currentData 点击的数据
+     */
+    @Override
+    public void onLookPhoto(List<Image> imageList, List<Image> selectList, int position, Image currentData) {
+        addLookPhotoFragment(imageList, selectList, position, currentData);
+    }
+
+    /**
      * 图片选择完成, 还没压缩
      */
-    private void completeSelect() {
+    void completeSelect() {
 
-        if (isCompress) {
-
-            Luban.get(this).load(resultList)
-                    .putGear(compressRank)
+        if (optionData.isCompress) {
+            //压缩
+            ArrayList<String> resultStrList = ImageSelectData.getOriginPaths(resultList);
+            Luban.get(this).load(resultStrList)
+                    .putGear(optionData.compressRank)
                     .setCompressListener(new OnCompressListener() {
                         @Override
                         public void onStart() {
@@ -265,18 +253,10 @@ public class PhotoHanderActivity extends AppCompatActivity
                         }
 
                         @Override
-                        public void onSuccess(ArrayList<String> files) {
+                        public void onSuccess(ArrayList<ImageSelectData> files) {
                             compressDialog.dismiss();
-                            PhotoHander.create().getmRelationMap().clear();
-                            for (int i = 0; i < files.size(); i++) {
-                                if (!isEquals(files.get(i), resultList.get(i))) {//是加密图片
-                                    //保存关系
-                                    PhotoHander.create().getmRelationMap().put(files.get(i).hashCode(),
-                                            resultList.get(i));
-                                }
-                            }
                             resultList = files;
-                            isCompress = false;
+                            optionData.isCompress = false;
                             completeSelect();
                         }
 
@@ -292,9 +272,9 @@ public class PhotoHanderActivity extends AppCompatActivity
                     }).launch();
         } else {
             if (resultList != null && resultList.size() > 0) {
-                // Notify success
+                //回调
                 Intent data = new Intent();
-                data.putStringArrayListExtra(EXTRA_RESULT, resultList);
+                data.putParcelableArrayListExtra(IntentKey.EXTRA_RESULT, resultList);
                 setResult(RESULT_OK, data);
             } else {
                 setResult(RESULT_CANCELED);
@@ -308,7 +288,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
-            mIsCrop = false;
+            optionData.mIsCrop = false;
             onSingleImageSelected(Crop.getOutput(data).getPath());
         }
     }
@@ -345,7 +325,9 @@ public class PhotoHanderActivity extends AppCompatActivity
     }
 
     public boolean checkSelfPermission(String[] permission) {
-        if (permission == null) return true;
+        if (permission == null) {
+            return true;
+        }
         for (String p : permission) {
             if (ActivityCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
                 return false;
@@ -379,9 +361,16 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
     }
 
-    //是否拒绝过一次权限
+    /**
+     * 是否拒绝过一次权限
+     *
+     * @param permissions
+     * @return
+     */
     public boolean shouldShowRequestPermissionRationale(String[] permissions) {
-        if (permissions == null) return true;
+        if (permissions == null) {
+            return true;
+        }
         for (String p : permissions) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, p)) {
                 return true;
@@ -389,5 +378,71 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
         return false;
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
+        if (fragment != null) {
+            finishPhotoLookFragment(false);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    private void finishPhotoLookFragment(boolean isSelectOk) {
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
+        //更新顶部已选几个
+        List<Image> images = ((PhotoLookFragment) fragment).getSelectDatas();
+        resultList = new ArrayList<>();
+        if (!images.isEmpty()) {
+            for (Image img : images) {
+                resultList.add(new ImageSelectData(img.path));
+            }
+        }
+        updateDoneText(resultList);
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out)
+                .remove(fragment)
+                .commitAllowingStateLoss();
+        if (isSelectOk) {
+            //完成选择
+            completeSelect();
+        }
+    }
+
+    /**
+     * 添加照片查看Fragment
+     */
+    public void addLookPhotoFragment(List<Image> imageList, List<Image> selectList, int position, Image currentData) {
+        try {
+            //检查是否有PhotoView库
+            Class.forName(PhotoView.class.getName());
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList(IntentKey.EXTRA_ADAPTER_SHOW_DATA, (ArrayList<? extends Parcelable>) imageList);
+            bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, (ArrayList<? extends Parcelable>) selectList);
+            bundle.putInt(IntentKey.EXTRA_ADAPTER_CLICK_POSITION, position);
+            bundle.putParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA, currentData);
+            bundle.putParcelable(IntentKey.EXTRA_OPTION_DATA, optionData);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
+            if (fragment != null) {
+                ft.remove(fragment);
+            }
+            fragment = Fragment.instantiate(this, PhotoLookFragment.class.getName(), bundle);
+            ft.setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out)
+                    .add(android.R.id.content, fragment, "PhotoLookFragment")
+                    .commitAllowingStateLoss();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * 照片查看界面选择完成，发送
+     */
+    @Override
+    public void onLookPhotoCompleteSelect() {
+        finishPhotoLookFragment(true);
     }
 }

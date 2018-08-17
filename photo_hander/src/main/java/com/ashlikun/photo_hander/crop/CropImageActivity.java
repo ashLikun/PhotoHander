@@ -57,7 +57,7 @@ import io.reactivex.schedulers.Schedulers;
  * 创建时间: 2018/2/2 17:17
  * 邮箱　　：496546144@qq.com
  * <p>
- * 功能介绍：图片裁剪
+ * 功能介绍：图片裁剪Activity
  */
 
 public class CropImageActivity extends AppCompatActivity {
@@ -67,19 +67,15 @@ public class CropImageActivity extends AppCompatActivity {
 
     private final Handler handler = new Handler();
 
-    private int aspectX;
-    private int aspectY;
+    /**
+     * 图片旋转度数
+     */
+    public int exifRotation;
 
-    // Output image
-    private int maxX;
-    private int maxY;
-    private int exifRotation;
-    private boolean saveAsPng;
-    private boolean showCircle;
-    private int color;
-
-    private Uri sourceUri;
-    private Uri saveUri;
+    /**
+     * 配置参数
+     */
+    private CropOptionData optionData;
 
     private boolean isSaving;
 
@@ -111,7 +107,7 @@ public class CropImageActivity extends AppCompatActivity {
     }
 
     private void setupViews() {
-        setContentView(R.layout.crop__activity_crop);
+        setContentView(R.layout.crop_activity_crop);
 
         imageView = (CropImageView) findViewById(R.id.crop_image);
         imageView.context = this;
@@ -141,27 +137,13 @@ public class CropImageActivity extends AppCompatActivity {
 
     private void loadInput() {
         Intent intent = getIntent();
-        Bundle extras = intent.getExtras();
-
-        if (extras != null) {
-            aspectX = extras.getInt(Crop.Extra.ASPECT_X);
-            aspectY = extras.getInt(Crop.Extra.ASPECT_Y);
-            maxX = extras.getInt(Crop.Extra.MAX_X);
-            maxY = extras.getInt(Crop.Extra.MAX_Y);
-            saveAsPng = extras.getBoolean(Crop.Extra.AS_PNG, false);
-            showCircle = extras.getBoolean(Crop.Extra.CROP_CIRCLE, false);
-            color = extras.getInt(Crop.Extra.COLOR);
-            saveUri = extras.getParcelable(MediaStore.EXTRA_OUTPUT);
-        }
-
-        sourceUri = intent.getData();
-        if (sourceUri != null) {
-            exifRotation = CropUtil.getExifRotation(CropUtil.getFromMediaUri(this, getContentResolver(), sourceUri));
-
+        optionData = intent.getParcelableExtra(IntentKey.EXTRA_OPTION_DATA);
+        if (optionData.source != null) {
+            exifRotation = CropUtil.getExifRotation(CropUtil.getFromMediaUri(this, getContentResolver(), optionData.source));
             InputStream is = null;
             try {
-                sampleSize = calculateBitmapSampleSize(sourceUri);
-                is = getContentResolver().openInputStream(sourceUri);
+                sampleSize = calculateBitmapSampleSize(optionData.source);
+                is = getContentResolver().openInputStream(optionData.source);
                 BitmapFactory.Options option = new BitmapFactory.Options();
                 option.inSampleSize = sampleSize;
                 rotateBitmap = new RotateBitmap(BitmapFactory.decodeStream(is, null, option), exifRotation);
@@ -261,17 +243,16 @@ public class CropImageActivity extends AppCompatActivity {
     }
 
     private class Cropper {
-
         private void makeDefault() {
             if (rotateBitmap == null) {
                 return;
             }
 
             HighlightView hv = new HighlightView(imageView);
-            if (color != 0) {
-                hv.setHighlightColor(color);
+            if (optionData.color != 0) {
+                hv.setHighlightColor(optionData.color);
             }
-            hv.setShowCircle(showCircle);
+            hv.setShowCircle(optionData.showCircle);
 
             final int width = rotateBitmap.getWidth();
             final int height = rotateBitmap.getHeight();
@@ -283,20 +264,17 @@ public class CropImageActivity extends AppCompatActivity {
             @SuppressWarnings("SuspiciousNameCombination")
             int cropHeight = cropWidth;
 
-            if (aspectX != 0 && aspectY != 0) {
-                if (aspectX > aspectY) {
-                    cropHeight = cropWidth * aspectY / aspectX;
+            if (optionData.cropWidth != 0 && optionData.cropHeight != 0) {
+                if (optionData.cropWidth > optionData.cropHeight) {
+                    cropHeight = cropWidth * optionData.cropHeight / optionData.cropWidth;
                 } else {
-                    cropWidth = cropHeight * aspectX / aspectY;
+                    cropWidth = cropHeight * optionData.cropWidth / optionData.cropHeight;
                 }
             }
-
             int x = (width - cropWidth) / 2;
             int y = (height - cropHeight) / 2;
-
             RectF cropRect = new RectF(x, y, x + cropWidth, y + cropHeight);
-
-            hv.setup(imageView.getUnrotatedMatrix(), imageRect, cropRect, aspectX != 0 && aspectY != 0);
+            hv.setup(imageView.getUnrotatedMatrix(), imageRect, cropRect, optionData.cropWidth != 0 && optionData.cropHeight != 0);
             imageView.add(hv);
         }
 
@@ -328,14 +306,14 @@ public class CropImageActivity extends AppCompatActivity {
 
         int outWidth = width;
         int outHeight = height;
-        if (maxX > 0 && maxY > 0 && (width > maxX || height > maxY)) {
+        if (optionData.outMaxWidth > 0 && optionData.outMaxHeight > 0 && (width > optionData.outMaxWidth || height > optionData.outMaxHeight)) {
             float ratio = (float) width / (float) height;
-            if ((float) maxX / (float) maxY > ratio) {
-                outHeight = maxY;
-                outWidth = (int) ((float) maxY * ratio + .5f);
+            if ((float) optionData.outMaxWidth / (float) optionData.outMaxHeight > ratio) {
+                outHeight = optionData.outMaxHeight;
+                outWidth = (int) ((float) optionData.outMaxHeight * ratio + .5f);
             } else {
-                outWidth = maxX;
-                outHeight = (int) ((float) maxX / ratio + .5f);
+                outWidth = optionData.outMaxWidth;
+                outHeight = (int) ((float) optionData.outMaxWidth / ratio + .5f);
             }
         }
 
@@ -383,7 +361,7 @@ public class CropImageActivity extends AppCompatActivity {
         InputStream is = null;
         Bitmap croppedImage = null;
         try {
-            is = getContentResolver().openInputStream(sourceUri);
+            is = getContentResolver().openInputStream(optionData.source);
             BitmapRegionDecoder decoder = BitmapRegionDecoder.newInstance(is, false);
             final int width = decoder.getWidth();
             final int height = decoder.getHeight();
@@ -434,39 +412,41 @@ public class CropImageActivity extends AppCompatActivity {
         System.gc();
     }
 
+    /**
+     * 保存图片
+     *
+     * @param croppedImage 裁剪后的图片
+     */
     private void saveOutput(Bitmap croppedImage) {
-        if (saveUri != null) {
+        if (optionData.saveUri != null) {
             OutputStream outputStream = null;
             try {
-                outputStream = getContentResolver().openOutputStream(saveUri);
+                outputStream = getContentResolver().openOutputStream(optionData.saveUri);
                 if (outputStream != null) {
-                    croppedImage.compress(saveAsPng ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG,
-                            90,     // note: quality is ignored when using PNG
+                    croppedImage.compress(optionData.outAsPng ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG,
+                            90,
                             outputStream);
                 }
             } catch (IOException e) {
                 setResultException(e);
-                Log.e("Cannot open file: " + saveUri, e.toString());
             } finally {
                 CropUtil.closeSilently(outputStream);
             }
 
             CropUtil.copyExifRotation(
-                    CropUtil.getFromMediaUri(this, getContentResolver(), sourceUri),
-                    CropUtil.getFromMediaUri(this, getContentResolver(), saveUri)
+                    CropUtil.getFromMediaUri(this, getContentResolver(), optionData.source),
+                    CropUtil.getFromMediaUri(this, getContentResolver(), optionData.saveUri)
             );
-
-            setResultUri(saveUri);
+            setResultUri(optionData.saveUri);
         }
-
         final Bitmap b = croppedImage;
         handler.post(new Runnable() {
+            @Override
             public void run() {
                 imageView.clear();
                 b.recycle();
             }
         });
-
         finish();
     }
 
@@ -506,7 +486,7 @@ public class CropImageActivity extends AppCompatActivity {
     }
 
     private void setResultException(Throwable throwable) {
-        setResult(Crop.RESULT_ERROR, new Intent().putExtra(Crop.Extra.ERROR, throwable));
+        setResult(Crop.RESULT_ERROR, new Intent().putExtra(IntentKey.EXTRA_ERROR, throwable));
     }
 
 }

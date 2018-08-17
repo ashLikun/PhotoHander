@@ -20,6 +20,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.ashlikun.photo_hander.PhotoHander;
+import com.ashlikun.photo_hander.bean.ImageSelectData;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,10 +34,10 @@ public class MainActivity extends AppCompatActivity {
     protected static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 102;
 
     private TextView mResultText;
-    private RadioGroup mChoiceMode, mShowCamera;
-    private EditText mRequestNum;
+    private RadioGroup mChoiceMode, mShowCamera, cropRg;
+    private EditText mRequestNum, cropWidthEt, cropHeightEt;
 
-    private ArrayList<String> mSelectPath;
+    private ArrayList<ImageSelectData> mSelectPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +47,17 @@ public class MainActivity extends AppCompatActivity {
         mResultText = (TextView) findViewById(R.id.result);
         mChoiceMode = (RadioGroup) findViewById(R.id.choice_mode);
         mShowCamera = (RadioGroup) findViewById(R.id.show_camera);
+        cropRg = (RadioGroup) findViewById(R.id.cropRg);
         mRequestNum = (EditText) findViewById(R.id.request_num);
+        cropWidthEt = (EditText) findViewById(R.id.cropWidthEt);
+        cropHeightEt = (EditText) findViewById(R.id.cropHeightEt);
 
         mChoiceMode.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
                 if (checkedId == R.id.multi) {
                     mRequestNum.setEnabled(true);
+
                 } else {
                     mRequestNum.setEnabled(false);
                     mRequestNum.setText("");
@@ -95,12 +100,18 @@ public class MainActivity extends AppCompatActivity {
             selector.count(maxNum);
             if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
                 selector.single();
-              //  selector.crop(16, 9);
             } else {
                 selector.multi();
             }
             selector.compress(true);
-
+            selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
+            if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {
+                try {
+                    selector.crop(Integer.valueOf(cropWidthEt.getText().toString()), Integer.valueOf(cropHeightEt.getText().toString()));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
             selector.origin(mSelectPath);
             selector.start(MainActivity.this, REQUEST_IMAGE);
         }
@@ -142,15 +153,15 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 mSelectPath = PhotoHander.getIntentResult(data);
                 StringBuilder sb = new StringBuilder();
-                for (String p : mSelectPath) {
+                for (ImageSelectData p : mSelectPath) {
                     sb.append(p);
-                    File ff = new File(p);
+                    File ff = new File(p.toString());
                     try {
                         sb.append("   size = " + getFileSize(ff));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    sb.append("\n");
+                    sb.append("\n\n");
                 }
                 mResultText.setText(sb.toString());
             }
