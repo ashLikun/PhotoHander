@@ -19,6 +19,7 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.ashlikun.multiimageselector.simple.R;
 import com.ashlikun.photo_hander.PhotoHander;
 import com.ashlikun.photo_hander.bean.ImageSelectData;
 
@@ -105,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
             }
             selector.compress(true);
             selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
+            selector.cropCircle(true);
             if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {
                 try {
                     selector.crop(Integer.valueOf(cropWidthEt.getText().toString()), Integer.valueOf(cropHeightEt.getText().toString()));

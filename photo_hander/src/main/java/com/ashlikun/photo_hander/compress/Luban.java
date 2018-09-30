@@ -148,6 +148,7 @@ public class Luban {
                         if (compressListener != null) {
                             compressListener.onError(throwable);
                         }
+                        compressListener = null;
                     }
                 })
                 .doOnComplete(new Action() {
@@ -156,6 +157,7 @@ public class Luban {
                         if (compressListener != null) {
                             compressListener.onSuccess(compressFiles);
                         }
+                        compressListener = null;
                     }
                 })
                 .subscribe(new Consumer<Integer>() {

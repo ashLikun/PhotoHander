@@ -274,7 +274,7 @@ public class CropImageActivity extends AppCompatActivity {
             int x = (width - cropWidth) / 2;
             int y = (height - cropHeight) / 2;
             RectF cropRect = new RectF(x, y, x + cropWidth, y + cropHeight);
-            hv.setup(imageView.getUnrotatedMatrix(), imageRect, cropRect, optionData.cropWidth != 0 && optionData.cropHeight != 0);
+            hv.setup(imageView.getUnrotatedMatrix(), imageRect, cropRect, (optionData.cropWidth != 0 && optionData.cropHeight != 0) || optionData.showCircle);
             imageView.add(hv);
         }
 
