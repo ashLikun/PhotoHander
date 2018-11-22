@@ -17,7 +17,10 @@ allprojects {
 
 ```gradle
 dependencies {
-    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    implementation 'com.github.bumptech.glide:glide:+'
+    implementation 'com.github.ashLikun:PhotoView:1.0.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.y.z'
     implementation 'com.github.ashLikun:PhotoHander:{latest version}'
 }
 ```
@@ -72,13 +75,15 @@ dependencies {
             <uses-permission android:name="android.permission.CAMERA" />
 ####    引用activity
             <activity
-                android:name="com.ashlikun.photo_hander.PhotoHanderActivity"
-                android:configChanges="orientation|screenSize"
-                android:label="图片选择" />
-            <activity
-                android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
-                android:configChanges="orientation|screenSize"
-                android:label="图片裁剪" />
+                       android:name="com.ashlikun.photo_hander.PhotoHanderActivity"
+                       android:configChanges="orientation|screenSize"
+                       android:screenOrientation="portrait"
+                       android:theme="你的主题"></activity>
+                   <activity
+                       android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
+                       android:configChanges="orientation|screenSize"
+                       android:screenOrientation="portrait"
+                       android:theme="你的主题"></activity>
 ####    Java代码
 ```java
             PhotoHander selector = PhotoHander.create();

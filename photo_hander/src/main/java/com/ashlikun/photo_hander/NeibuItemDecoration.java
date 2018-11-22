@@ -168,7 +168,7 @@ class NeibuItemDecoration extends RecyclerView.ItemDecoration {
         int position = parent.getChildAdapterPosition(view);
         int itemCount = parent.getAdapter().getItemCount();
         if (mOrientation == VERTICAL) {
-            if (isLastRaw(parent, position, getSpanCount(parent), itemCount)) {
+            if (position >= itemCount - getLastDividerOffset(parent)) {
                 // 如果是最后一行，则不需要绘制底部
                 outRect.set(0, 0, 0, 0);
             } else {
@@ -235,7 +235,6 @@ class NeibuItemDecoration extends RecyclerView.ItemDecoration {
         int spanCount = -1;
         RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
         if (layoutManager instanceof GridLayoutManager) {
-
             spanCount = ((GridLayoutManager) layoutManager).getSpanCount();
         } else if (layoutManager instanceof StaggeredGridLayoutManager) {
             spanCount = ((StaggeredGridLayoutManager) layoutManager)
@@ -244,36 +243,18 @@ class NeibuItemDecoration extends RecyclerView.ItemDecoration {
         return spanCount;
     }
 
-    /**
-     * 是否是最后一行
-     *
-     * @param parent
-     * @param pos
-     * @param spanCount
-     * @param childCount
-     * @return
-     */
-    protected boolean isLastRaw(RecyclerView parent, int pos, int spanCount,
-                                int childCount) {
-        RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
-        if (layoutManager instanceof GridLayoutManager) {
-            childCount = childCount - childCount % spanCount;
-            return pos >= childCount;
-        } else if (layoutManager instanceof StaggeredGridLayoutManager) {
-            int orientation = ((StaggeredGridLayoutManager) layoutManager)
-                    .getOrientation();
-            // StaggeredGridLayoutManager 且纵向滚动
-            if (orientation == StaggeredGridLayoutManager.VERTICAL) {
-                childCount = childCount - childCount % spanCount;
-                // 如果是最后一行，则不需要绘制底部
-                return pos >= childCount;
-            } else {
-                // 如果是最后一行，则不需要绘制底部
-                if ((pos + 1) % spanCount == 0) {
-                    return true;
+    private int getLastDividerOffset(RecyclerView parent) {
+        if (parent.getLayoutManager() instanceof GridLayoutManager) {
+            GridLayoutManager layoutManager = (GridLayoutManager) parent.getLayoutManager();
+            GridLayoutManager.SpanSizeLookup spanSizeLookup = layoutManager.getSpanSizeLookup();
+            int spanCount = layoutManager.getSpanCount();
+            int itemCount = parent.getAdapter().getItemCount();
+            for (int i = itemCount - 1; i >= 0; i--) {
+                if (spanSizeLookup.getSpanIndex(i, spanCount) == 0) {
+                    return itemCount - i;
                 }
             }
         }
-        return false;
+        return 1;
     }
 }
