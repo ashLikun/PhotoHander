@@ -16,8 +16,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="45dp"
-        android:paddingBottom="10dp"
-        android:paddingTop="10dp"></android.support.v7.widget.RecyclerView>
+        android:background="?attr/colorPrimary"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"></android.support.v7.widget.RecyclerView>
 
     <include layout="@layout/mis_cmp_customer_actionbar"></include>
 

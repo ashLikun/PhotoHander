@@ -1,8 +1,11 @@
 package com.ashlikun.photo_hander;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.AttrRes;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,7 +13,6 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,12 +85,12 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         bottomFl = view.findViewById(R.id.bottomFl);
         submitButton = view.findViewById(R.id.commit);
         recycleView = view.findViewById(R.id.recycleView);
-        TypedValue typedValue = new TypedValue();
-        getActivity().getTheme().resolveAttribute(R.attr.colorPrimary, typedValue, true);
-        bottomFl.setBackgroundColor(typedValue.data);
-        bottomFl.getBackground().setAlpha(128);
-        recycleView.setBackgroundColor(typedValue.data);
-        recycleView.getBackground().setAlpha(128);
+        if (bottomFl.getBackground() != null) {
+            bottomFl.getBackground().setAlpha(128);
+        }
+        if (recycleView.getBackground() != null) {
+            recycleView.getBackground().setAlpha(128);
+        }
         PhotoHanderUtils.setCheck(checkmark, false);
 
         submitButton.setOnClickListener(new View.OnClickListener() {
@@ -100,7 +102,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
             }
         });
         if (btnBack.getDrawable() == null) {
-            Drawable drawable = getResources().getDrawable(android.support.v7.appcompat.R.drawable.abc_ic_ab_back_material);
+            Drawable drawable = getResources().getDrawable(R.drawable.material_back);
             drawable.mutate();
             DrawableCompat.setTint(drawable, 0xffffffff);
             btnBack.setImageDrawable(drawable);
@@ -147,6 +149,16 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
             viewPager.setCurrentItem(position);
         }
         updateDoneText(selectDatas);
+    }
+
+    @ColorInt
+    public int resolveColor(Context context, @AttrRes int attr, int fallback) {
+        TypedArray a = context.getTheme().obtainStyledAttributes(new int[]{attr});
+        try {
+            return a.getColor(0, fallback);
+        } finally {
+            a.recycle();
+        }
     }
 
     /**
