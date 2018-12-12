@@ -67,15 +67,25 @@ import io.reactivex.schedulers.Schedulers;
 
 public class Luban {
 
-    public static final int FIRST_GEAR = 1;//1级压缩
-    public static final int THIRD_GEAR = 3;//3级压缩
+    /**
+     * 1级压缩,低,一般在60-文件大小/5
+     */
+    public static final int FIRST_GEAR = 1;
+    /**
+     * 2级压缩,中，一般在200-1024kb
+     */
+    public static final int DOUBLE_GEAR = 2;
+    /**
+     * 3级压缩,高，一般在100-400kb
+     */
+    public static final int THIRD_GEAR = 3;
+
     /**
      * 缓存文件大于100个自动删除
      */
-    public static final int MAX_SAVE_FILS = 100;
+    public static final int MAX_SAVE_FILS = 300;
 
-    private static final String TAG = "Luban";
-    private static String DEFAULT_DISK_CACHE_DIR = "luban_disk_cache";
+    private static final String DEFAULT_DISK_CACHE_DIR = "luban_disk_cache";
 
     private static volatile Luban INSTANCE;
 
@@ -92,7 +102,7 @@ public class Luban {
 
 
     public static void deleteDir(Context context) {
-        File cacheDir = getPhotoCacheDir(context);
+        File cacheDir = getCacheDir(context);
         deleteDir(cacheDir);
     }
 
@@ -107,14 +117,28 @@ public class Luban {
     }
 
 
-    private static synchronized File getPhotoCacheDir(Context context) {
+    /**
+     * 获取luban的缓存目录
+     */
+    public static synchronized File getCacheDir(Context context) {
         return PhotoHanderUtils.getPhotoCacheDir(context, Luban.DEFAULT_DISK_CACHE_DIR);
+    }
+
+    /**
+     * 获取缓存大小
+     */
+    public static synchronized long getCacheSize(Context context) {
+        try {
+            return PhotoHanderUtils.getFileSizes(getCacheDir(context));
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
 
     public static Luban get(Context context) {
         if (INSTANCE == null) {
-            INSTANCE = new Luban(Luban.getPhotoCacheDir(context));
+            INSTANCE = new Luban(Luban.getCacheDir(context));
         }
         return INSTANCE;
     }
@@ -206,9 +230,9 @@ public class Luban {
             }
             File ff = new File(file);
             if (gear == Luban.THIRD_GEAR) {
-
                 ff = thirdCompress(ff);
-
+            } else if (gear == Luban.DOUBLE_GEAR) {
+                ff = doubleCompress(ff);
             } else if (gear == Luban.FIRST_GEAR) {
                 ff = firstCompress(ff);
             } else {
@@ -224,6 +248,9 @@ public class Luban {
 
     }
 
+    /**
+     * 3级压缩,高，一般在100-400kb
+     */
     private File thirdCompress(@NonNull File file) {
         double size;//期望大小  kb
         String filePath = file.getAbsolutePath();
@@ -291,6 +318,80 @@ public class Luban {
             size = ((thumbW * thumbH) / (1280.0 * (1280 / scale))) * 500;
             //希望（100-500）kb
             size = size < 100 ? 100 : size;
+        }
+
+        return compress(filePath, createTempFile(filePath), thumbW, thumbH, angle, (long) size);
+    }
+
+    /**
+     * 2级压缩,中，一般在200-1024kb
+     */
+    private File doubleCompress(@NonNull File file) {
+        double size;//期望大小  kb
+        String filePath = file.getAbsolutePath();
+        int[] imgSize = getImageSize(filePath);
+        int angle = getImageSpinAngle(filePath);
+        int width = imgSize[0];
+        int height = imgSize[1];
+        int thumbW = width % 2 == 1 ? width + 1 : width;
+        int thumbH = height % 2 == 1 ? height + 1 : height;
+
+        //一直保证width比height小，   那么除出来的就是  （0,1）
+        width = thumbW > thumbH ? thumbH : thumbW;
+        height = thumbW > thumbH ? thumbW : thumbH;
+
+        //（1，0）
+        double scale = ((double) width / height);
+        //即图片处于 [1:1 ~ 9:16) 比例范围内
+        if (scale <= 1 && scale > 0.5625) {
+            if (height < 1664) {
+                if (file.length() / 1024 < 100) {
+                    //文件大小小于100kb  就不压缩
+                    return file;
+                }
+                size = (width * height) / Math.pow(1664, 2) * 300;
+                //希望（200-300）kb
+                size = size < 200 ? 200 : size;
+            } else if (height < 4990) {
+                thumbW = width / 2;
+                thumbH = height / 2;
+                size = (thumbW * thumbH) / Math.pow(2495, 2) * 800;
+                //希望（200-800）kb
+                size = size < 200 ? 200 : size;
+            } else if (height < 10240) {
+                thumbW = width / 4;
+                thumbH = height / 4;
+                size = (thumbW * thumbH) / Math.pow(2560, 2) * 800;
+                //希望（200-800）kb
+                size = size < 200 ? 200 : size;
+            } else {
+                int multiple = height / 1280 == 0 ? 1 : height / 1280;
+                thumbW = width / multiple;
+                thumbH = height / multiple;
+                size = (thumbW * thumbH) / Math.pow(2560, 2) * 800;
+                //希望（200-800）kb
+                size = size < 200 ? 200 : size;
+            }
+        } else if (scale <= 0.5625 && scale > 0.5) {
+            //即图片处于 [9:16 ~ 1:2) 比例范围内
+            if (height < 1280 && file.length() / 1024 < 100) {
+                //文件大小小于100kb  就不压缩
+                return file;
+            }
+            int multiple = height / 1280 == 0 ? 1 : height / 1280;
+            thumbW = width / multiple;
+            thumbH = height / multiple;
+            size = (thumbW * thumbH) / (1440.0 * 2560.0) * 800;
+            //希望（200-800）kb
+            size = size < 200 ? 200 : size;
+        } else {
+            //即图片处于 [1:2 ~ 1:∞) 比例范围内
+            int multiple = (int) Math.ceil(height / (1280.0 / scale));
+            thumbW = width / multiple;
+            thumbH = height / multiple;
+            size = ((thumbW * thumbH) / (1280.0 * (1280 / scale))) * 1024;
+            //希望（200-1024）kb
+            size = size < 200 ? 200 : size;
         }
 
         return compress(filePath, createTempFile(filePath), thumbW, thumbH, angle, (long) size);

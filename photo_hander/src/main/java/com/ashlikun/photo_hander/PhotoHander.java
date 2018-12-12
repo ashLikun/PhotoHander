@@ -103,7 +103,7 @@ public class PhotoHander {
     }
 
     /**
-     * 压缩等级  高
+     * 3级压缩,高，一般在100-400kb
      *
      * @return
      */
@@ -113,7 +113,17 @@ public class PhotoHander {
     }
 
     /**
-     * 压缩等级 低
+     * 2级压缩,中，一般在200-1024kb
+     *
+     * @return
+     */
+    public PhotoHander compressRankDouble() {
+        optionData.compressRank = Luban.DOUBLE_GEAR;
+        return this;
+    }
+
+    /**
+     * 1级压缩,低,一般在60-文件大小/5
      *
      * @return
      */

@@ -80,6 +80,30 @@ public class PhotoHanderUtils {
         return createTmpFile(context, "Camera");
     }
 
+    /**
+     * 获取指定文件夹内所有文件大小的和
+     *
+     * @param file file
+     * @return size
+     * @throws Exception
+     */
+    public static long getFileSizes(File file) throws Exception {
+        long size = 0;
+        try {
+            File[] fileList = file.listFiles();
+            for (File aFileList : fileList) {
+                if (aFileList.isDirectory()) {
+                    size = size + getFileSizes(aFileList);
+                } else {
+                    size = size + aFileList.length();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return size;
+    }
+
     public static File createTmpFile(Context context, String dirStr) throws IOException {
         File dir = null;
         if (TextUtils.equals(Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED)) {
