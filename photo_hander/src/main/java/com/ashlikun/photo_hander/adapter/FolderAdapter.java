@@ -39,7 +39,7 @@ public class FolderAdapter extends BaseAdapter {
     public FolderAdapter(Context context) {
         mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mImageSize = mContext.getResources().getDimensionPixelOffset(R.dimen.mis_folder_cover_size);
+        mImageSize = mContext.getResources().getDimensionPixelOffset(R.dimen.ph_folder_cover_size);
     }
 
     /**

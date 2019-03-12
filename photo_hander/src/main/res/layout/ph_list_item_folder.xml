@@ -11,7 +11,7 @@
     <ImageView
         android:id="@+id/cover"
         android:layout_width="@dimen/ph_folder_cover_size"
-        android:layout_height="@dimen/mis_folder_cover_size"
+        android:layout_height="@dimen/ph_folder_cover_size"
         android:layout_centerVertical="true"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="10dp"
