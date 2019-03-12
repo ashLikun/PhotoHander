@@ -246,6 +246,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
                 Glide.with(mContext)
                         .load(imageFile)
                         .apply(new RequestOptions().placeholder(R.drawable.mis_default_error)
+                                .error(R.drawable.mis_default_error)
                                 .override(mGridWidth, mGridWidth)
                                 .centerCrop())
                         .into(image);
