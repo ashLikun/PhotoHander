@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="mis_space_size">1.5dp</dimen>
-    <dimen name="mis_mini_space_size">15dp</dimen>
-    <dimen name="mis_bottom_size">45dp</dimen>
+    <dimen name="ph_space_size">1.5dp</dimen>
+    <dimen name="ph_mini_space_size">15dp</dimen>
+    <dimen name="ph_bottom_size">45dp</dimen>
     <dimen name="mis_folder_cover_size">72dp</dimen>
     <dimen name="crop__bar_height">56dp</dimen>
-    <dimen name="mis_folder_text_size">16dp</dimen>
+    <dimen name="ph_folder_text_size">16dp</dimen>
 </resources>

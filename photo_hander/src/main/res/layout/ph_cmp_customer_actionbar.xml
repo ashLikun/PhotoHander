@@ -34,7 +34,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="5dp"
-        android:textColor="@color/mis_default_text_color"
+        android:textColor="@color/ph_default_text_color"
         android:textSize="14sp" />
 
 </LinearLayout>

@@ -101,7 +101,7 @@ public class PhotoHanderFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.mis_fragment_multi_image, container, false);
+        return inflater.inflate(R.layout.ph_fragment_multi_image, container, false);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class PhotoHanderFragment extends Fragment {
 
         mCategoryText = (TextView) view.findViewById(R.id.category_btn);
         yulanTv = (TextView) view.findViewById(R.id.yulanTv);
-        mCategoryText.setText(R.string.mis_folder_all);
+        mCategoryText.setText(R.string.ph_folder_all);
         mCategoryText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -143,12 +143,12 @@ public class PhotoHanderFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
         recyclerView.addItemDecoration(new NeibuItemDecoration.Builder(getContext(), NeibuItemDecoration.HORIZONTAL)
-                .setColorRes(R.color.mis_space_color)
-                .setSizeRes(R.dimen.mis_space_size)
+                .setColorRes(R.color.ph_space_color)
+                .setSizeRes(R.dimen.ph_space_size)
                 .create());
         recyclerView.addItemDecoration(new NeibuItemDecoration.Builder(getContext(), NeibuItemDecoration.VERTICAL)
-                .setColorRes(R.color.mis_space_color)
-                .setSizeRes(R.dimen.mis_space_size)
+                .setColorRes(R.color.ph_space_color)
+                .setSizeRes(R.dimen.ph_space_size)
                 .create());
         recyclerView.setAdapter(mImageAdapter);
         mImageAdapter.setOnItemClickListener(new ImageGridAdapter.OnItemClickListener() {
@@ -226,7 +226,7 @@ public class PhotoHanderFragment extends Fragment {
 
                         if (index == 0) {
                             getActivity().getSupportLoaderManager().restartLoader(LOADER_ALL, null, mLoaderCallback);
-                            mCategoryText.setText(R.string.mis_folder_all);
+                            mCategoryText.setText(R.string.ph_folder_all);
                             if (optionData.isShowCamera) {
                                 mImageAdapter.setShowCamera(true);
                             } else {
@@ -311,7 +311,7 @@ public class PhotoHanderFragment extends Fragment {
     private void showCameraAction() {
         String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (!((PhotoHanderActivity) getActivity()).checkSelfPermission(permission)) {
-            requestPermission(permission, getString(R.string.mis_permission_rationale_camera),
+            requestPermission(permission, getString(R.string.ph_permission_rationale_camera),
                     REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
         } else {
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -324,10 +324,10 @@ public class PhotoHanderFragment extends Fragment {
                 if (mTmpFile != null && mTmpFile.exists()) {
                     startActionImageCapture(intent);
                 } else {
-                    Toast.makeText(getActivity(), R.string.mis_error_image_not_exist, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(getActivity(), R.string.mis_msg_no_camera, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.ph_msg_no_camera, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -356,15 +356,15 @@ public class PhotoHanderFragment extends Fragment {
     private void requestPermission(final String[] permission, String rationale, final int requestCode) {
         if (shouldShowRequestPermissionRationale(permission)) {
             new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.mis_permission_dialog_title)
+                    .setTitle(R.string.ph_permission_dialog_title)
                     .setMessage(rationale)
-                    .setPositiveButton(R.string.mis_permission_dialog_ok, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ph_permission_dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             requestPermissions(permission, requestCode);
                         }
                     })
-                    .setNegativeButton(R.string.mis_permission_dialog_cancel, null)
+                    .setNegativeButton(R.string.ph_permission_dialog_cancel, null)
                     .create().show();
         } else {
             requestPermissions(permission, requestCode);
@@ -423,7 +423,7 @@ public class PhotoHanderFragment extends Fragment {
                     }
                 } else {
                     if (optionData.mDefaultCount == resultList.size()) {
-                        Toast.makeText(getActivity(), R.string.mis_msg_amount_limit, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.ph_msg_amount_limit, Toast.LENGTH_SHORT).show();
                         return;
                     }
                     resultList.add(image.path);

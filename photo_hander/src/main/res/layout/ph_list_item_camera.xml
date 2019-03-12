@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="20dp"
         android:padding="10dp"
-        android:src="@drawable/mis_asy" />
+        android:src="@drawable/ph_asy" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -17,7 +17,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:drawablePadding="10dp"
         android:gravity="center_horizontal"
-        android:text="@string/mis_tip_take_photo"
+        android:text="@string/ph_tip_take_photo"
         android:textColor="#CDCECE"
         android:textSize="14sp" />
 

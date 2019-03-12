@@ -66,7 +66,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mis_activity_default);
+        setContentView(R.layout.ph_activity_default);
         ((TextView) findViewById(R.id.titleView)).setText(getTitle());
         mSubmitButton = findViewById(R.id.commit);
         ImageView btnBack = findViewById(R.id.btn_back);
@@ -121,7 +121,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && !checkSelfPermission(permission)) {
             requestPermission(permission,
-                    getString(R.string.mis_permission_rationale),
+                    getString(R.string.ph_permission_rationale),
                     REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
             Bundle bundle = new Bundle();
@@ -150,14 +150,14 @@ public class PhotoHanderActivity extends AppCompatActivity
     private void updateDoneText(ArrayList<ImageSelectData> resultList) {
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
-            mSubmitButton.setText(R.string.mis_action_done);
+            mSubmitButton.setText(R.string.ph_action_done);
             mSubmitButton.setEnabled(false);
         } else {
             size = resultList.size();
             mSubmitButton.setEnabled(true);
         }
-        mSubmitButton.setText(getString(R.string.mis_action_button_string,
-                getString(R.string.mis_action_done), size, optionData.mDefaultCount));
+        mSubmitButton.setText(getString(R.string.ph_action_button_string,
+                getString(R.string.ph_action_done), size, optionData.mDefaultCount));
     }
 
     @Override
@@ -177,7 +177,7 @@ public class PhotoHanderActivity extends AppCompatActivity
                         .color(optionData.cropColor)
                         .start(this);
             } else {
-                Toast.makeText(this, R.string.mis_error_image_not_exist, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
             }
 
         } else {
@@ -346,15 +346,15 @@ public class PhotoHanderActivity extends AppCompatActivity
     private void requestPermission(final String[] permission, String rationale, final int requestCode) {
         if (shouldShowRequestPermissionRationale(permission)) {
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.mis_permission_dialog_title)
+                    .setTitle(R.string.ph_permission_dialog_title)
                     .setMessage(rationale)
-                    .setPositiveButton(R.string.mis_permission_dialog_ok, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.ph_permission_dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions(PhotoHanderActivity.this, permission, requestCode);
                         }
                     })
-                    .setNegativeButton(R.string.mis_permission_dialog_cancel, null)
+                    .setNegativeButton(R.string.ph_permission_dialog_cancel, null)
                     .create().show();
         } else {
             ActivityCompat.requestPermissions(this, permission, requestCode);

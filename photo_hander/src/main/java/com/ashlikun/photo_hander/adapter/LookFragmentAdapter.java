@@ -41,7 +41,7 @@ public class LookFragmentAdapter extends PagerAdapter {
         this.listDatas = listDatas;
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(displayMetrics);
-        options = new RequestOptions().placeholder(R.drawable.mis_default_error)
+        options = new RequestOptions().placeholder(R.drawable.ph_default_error)
                 .override(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
 

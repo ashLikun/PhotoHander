@@ -46,7 +46,7 @@ class NeibuItemDecoration extends RecyclerView.ItemDecoration {
         public Builder(Context context, int orientation) {
             this.context = context;
             this.orientation = orientation;
-            size = context.getResources().getDimensionPixelSize(R.dimen.mis_space_size);
+            size = context.getResources().getDimensionPixelSize(R.dimen.ph_space_size);
             color = 0xffaaaaaa;
         }
 

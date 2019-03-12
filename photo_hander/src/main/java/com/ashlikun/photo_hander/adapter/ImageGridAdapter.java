@@ -143,9 +143,9 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewHolder viewHolder;
         if (viewType == TYPE_CAMERA) {
-            viewHolder = new ViewHolder(mInflater.inflate(R.layout.mis_list_item_camera, parent, false));
+            viewHolder = new ViewHolder(mInflater.inflate(R.layout.ph_list_item_camera, parent, false));
         } else {
-            viewHolder = new ViewHolder(mInflater.inflate(R.layout.mis_list_item_image, parent, false));
+            viewHolder = new ViewHolder(mInflater.inflate(R.layout.ph_list_item_image, parent, false));
         }
         return viewHolder;
     }
@@ -245,13 +245,13 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
                 // 显示图片
                 Glide.with(mContext)
                         .load(imageFile)
-                        .apply(new RequestOptions().placeholder(R.drawable.mis_default_error)
-                                .error(R.drawable.mis_default_error)
+                        .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
+                                .error(R.drawable.ph_default_error)
                                 .override(mGridWidth, mGridWidth)
                                 .centerCrop())
                         .into(image);
             } else {
-                image.setImageResource(R.drawable.mis_default_error);
+                image.setImageResource(R.drawable.ph_default_error);
             }
         }
     }

@@ -46,7 +46,7 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
 
         selectDrawable = new GradientDrawable();
         selectDrawable.setSize(size, size);
-        selectDrawable.setStroke(strokeSize, context.getResources().getColor(R.color.mis_ok_text_color));
+        selectDrawable.setStroke(strokeSize, context.getResources().getColor(R.color.ph_ok_text_color));
         selectDrawable.setColor(0);
     }
 
@@ -114,12 +114,12 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
                     // 显示图片
                     Glide.with(context)
                             .load(imageFile)
-                            .apply(new RequestOptions().placeholder(R.drawable.mis_default_error)
+                            .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
                                     .override(size, size)
                                     .centerCrop())
                             .into(image);
                 } else {
-                    image.setImageResource(R.drawable.mis_default_error);
+                    image.setImageResource(R.drawable.ph_default_error);
                 }
                 image.setOnClickListener(new View.OnClickListener() {
                     @Override

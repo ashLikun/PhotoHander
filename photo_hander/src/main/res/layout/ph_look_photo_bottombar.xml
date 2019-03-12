@@ -10,7 +10,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="0.6dp"
-        android:background="@color/mis_lookphoto_bottom_line"></View>
+        android:background="@color/ph_lookphoto_bottom_line"></View>
 
     <LinearLayout
         android:id="@+id/checkLL"
@@ -28,7 +28,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
-            android:src="@drawable/mis_btn_unselected" />
+            android:src="@drawable/ph_btn_unselected" />
 
         <TextView
             android:id="@+id/selectText"

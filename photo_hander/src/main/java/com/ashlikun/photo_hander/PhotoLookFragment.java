@@ -58,7 +58,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.mis_fragment_look_photo, container, false);
+        return inflater.inflate(R.layout.ph_fragment_look_photo, container, false);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         //初始化RecycleView
         recycleView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         recycleView.addItemDecoration(new NeibuItemDecoration.Builder(getActivity(), NeibuItemDecoration.HORIZONTAL)
-                .setSizeRes(R.dimen.mis_mini_space_size)
+                .setSizeRes(R.dimen.ph_mini_space_size)
                 .setColor(0)
                 .create());
         recycleView.setAdapter(miniImageAdapter = new MiniImageAdapter(getActivity(), selectDatas, this));
@@ -167,14 +167,14 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
     private void updateDoneText(ArrayList resultList) {
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
-            submitButton.setText(R.string.mis_action_done);
+            submitButton.setText(R.string.ph_action_done);
             submitButton.setEnabled(false);
         } else {
             size = resultList.size();
             submitButton.setEnabled(true);
         }
-        submitButton.setText(getString(R.string.mis_action_button_string,
-                getString(R.string.mis_action_done), size, optionData.mDefaultCount));
+        submitButton.setText(getString(R.string.ph_action_button_string,
+                getString(R.string.ph_action_done), size, optionData.mDefaultCount));
     }
 
     public void changTitle(int position) {

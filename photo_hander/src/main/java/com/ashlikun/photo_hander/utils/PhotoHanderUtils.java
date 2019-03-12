@@ -36,11 +36,11 @@ public class PhotoHanderUtils {
     public static void setCheck(ImageView imageView, boolean isCheck) {
         if (isCheck) {
             // 设置选中状态
-            imageView.setImageResource(R.drawable.mis_btn_selected);
-            imageView.setColorFilter(imageView.getResources().getColor(R.color.mis_ok_text_color));
+            imageView.setImageResource(R.drawable.ph_btn_selected);
+            imageView.setColorFilter(imageView.getResources().getColor(R.color.ph_ok_text_color));
         } else {
             // 未选择
-            imageView.setImageResource(R.drawable.mis_btn_unselected);
+            imageView.setImageResource(R.drawable.ph_btn_unselected);
             imageView.setColorFilter(0xffffffff);
         }
     }

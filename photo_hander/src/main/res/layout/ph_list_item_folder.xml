@@ -10,7 +10,7 @@
 
     <ImageView
         android:id="@+id/cover"
-        android:layout_width="@dimen/mis_folder_cover_size"
+        android:layout_width="@dimen/ph_folder_cover_size"
         android:layout_height="@dimen/mis_folder_cover_size"
         android:layout_centerVertical="true"
         android:layout_gravity="center_vertical"
@@ -67,6 +67,6 @@
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="20dp"
-        android:src="@drawable/mis_default_check" />
+        android:src="@drawable/ph_default_check" />
 
 </RelativeLayout>

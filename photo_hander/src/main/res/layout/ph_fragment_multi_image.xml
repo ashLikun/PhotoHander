@@ -8,13 +8,13 @@
         android:id="@+id/recycleView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="@dimen/mis_bottom_size"
+        android:layout_marginBottom="@dimen/ph_bottom_size"
         android:clipToPadding="false" />
 
     <RelativeLayout
         android:id="@+id/footer"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/mis_bottom_size"
+        android:layout_height="@dimen/ph_bottom_size"
         android:layout_gravity="bottom"
         android:background="?attr/colorPrimary"
         android:clickable="true">
@@ -30,8 +30,8 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:textAllCaps="false"
-            android:textColor="@color/mis_folder_text_color"
-            android:textSize="@dimen/mis_folder_text_size"
+            android:textColor="@color/ph_folder_text_color"
+            android:textSize="@dimen/ph_folder_text_size"
             tools:text="所有图片" />
 
         <View
@@ -41,7 +41,7 @@
             android:layout_marginBottom="14dp"
             android:layout_marginLeft="-15dp"
             android:layout_toRightOf="@+id/category_btn"
-            android:background="@drawable/mis_text_indicator"></View>
+            android:background="@drawable/ph_text_indicator"></View>
 
 
         <TextView
@@ -53,8 +53,8 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="预览"
-            android:textColor="@color/mis_folder_text_color"
-            android:textSize="@dimen/mis_folder_text_size" />
+            android:textColor="@color/ph_folder_text_color"
+            android:textSize="@dimen/ph_folder_text_size" />
     </RelativeLayout>
 
 </FrameLayout>

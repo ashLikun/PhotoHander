@@ -78,28 +78,28 @@ public class FolderAdapter extends BaseAdapter {
     public View getView(int i, View view, ViewGroup viewGroup) {
         ViewHolder holder;
         if (view == null) {
-            view = mInflater.inflate(R.layout.mis_list_item_folder, viewGroup, false);
+            view = mInflater.inflate(R.layout.ph_list_item_folder, viewGroup, false);
             holder = new ViewHolder(view);
         } else {
             holder = (ViewHolder) view.getTag();
         }
         if (holder != null) {
             if (i == 0) {
-                holder.name.setText(R.string.mis_folder_all);
+                holder.name.setText(R.string.ph_folder_all);
                 holder.path.setText("/sdcard");
                 holder.size.setText(String.format("%d%s",
-                        getTotalImageSize(), mContext.getResources().getString(R.string.mis_photo_unit)));
+                        getTotalImageSize(), mContext.getResources().getString(R.string.ph_photo_unit)));
                 if (mFolders.size() > 0) {
                     Folder f = mFolders.get(0);
                     if (f != null) {
                         Glide.with((Activity) mContext)
                                 .load(new File(f.cover.path))
-                                .apply(new RequestOptions().placeholder(R.drawable.mis_default_error)
+                                .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
                                         .override(mImageSize, mImageSize)
                                         .centerCrop())
                                 .into(holder.cover);
                     } else {
-                        holder.cover.setImageResource(R.drawable.mis_default_error);
+                        holder.cover.setImageResource(R.drawable.ph_default_error);
                     }
                 }
             } else {
@@ -160,9 +160,9 @@ public class FolderAdapter extends BaseAdapter {
             name.setText(data.name);
             path.setText(data.path);
             if (data.images != null) {
-                size.setText(String.format("%d%s", data.images.size(), mContext.getResources().getString(R.string.mis_photo_unit)));
+                size.setText(String.format("%d%s", data.images.size(), mContext.getResources().getString(R.string.ph_photo_unit)));
             } else {
-                size.setText("*" + mContext.getResources().getString(R.string.mis_photo_unit));
+                size.setText("*" + mContext.getResources().getString(R.string.ph_photo_unit));
             }
 
             if (data.cover != null) {
@@ -171,15 +171,15 @@ public class FolderAdapter extends BaseAdapter {
                     // 显示图片
                     Glide.with((Activity) mContext)
                             .load(imageFile)
-                            .apply(new RequestOptions().placeholder(R.drawable.mis_default_error)
+                            .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
                                     .override(mImageSize, mImageSize)
                                     .centerCrop())
                             .into(cover);
                 } else {
-                    cover.setImageResource(R.drawable.mis_default_error);
+                    cover.setImageResource(R.drawable.ph_default_error);
                 }
             } else {
-                cover.setImageResource(R.drawable.mis_default_error);
+                cover.setImageResource(R.drawable.ph_default_error);
             }
         }
     }

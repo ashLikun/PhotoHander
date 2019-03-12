@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:scaleType="centerCrop"
-        android:src="@drawable/mis_default_error" />
+        android:src="@drawable/ph_default_error" />
 
     <View
         android:id="@+id/mask"
@@ -24,6 +24,6 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:layout_gravity="top|right"
-        android:src="@drawable/mis_btn_unselected" />
+        android:src="@drawable/ph_btn_unselected" />
 
 </com.ashlikun.photo_hander.view.SquareFrameLayout>
