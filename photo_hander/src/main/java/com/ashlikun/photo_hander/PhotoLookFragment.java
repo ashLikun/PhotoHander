@@ -20,6 +20,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ashlikun.photo_hander.adapter.LookFragmentAdapter;
 import com.ashlikun.photo_hander.adapter.MiniImageAdapter;
@@ -201,6 +202,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         if (selectPosition != -1) {
             miniImageAdapter.notifyItemChanged(selectPosition, MiniImageAdapter.PLYLOAD_SELECT);
         }
+        recycleView.scrollToPosition(selectPosition);
     }
 
     @Override
@@ -212,6 +214,10 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
      * 选择某个图片，改变选择状态
      */
     public void select(int position) {
+        if (optionData.mDefaultCount >= selectDatas.size()) {
+            Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
+            return;
+        }
         Image image = adapter.getItemData(position);
         if (selectDatas.contains(image)) {
             selectDatas.remove(image);
@@ -222,22 +228,11 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
             int selectPosition = selectDatas.indexOf(image);
             miniImageAdapter.setSelectItem(selectPosition);
             miniImageAdapter.notifyItemInserted(selectPosition);
+            recycleView.scrollToPosition(selectPosition);
         }
         recycleView.setVisibility(selectDatas.isEmpty() ? View.GONE : View.VISIBLE);
         PhotoHanderUtils.setCheck(checkmark, selectDatas.contains(image));
         updateDoneText(selectDatas);
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        //有照片查看fragment
-        Fragment fragment2 = getFragmentManager().findFragmentByTag("PhotoHanderFragment");
-        if (fragment2 != null) {
-            //有照片选择的Fragment
-            //把选择的数据告诉PhotoHanderFragment
-            ((PhotoHanderFragment) fragment2).setSelectDatas(selectDatas);
-        }
     }
 
     /**

@@ -333,17 +333,28 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * 照片查看完成
+     * @param isSelectOk
+     */
     private void finishPhotoLookFragment(boolean isSelectOk) {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
         //更新顶部已选几个
-        List<Image> images = ((PhotoLookFragment) fragment).getSelectDatas();
+        ArrayList<Image> images = ((PhotoLookFragment) fragment).getSelectDatas();
         resultList = new ArrayList<>();
-        if (!images.isEmpty()) {
+        if (images != null) {
             for (Image img : images) {
                 resultList.add(new ImageSelectData(img.path));
             }
         }
         updateDoneText(resultList);
+        //有PhotoHanderFragment
+        Fragment fragment2 = getSupportFragmentManager().findFragmentByTag("PhotoHanderFragment");
+        if (fragment2 != null) {
+            //把选择的数据告诉PhotoHanderFragment
+            ((PhotoHanderFragment) fragment2).setSelectDatas(images);
+        }
+
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out)
                 .remove(fragment)

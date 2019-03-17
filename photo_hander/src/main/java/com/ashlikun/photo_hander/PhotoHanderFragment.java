@@ -374,7 +374,7 @@ public class PhotoHanderFragment extends Fragment {
                         mCallback.onImageUnselected(image.path);
                     }
                 } else {
-                    if (optionData.mDefaultCount == resultList.size()) {
+                    if (optionData.mDefaultCount >= resultList.size()) {
                         Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -498,6 +498,12 @@ public class PhotoHanderFragment extends Fragment {
     }
 
     public void setSelectDatas(ArrayList<Image> selectDatas) {
+        resultList.clear();
+        if (selectDatas != null) {
+            for (Image d : selectDatas) {
+                resultList.add(d.path);
+            }
+        }
         mImageAdapter.setSelectDatas(selectDatas);
     }
 
