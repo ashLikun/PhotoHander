@@ -1,18 +1,14 @@
 package com.ashlikun.photo_hander;
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -39,10 +35,10 @@ import com.ashlikun.photo_hander.adapter.ImageGridAdapter;
 import com.ashlikun.photo_hander.bean.Folder;
 import com.ashlikun.photo_hander.bean.Image;
 import com.ashlikun.photo_hander.bean.ImageSelectData;
+import com.ashlikun.photo_hander.utils.PhotoHanderPermission;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +50,7 @@ import java.util.List;
  * 功能介绍：图片选择的fragment
  */
 public class PhotoHanderFragment extends Fragment {
-    private static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 110;
-    private static final int REQUEST_CAMERA = 100;
+
     private static final String KEY_TEMP_FILE = "key_temp_file";
     private static final int LOADER_ALL = 0;
     private static final int LOADER_CATEGORY = 1;
@@ -276,7 +271,7 @@ public class PhotoHanderFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CAMERA) {
+        if (requestCode == PhotoHander.REQUEST_CAMERA) {
             if (resultCode == Activity.RESULT_OK) {
                 if (mTmpFile != null) {
                     if (mCallback != null) {
@@ -309,40 +304,7 @@ public class PhotoHanderFragment extends Fragment {
      * 打开相机
      */
     private void showCameraAction() {
-        String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (!((PhotoHanderActivity) getActivity()).checkSelfPermission(permission)) {
-            requestPermission(permission, getString(R.string.ph_permission_rationale_camera),
-                    REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
-        } else {
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-                try {
-                    mTmpFile = PhotoHanderUtils.createTmpFile(getActivity());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (mTmpFile != null && mTmpFile.exists()) {
-                    startActionImageCapture(intent);
-                } else {
-                    Toast.makeText(getActivity(), R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(getActivity(), R.string.ph_msg_no_camera, Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
-    public void startActionImageCapture(Intent intent) {
-        if (android.os.Build.VERSION.SDK_INT < 24) {
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-            startActivityForResult(intent, REQUEST_CAMERA);
-        } else {
-            ContentValues contentValues = new ContentValues(1);
-            contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
-            Uri uri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            startActivityForResult(intent, REQUEST_CAMERA);
-        }
     }
 
 
@@ -393,17 +355,7 @@ public class PhotoHanderFragment extends Fragment {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_STORAGE_WRITE_ACCESS_PERMISSION) {
-            boolean result = true;
-            for (int p : grantResults) {
-                if (p != PackageManager.PERMISSION_GRANTED) {
-                    result = false;
-                }
-            }
-            if (result) {
-                showCameraAction();
-            }
-        } else {
+        if (!PhotoHanderPermission.onRequestPermissionsResult(getActivity(), requestCode, permissions, grantResults)) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }

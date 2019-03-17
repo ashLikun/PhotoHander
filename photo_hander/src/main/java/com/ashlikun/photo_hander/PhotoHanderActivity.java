@@ -2,7 +2,6 @@ package com.ashlikun.photo_hander;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -11,11 +10,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.graphics.drawable.DrawableCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -29,6 +26,7 @@ import com.ashlikun.photo_hander.bean.ImageSelectData;
 import com.ashlikun.photo_hander.compress.Luban;
 import com.ashlikun.photo_hander.compress.OnCompressListener;
 import com.ashlikun.photo_hander.crop.Crop;
+import com.ashlikun.photo_hander.utils.PhotoHanderPermission;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 import com.ashlikun.photoview.PhotoView;
 
@@ -119,8 +117,8 @@ public class PhotoHanderActivity extends AppCompatActivity
         String[] permission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         //请求读写权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && !checkSelfPermission(permission)) {
-            requestPermission(permission,
+                && !PhotoHanderPermission.checkSelfPermission(this, permission)) {
+            PhotoHanderPermission.requestPermission(this, permission,
                     getString(R.string.ph_permission_rationale),
                     REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
@@ -324,61 +322,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
     }
 
-    public boolean checkSelfPermission(String[] permission) {
-        if (permission == null) {
-            return true;
-        }
-        for (String p : permission) {
-            if (ActivityCompat.checkSelfPermission(this, p) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * 作者　　: 李坤
-     * 创建时间: 2017/8/30 0030 22:52
-     * <p>
-     * 方法功能：请求权限
-     */
-
-    private void requestPermission(final String[] permission, String rationale, final int requestCode) {
-        if (shouldShowRequestPermissionRationale(permission)) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.ph_permission_dialog_title)
-                    .setMessage(rationale)
-                    .setPositiveButton(R.string.ph_permission_dialog_ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(PhotoHanderActivity.this, permission, requestCode);
-                        }
-                    })
-                    .setNegativeButton(R.string.ph_permission_dialog_cancel, null)
-                    .create().show();
-        } else {
-            ActivityCompat.requestPermissions(this, permission, requestCode);
-        }
-    }
-
-    /**
-     * 是否拒绝过一次权限
-     *
-     * @param permissions
-     * @return
-     */
-    public boolean shouldShowRequestPermissionRationale(String[] permissions) {
-        if (permissions == null) {
-            return true;
-        }
-        for (String p : permissions) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, p)) {
-                return true;
-            }
-        }
-        return false;
-
-    }
 
     @Override
     public void onBackPressed() {

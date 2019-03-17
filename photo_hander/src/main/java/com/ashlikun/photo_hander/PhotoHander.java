@@ -19,6 +19,10 @@ import java.util.ArrayList;
  */
 
 public class PhotoHander {
+    //拍照code
+    public final static int REQUEST_CAMERA = 100;
+    //读写存储卡和拍照权限code
+    public static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 110;
     /**
      * 已经选择的数据
      */
