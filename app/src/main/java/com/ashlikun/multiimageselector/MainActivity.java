@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 selector.multi();
             }
             selector.compress(true);
+            selector.isMustCamera(true);
             selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
             selector.cropCircle(true);
             if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {

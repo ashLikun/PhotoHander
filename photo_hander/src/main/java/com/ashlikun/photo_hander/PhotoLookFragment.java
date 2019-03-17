@@ -87,10 +87,14 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         submitButton = view.findViewById(R.id.commit);
         recycleView = view.findViewById(R.id.recycleView);
         if (bottomFl.getBackground() != null) {
-            bottomFl.getBackground().setAlpha(128);
+            Drawable drawable = DrawableCompat.wrap(bottomFl.getBackground()).mutate();
+            drawable.setAlpha(160);
+            bottomFl.setBackground(drawable);
         }
         if (recycleView.getBackground() != null) {
-            recycleView.getBackground().setAlpha(128);
+            Drawable drawable = DrawableCompat.wrap(recycleView.getBackground()).mutate();
+            drawable.setAlpha(160);
+            recycleView.setBackground(drawable);
         }
         PhotoHanderUtils.setCheck(checkmark, false);
 
@@ -214,7 +218,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
      * 选择某个图片，改变选择状态
      */
     public void select(int position) {
-        if (optionData.mDefaultCount >= selectDatas.size()) {
+        if (optionData.mDefaultCount <= selectDatas.size()) {
             Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
             return;
         }

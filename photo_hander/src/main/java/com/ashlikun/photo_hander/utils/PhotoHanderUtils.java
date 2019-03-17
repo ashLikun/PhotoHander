@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -114,45 +115,61 @@ public class PhotoHanderUtils {
     }
 
 
-
     /**
      * 启动拍照
      * 用的权限code {@link PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION}
+     * @param activityOrfragment 只能是activity或者fragment
      */
-    public static File showCameraAction(Activity activity) {
+    public static File showCameraAction(Object activityOrfragment) {
+        Activity activity = null;
+        Fragment fragment = null;
+        if (activityOrfragment instanceof Fragment) {
+            fragment = (Fragment) activityOrfragment;
+            activity = fragment.getActivity();
+        } else {
+            activity = (Activity) activityOrfragment;
+        }
         String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (PhotoHanderPermission.checkSelfPermission(activity, permission)) {
-            PhotoHanderPermission.requestPermission(activity, permission, activity.getString(R.string.ph_permission_rationale_camera),
+        if (!PhotoHanderPermission.checkSelfPermission(activity, permission)) {
+            PhotoHanderPermission.requestPermission(activityOrfragment, permission, activity.getString(R.string.ph_permission_rationale_camera),
                     PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
         } else {
-
-        }
-        File mTmpFile = null;
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(activity.getPackageManager()) != null) {
-            try {
-                mTmpFile = PhotoHanderUtils.createTmpFile(activity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (mTmpFile != null && mTmpFile.exists()) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-                    activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+            File mTmpFile = null;
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (intent.resolveActivity(activity.getPackageManager()) != null) {
+                try {
+                    mTmpFile = PhotoHanderUtils.createTmpFile(activity);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (mTmpFile != null && mTmpFile.exists()) {
+                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
+                        if (fragment != null) {
+                            fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+                        } else {
+                            activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+                        }
+                    } else {
+                        ContentValues contentValues = new ContentValues(1);
+                        contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
+                        Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                        if (fragment != null) {
+                            fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+                        } else {
+                            activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+                        }
+                    }
                 } else {
-                    ContentValues contentValues = new ContentValues(1);
-                    contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
-                    Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                    activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+                    Toast.makeText(activity, R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(activity, R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.ph_msg_no_camera, Toast.LENGTH_SHORT).show();
             }
-        } else {
-            Toast.makeText(activity, R.string.ph_msg_no_camera, Toast.LENGTH_SHORT).show();
+            return mTmpFile;
         }
-        return mTmpFile;
+        return null;
     }
 
     public static File createTmpFile(Context context, String dirStr) throws IOException {

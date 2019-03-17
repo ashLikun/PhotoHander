@@ -38,8 +38,8 @@
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="14dp"
             android:layout_marginLeft="-15dp"
+            android:layout_marginBottom="14dp"
             android:layout_toRightOf="@+id/category_btn"
             android:background="@drawable/ph_text_indicator"></View>
 
@@ -52,7 +52,7 @@
             android:gravity="center"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:text="预览"
+            android:text="@string/ph_action_yulan"
             android:textColor="@color/ph_folder_text_color"
             android:textSize="@dimen/ph_folder_text_size" />
     </RelativeLayout>

@@ -92,6 +92,7 @@ public class CropImageActivity extends AppCompatActivity {
         setupViews();
         loadInput();
         if (rotateBitmap == null) {
+            setResult(RESULT_CANCELED);
             finish();
             return;
         }
@@ -196,6 +197,7 @@ public class CropImageActivity extends AppCompatActivity {
 
     private void startCrop() {
         if (isFinishing()) {
+            setResult(RESULT_CANCELED);
             return;
         }
         dialog = ProgressDialog.show(
@@ -350,6 +352,7 @@ public class CropImageActivity extends AppCompatActivity {
                         }
                     });
         } else {
+            setResult(RESULT_CANCELED);
             finish();
         }
     }
@@ -427,17 +430,18 @@ public class CropImageActivity extends AppCompatActivity {
                             90,
                             outputStream);
                 }
+
+
+                CropUtil.copyExifRotation(
+                        CropUtil.getFromMediaUri(this, getContentResolver(), optionData.source),
+                        CropUtil.getFromMediaUri(this, getContentResolver(), optionData.saveUri)
+                );
+                setResultUri(optionData.saveUri);
             } catch (IOException e) {
                 setResultException(e);
             } finally {
                 CropUtil.closeSilently(outputStream);
             }
-
-            CropUtil.copyExifRotation(
-                    CropUtil.getFromMediaUri(this, getContentResolver(), optionData.source),
-                    CropUtil.getFromMediaUri(this, getContentResolver(), optionData.saveUri)
-            );
-            setResultUri(optionData.saveUri);
         }
         final Bitmap b = croppedImage;
         handler.post(new Runnable() {
@@ -470,6 +474,7 @@ public class CropImageActivity extends AppCompatActivity {
         if (dialog != null) {
             dialog.dismiss();
         }
+        setResult(RESULT_CANCELED);
     }
 
     @Override

@@ -54,6 +54,17 @@ public class PhotoHander {
     }
 
     /**
+     * 是否只能拍照
+     *
+     * @param isMustCamera
+     * @return
+     */
+    public PhotoHander isMustCamera(boolean isMustCamera) {
+        optionData.isMustCamera = isMustCamera;
+        return this;
+    }
+
+    /**
      * 最大多少张
      *
      * @param count

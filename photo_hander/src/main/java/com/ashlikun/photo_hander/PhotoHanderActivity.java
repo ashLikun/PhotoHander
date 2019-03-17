@@ -111,6 +111,9 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             addFragment();
         }
+        if (optionData.isMustCamera) {
+            findViewById(R.id.phRootView).setVisibility(View.GONE);
+        }
     }
 
     public void addFragment() {
@@ -285,9 +288,14 @@ public class PhotoHanderActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Crop.REQUEST_CROP && resultCode == RESULT_OK) {
-            optionData.mIsCrop = false;
-            onSingleImageSelected(Crop.getOutput(data).getPath());
+        if (requestCode == Crop.REQUEST_CROP) {
+            if (resultCode == RESULT_OK) {
+                optionData.mIsCrop = false;
+                onSingleImageSelected(Crop.getOutput(data).getPath());
+            } else {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
         }
     }
 
@@ -335,6 +343,7 @@ public class PhotoHanderActivity extends AppCompatActivity
 
     /**
      * 照片查看完成
+     *
      * @param isSelectOk
      */
     private void finishPhotoLookFragment(boolean isSelectOk) {

@@ -2,7 +2,6 @@ package com.ashlikun.photo_hander;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -18,7 +17,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
@@ -102,9 +100,15 @@ public class PhotoHanderFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         //配置属性
         optionData = getArguments().getParcelable(IntentKey.EXTRA_OPTION_DATA);
+
+        if (optionData.isMustCamera) {
+            view.setVisibility(View.GONE);
+            mTmpFile = PhotoHanderUtils.showCameraAction(PhotoHanderFragment.this);
+            return;
+        }
+
         //已选数据
         ArrayList<ImageSelectData> resultListM = getArguments().getParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
         resultList = ImageSelectData.getOriginPaths(resultListM);
@@ -168,7 +172,7 @@ public class PhotoHanderFragment extends Fragment {
             public void onItemClick(View view, Image data, int position) {
                 if (mImageAdapter.isShowCamera()) {
                     if (position == 0) {
-                        showCameraAction();
+                        mTmpFile = PhotoHanderUtils.showCameraAction(PhotoHanderFragment.this);
                         return;
                     } else {
                         //减去拍照
@@ -186,8 +190,23 @@ public class PhotoHanderFragment extends Fragment {
                 }
             }
         });
+        yulanTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (optionData.isModeMulti()) {
+                    if (mCallback != null) {
+                        if (mImageAdapter.getSelectedImages() != null || !mImageAdapter.getSelectedImages().isEmpty()) {
+                            Image data0 = mImageAdapter.getSelectedImages().get(0);
+                            int position = mImageAdapter.getImages().indexOf(data0);
+                            mCallback.onLookPhoto(mImageAdapter.getImages(), mImageAdapter.getSelectedImages(), position, data0);
+                        }
+                    }
+                }
+            }
+        });
         mFolderAdapter = new FolderAdapter(getActivity());
         yulanTv.setVisibility(optionData.isModeMulti() ? View.VISIBLE : View.GONE);
+
     }
 
     /**
@@ -264,6 +283,9 @@ public class PhotoHanderFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        if (optionData.isMustCamera) {
+            return;
+        }
         // load image data
         getActivity().getSupportLoaderManager().initLoader(LOADER_ALL, null, mLoaderCallback);
     }
@@ -286,6 +308,9 @@ public class PhotoHanderFragment extends Fragment {
                         mTmpFile = null;
                     }
                 }
+                if (optionData.isMustCamera) {
+                    getActivity().finish();
+                }
             }
         }
     }
@@ -300,62 +325,10 @@ public class PhotoHanderFragment extends Fragment {
         super.onConfigurationChanged(newConfig);
     }
 
-    /**
-     * 打开相机
-     */
-    private void showCameraAction() {
-
-    }
-
-
-    /**
-     * 作者　　: 李坤
-     * 创建时间: 2017/8/30 0030 22:52
-     * <p>
-     * 方法功能：请求权限
-     */
-
-    private void requestPermission(final String[] permission, String rationale, final int requestCode) {
-        if (shouldShowRequestPermissionRationale(permission)) {
-            new AlertDialog.Builder(getContext())
-                    .setTitle(R.string.ph_permission_dialog_title)
-                    .setMessage(rationale)
-                    .setPositiveButton(R.string.ph_permission_dialog_ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            requestPermissions(permission, requestCode);
-                        }
-                    })
-                    .setNegativeButton(R.string.ph_permission_dialog_cancel, null)
-                    .create().show();
-        } else {
-            requestPermissions(permission, requestCode);
-        }
-    }
-
-    /**
-     * 是否拒绝过一次权限
-     *
-     * @param permissions
-     * @return
-     */
-    public boolean shouldShowRequestPermissionRationale(String[] permissions) {
-        if (permissions == null) {
-            return true;
-        }
-        for (String p : permissions) {
-            if (shouldShowRequestPermissionRationale(p)) {
-                return true;
-            }
-        }
-        return false;
-
-    }
-
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (!PhotoHanderPermission.onRequestPermissionsResult(getActivity(), requestCode, permissions, grantResults)) {
+        mTmpFile = PhotoHanderPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+        if (mTmpFile == null) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
@@ -374,11 +347,13 @@ public class PhotoHanderFragment extends Fragment {
                         mCallback.onImageUnselected(image.path);
                     }
                 } else {
-                    if (optionData.mDefaultCount >= resultList.size()) {
+                    if (optionData.mDefaultCount <= resultList.size()) {
                         Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     resultList.add(image.path);
+                    yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
+                            getString(R.string.ph_action_yulan), resultList.size()));
                     if (mCallback != null) {
                         mCallback.onImageSelected(image.path);
                     }
@@ -504,6 +479,8 @@ public class PhotoHanderFragment extends Fragment {
                 resultList.add(d.path);
             }
         }
+        yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
+                getString(R.string.ph_action_yulan), resultList.size()));
         mImageAdapter.setSelectDatas(selectDatas);
     }
 

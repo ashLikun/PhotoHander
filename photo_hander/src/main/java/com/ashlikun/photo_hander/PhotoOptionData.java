@@ -43,6 +43,10 @@ class PhotoOptionData implements Parcelable {
      */
     public boolean isShowCamera = true;
     /**
+     * 是否只能拍照
+     */
+    public boolean isMustCamera = false;
+    /**
      * 是否裁剪
      */
     public boolean mIsCrop = false;
@@ -69,6 +73,7 @@ class PhotoOptionData implements Parcelable {
 
     public PhotoOptionData() {
     }
+
     /**
      * 是否是多选
      *
@@ -89,6 +94,7 @@ class PhotoOptionData implements Parcelable {
         dest.writeInt(this.cropWidth);
         dest.writeInt(this.cropHeight);
         dest.writeByte(this.isShowCamera ? (byte) 1 : (byte) 0);
+        dest.writeByte(this.isMustCamera ? (byte) 1 : (byte) 0);
         dest.writeByte(this.mIsCrop ? (byte) 1 : (byte) 0);
         dest.writeByte(this.cropShowCircle ? (byte) 1 : (byte) 0);
         dest.writeInt(this.cropColor);
@@ -102,6 +108,7 @@ class PhotoOptionData implements Parcelable {
         this.cropWidth = in.readInt();
         this.cropHeight = in.readInt();
         this.isShowCamera = in.readByte() != 0;
+        this.isMustCamera = in.readByte() != 0;
         this.mIsCrop = in.readByte() != 0;
         this.cropShowCircle = in.readByte() != 0;
         this.cropColor = in.readInt();
