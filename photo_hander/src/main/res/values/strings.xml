@@ -2,7 +2,7 @@
     <string name="ph_folder_all">所有照片</string>
     <string name="ph_preview">预览</string>
     <string name="ph_msg_no_camera">没有系统相机</string>
-    <string name="ph_msg_amount_limit">已经达到最高选择数量</string>
+    <string name="ph_msg_amount_limit">你最多只能选择%1$d张图片</string>
     <string name="ph_action_done">完成</string>
     <string name="ph_action_button_string">%1$s(%2$d/%3$d)</string>
     <string name="ph_photo_unit">张</string>

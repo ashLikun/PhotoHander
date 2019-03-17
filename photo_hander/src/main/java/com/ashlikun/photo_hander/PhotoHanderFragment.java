@@ -375,7 +375,7 @@ public class PhotoHanderFragment extends Fragment {
                     }
                 } else {
                     if (optionData.mDefaultCount == resultList.size()) {
-                        Toast.makeText(getActivity(), R.string.ph_msg_amount_limit, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     resultList.add(image.path);
