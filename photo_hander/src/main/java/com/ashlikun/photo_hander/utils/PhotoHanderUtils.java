@@ -49,10 +49,10 @@ public class PhotoHanderUtils {
      * @return
      */
     public static boolean isHttpImg(String path) {
-        if (path != null && path.startsWith("http")) {
-            return true;
+        if (path != null && path.startsWith("/")) {
+            return false;
         }
-        return false;
+        return true;
     }
 
     public static void setCheck(ImageView imageView, boolean isCheck) {
