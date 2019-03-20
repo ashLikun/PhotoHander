@@ -37,7 +37,10 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     private LayoutInflater mInflater;
     private boolean showCamera;
     private boolean showSelectIndicator = true;
-
+    /**
+     * 追加的数据
+     */
+    private ArrayList<Image> addList = null;
     private List<Image> mImages = new ArrayList<>();
     private List<Image> mSelectedImages = new ArrayList<>();
     OnItemClickListener onItemClickListener;
@@ -130,12 +133,12 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
      */
     public void setData(List<Image> images) {
         mSelectedImages.clear();
-
         if (images != null && images.size() > 0) {
             mImages = images;
         } else {
             mImages.clear();
         }
+        mImages.addAll(0, addList);
         notifyDataSetChanged();
     }
 
@@ -213,6 +216,15 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         notifyDataSetChanged();
     }
 
+    public void setAddList(ArrayList<String> addList) {
+        if (addList != null) {
+            this.addList = new ArrayList<>();
+            for (String s : addList) {
+                this.addList.add(new Image(s, "http", 0));
+            }
+        }
+    }
+
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
@@ -240,18 +252,30 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
             } else {
                 indicator.setVisibility(View.GONE);
             }
-            File imageFile = new File(data.path);
-            if (imageFile.exists()) {
-                // 显示图片
+            if (data.isHttp()) {
+                // 显示网络图片
                 Glide.with(mContext)
-                        .load(imageFile)
+                        .load(data.path)
                         .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
                                 .error(R.drawable.ph_default_error)
                                 .override(mGridWidth, mGridWidth)
                                 .centerCrop())
                         .into(image);
             } else {
-                image.setImageResource(R.drawable.ph_default_error);
+                // 显示本地图片
+                File imageFile = new File(data.path);
+                if (imageFile.exists()) {
+
+                    Glide.with(mContext)
+                            .load(imageFile)
+                            .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
+                                    .error(R.drawable.ph_default_error)
+                                    .override(mGridWidth, mGridWidth)
+                                    .centerCrop())
+                            .into(image);
+                } else {
+                    image.setImageResource(R.drawable.ph_default_error);
+                }
             }
         }
     }

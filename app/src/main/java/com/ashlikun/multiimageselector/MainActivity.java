@@ -39,11 +39,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText mRequestNum, cropWidthEt, cropHeightEt;
 
     private ArrayList<ImageSelectData> mSelectPath;
+    private ArrayList<String> addHttpImage = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915539&di=ec1b6b518f6a26aa998505d80e0ede33&imgtype=0&src=http%3A%2F%2Fs9.knowsky.com%2Fbizhi%2Fl%2F20090606%2F200906186%2520%25281%2529.jpg");
+        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915645&di=163f3070e7b24cf924e8340504b7f189&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2Fd043ad4bd11373f0e263de4bae0f4bfbfaed0481.jpg");
+        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915644&di=4e6734ad58513cf6e17b23a359f4dc24&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2Fcdbf6c81800a19d8a1af34d139fa828ba71e46b1.jpg");
+        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915644&di=8f38098ae98e3f4b914a3342ce1bd2ce&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2Ffaf2b2119313b07e1fcce2dc06d7912396dd8cf5.jpg");
 
         mResultText = (TextView) findViewById(R.id.result);
         mChoiceMode = (RadioGroup) findViewById(R.id.choice_mode);
@@ -104,8 +110,9 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 selector.multi();
             }
+            selector.addImage(addHttpImage);
             selector.compress(true);
-            selector.isMustCamera(true);
+//            selector.isMustCamera(true);
             selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
             selector.cropCircle(true);
             if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {
@@ -158,12 +165,16 @@ public class MainActivity extends AppCompatActivity {
                 StringBuilder sb = new StringBuilder();
                 for (ImageSelectData p : mSelectPath) {
                     sb.append(p);
-                    File ff = new File(p.toString());
-                    try {
-                        sb.append("   size = " + getFileSize(ff));
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    if (!p.isHttpImg()) {
+                        File ff = new File(p.compressPath);
+                        try {
+                            sb.append("\n");
+                            sb.append("   size = " + getFileSize(ff));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
+
                     sb.append("\n\n");
                 }
                 mResultText.setText(sb.toString());

@@ -43,6 +43,18 @@ public class PhotoHanderUtils {
     private static final String JPEG_FILE_PREFIX = "IMG_";
     private static final String JPEG_FILE_SUFFIX = ".jpg";
 
+    /**
+     * 这张图片是否是网络图
+     *
+     * @return
+     */
+    public static boolean isHttpImg(String path) {
+        if (path != null && path.startsWith("http")) {
+            return true;
+        }
+        return false;
+    }
+
     public static void setCheck(ImageView imageView, boolean isCheck) {
         if (isCheck) {
             // 设置选中状态
@@ -118,6 +130,7 @@ public class PhotoHanderUtils {
     /**
      * 启动拍照
      * 用的权限code {@link PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION}
+     *
      * @param activityOrfragment 只能是activity或者fragment
      */
     public static File showCameraAction(Object activityOrfragment) {

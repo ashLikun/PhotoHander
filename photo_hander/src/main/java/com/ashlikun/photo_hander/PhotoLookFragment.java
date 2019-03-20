@@ -152,6 +152,10 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         viewPager.addOnPageChangeListener(this);
         if (position < adapter.getCount()) {
             viewPager.setCurrentItem(position);
+            if (position == 0) {
+                //0的时候不会自动选中
+                onPageSelected(0);
+            }
         }
         updateDoneText(selectDatas);
     }

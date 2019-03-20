@@ -28,6 +28,10 @@ public class PhotoHander {
      */
     private ArrayList<ImageSelectData> mOriginData;
     /**
+     * 额外添加到顶部的数据,一般是网络图
+     */
+    private ArrayList<String> mAddImages;
+    /**
      * 配置参数
      */
     private PhotoOptionData optionData;
@@ -103,6 +107,14 @@ public class PhotoHander {
      */
     public PhotoHander origin(ArrayList<ImageSelectData> images) {
         mOriginData = images;
+        return this;
+    }
+
+    /**
+     * 额外添加到顶部的数据,一般是网络图
+     */
+    public PhotoHander addImage(ArrayList<String> addImages) {
+        mAddImages = addImages;
         return this;
     }
 
@@ -224,9 +236,13 @@ public class PhotoHander {
         if (optionData.isModeMulti() && mOriginData != null) {
             intent.putParcelableArrayListExtra(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, mOriginData);
         }
+        if (mAddImages != null) {
+            intent.putStringArrayListExtra(IntentKey.EXTRA_DEFAULT_ADD_IMAGES, mAddImages);
+        }
         intent.putExtra(IntentKey.EXTRA_OPTION_DATA, optionData);
         optionData = null;
         mOriginData = null;
+        mAddImages = null;
         return intent;
     }
 

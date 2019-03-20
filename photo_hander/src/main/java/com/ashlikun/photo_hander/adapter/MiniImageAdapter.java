@@ -46,7 +46,7 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
 
         selectDrawable = new GradientDrawable();
         selectDrawable.setSize(size, size);
-        selectDrawable.setStroke(strokeSize, context.getResources().getColor(R.color.ph_ok_text_color));
+        selectDrawable.setStroke(strokeSize, context.getResources().getColor(R.color.ph_yulam_mini_stroke_color));
         selectDrawable.setColor(0);
     }
 
@@ -109,17 +109,27 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
                 return;
             }
             if (!isPayloads) {
-                File imageFile = new File(data.path);
-                if (imageFile.exists()) {
-                    // 显示图片
+                if (data.isHttp()) {
+                    // 显示网络图片
                     Glide.with(context)
-                            .load(imageFile)
+                            .load(data.path)
                             .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
                                     .override(size, size)
                                     .centerCrop())
                             .into(image);
                 } else {
-                    image.setImageResource(R.drawable.ph_default_error);
+                    // 显示本地图片
+                    File imageFile = new File(data.path);
+                    if (imageFile.exists()) {
+                        Glide.with(context)
+                                .load(imageFile)
+                                .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
+                                        .override(size, size)
+                                        .centerCrop())
+                                .into(image);
+                    } else {
+                        image.setImageResource(R.drawable.ph_default_error);
+                    }
                 }
                 image.setOnClickListener(new View.OnClickListener() {
                     @Override

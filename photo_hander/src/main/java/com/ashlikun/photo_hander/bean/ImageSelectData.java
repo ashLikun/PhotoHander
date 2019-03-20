@@ -2,6 +2,9 @@ package com.ashlikun.photo_hander.bean;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
+
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
 import java.util.ArrayList;
 
@@ -17,6 +20,39 @@ public class ImageSelectData implements Parcelable {
     public String originPath;
     public String compressPath;
 
+    /**
+     * 这张图片是否是网络图
+     *
+     * @return
+     */
+    public boolean isHttpImg() {
+        if (PhotoHanderUtils.isHttpImg(originPath)) {
+            return true;
+        }
+        if (PhotoHanderUtils.isHttpImg(compressPath)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 这张图片是否经过压缩
+     * 1：网络图不压缩
+     * 2：开启压缩
+     * 3：太小图不压缩
+     *
+     * @return
+     */
+    public boolean isCompress() {
+        if (isHttpImg()) {
+            return false;
+        } else if (originPath != null && !TextUtils.equals(originPath, compressPath)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public ImageSelectData(String originImage, String compressImage) {
         this.originPath = originImage;
         this.compressPath = compressImage;
@@ -24,6 +60,9 @@ public class ImageSelectData implements Parcelable {
 
     public ImageSelectData(String originImage) {
         this.originPath = originImage;
+        if (isHttpImg()) {
+            this.compressPath = originImage;
+        }
     }
 
     @Override

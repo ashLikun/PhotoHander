@@ -17,6 +17,10 @@ interface IntentKey {
      */
     String EXTRA_DEFAULT_SELECTED_LIST = "default_list";
     /**
+     * 已选的数据
+     */
+    String EXTRA_DEFAULT_ADD_IMAGES = "add_list_images";
+    /**
      * 配置的选项数据
      */
     String EXTRA_OPTION_DATA = "option_data";

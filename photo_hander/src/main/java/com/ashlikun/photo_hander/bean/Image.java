@@ -12,10 +12,25 @@ import android.text.TextUtils;
  * 功能介绍：图片实体
  */
 
-public class Image implements Parcelable{
+public class Image implements Parcelable {
+    /**
+     * 可能是网络图
+     */
     public String path;
     public String name;
     public long time;
+
+    /**
+     * 是否是网络数据
+     *
+     * @return
+     */
+    public boolean isHttp() {
+        if (path != null && path.startsWith("http")) {
+            return true;
+        }
+        return false;
+    }
 
     public Image(String path, String name, long time) {
         this.path = path;

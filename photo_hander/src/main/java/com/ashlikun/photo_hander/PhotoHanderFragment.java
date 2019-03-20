@@ -57,6 +57,7 @@ public class PhotoHanderFragment extends Fragment {
      * 已选的数据
      */
     private ArrayList<String> resultList = new ArrayList<>();
+
     /**
      * 配置参数
      */
@@ -111,10 +112,11 @@ public class PhotoHanderFragment extends Fragment {
 
         //已选数据
         ArrayList<ImageSelectData> resultListM = getArguments().getParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
+
         resultList = ImageSelectData.getOriginPaths(resultListM);
         mImageAdapter = new ImageGridAdapter(getActivity(), optionData.isShowCamera, 4);
         mImageAdapter.showSelectIndicator(optionData.isModeMulti());
-
+        mImageAdapter.setAddList(getArguments().getStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES));
         mPopupAnchorView = view.findViewById(R.id.footer);
 
         mCategoryText = (TextView) view.findViewById(R.id.category_btn);
@@ -195,10 +197,9 @@ public class PhotoHanderFragment extends Fragment {
             public void onClick(View v) {
                 if (optionData.isModeMulti()) {
                     if (mCallback != null) {
-                        if (mImageAdapter.getSelectedImages() != null || !mImageAdapter.getSelectedImages().isEmpty()) {
-                            Image data0 = mImageAdapter.getSelectedImages().get(0);
-                            int position = mImageAdapter.getImages().indexOf(data0);
-                            mCallback.onLookPhoto(mImageAdapter.getImages(), mImageAdapter.getSelectedImages(), position, data0);
+                        ArrayList<Image> selectDatas = mImageAdapter.getSelectedImages();
+                        if (selectDatas != null && !selectDatas.isEmpty()) {
+                            mCallback.onLookPhoto(selectDatas, selectDatas, 0, selectDatas.get(0));
                         }
                     }
                 }
@@ -206,7 +207,6 @@ public class PhotoHanderFragment extends Fragment {
         });
         mFolderAdapter = new FolderAdapter(getActivity());
         yulanTv.setVisibility(optionData.isModeMulti() ? View.VISIBLE : View.GONE);
-
     }
 
     /**

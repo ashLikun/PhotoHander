@@ -10,6 +10,8 @@
     <!--顶部发送的字体颜色-->
     <color name="ph_ok_text_color_no">#337523</color>
     <color name="ph_ok_text_color">#44BF1A</color>
+    <!--预览时候 小的选中宽的边框颜色-->
+    <color name="ph_yulam_mini_stroke_color">#44BF1A</color>
     <!--照片查看底部小的RecycleView选中颜色-->
     <color name="ph_minirecycle_select_color">#44BF1A</color>
     <!--照片查看底部的线条-->

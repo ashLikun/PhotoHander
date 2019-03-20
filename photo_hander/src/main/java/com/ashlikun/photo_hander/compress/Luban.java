@@ -155,11 +155,16 @@ public class Luban {
                 deleteDir(mCacheDir);
                 compressFiles.clear();
                 for (String f : mFiles) {
-                    File ff = compress(f);
-                    if (ff != null && ff.exists()) {
-                        compressFiles.add(new ImageSelectData(f, ff.getPath()));
-                        int progress = mFiles.indexOf(f) + 1;
-                        e.onNext(progress);
+                    if (!PhotoHanderUtils.isHttpImg(f)) {
+                        File ff = compress(f);
+                        if (ff != null && ff.exists()) {
+                            compressFiles.add(new ImageSelectData(f, ff.getPath()));
+                            int progress = mFiles.indexOf(f) + 1;
+                            e.onNext(progress);
+                        }
+                    } else {
+                        //如果是网络图直接跳过
+                        compressFiles.add(new ImageSelectData(f));
                     }
                 }
                 e.onComplete();

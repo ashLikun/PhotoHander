@@ -52,6 +52,11 @@ public class PhotoHanderActivity extends AppCompatActivity
      */
     ArrayList<ImageSelectData> resultList;
     /**
+     * 追加的数据
+     */
+    ArrayList<String> addList;
+
+    /**
      * 提交按钮
      */
     private TextView mSubmitButton;
@@ -86,9 +91,21 @@ public class PhotoHanderActivity extends AppCompatActivity
         optionData = intent.getParcelableExtra(IntentKey.EXTRA_OPTION_DATA);
         //已选数据
         resultList = intent.getParcelableArrayListExtra(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
+        addList = intent.getStringArrayListExtra(IntentKey.EXTRA_DEFAULT_ADD_IMAGES);
         if (resultList == null) {
             resultList = new ArrayList<>();
         }
+        //处理数据
+        for (ImageSelectData d : resultList) {
+            if (d.isHttpImg()) {
+                if (d.originPath != null && d.compressPath == null) {
+                    d.compressPath = d.originPath;
+                } else if (d.compressPath != null && d.originPath == null) {
+                    d.originPath = d.compressPath;
+                }
+            }
+        }
+
         if (optionData == null) {
             Toast.makeText(this, "缺少参数，无法启动照片选择", Toast.LENGTH_SHORT).show();
             finish();
@@ -128,6 +145,7 @@ public class PhotoHanderActivity extends AppCompatActivity
             Bundle bundle = new Bundle();
             bundle.putParcelable(IntentKey.EXTRA_OPTION_DATA, optionData);
             bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, resultList);
+            bundle.putStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES, addList);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle), "PhotoHanderFragment")
                     .commitAllowingStateLoss();
