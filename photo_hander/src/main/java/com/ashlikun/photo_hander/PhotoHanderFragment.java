@@ -206,6 +206,8 @@ public class PhotoHanderFragment extends Fragment {
             }
         });
         mFolderAdapter = new FolderAdapter(getActivity());
+        yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
+                getString(R.string.ph_action_yulan), resultList.size()));
         yulanTv.setVisibility(optionData.isModeMulti() ? View.VISIBLE : View.GONE);
     }
 
