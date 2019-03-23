@@ -138,7 +138,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         } else {
             mImages.clear();
         }
-        if (addList != null && addList.isEmpty()) {
+        if (addList != null && !addList.isEmpty()) {
             mImages.addAll(0, addList);
         }
         notifyDataSetChanged();
