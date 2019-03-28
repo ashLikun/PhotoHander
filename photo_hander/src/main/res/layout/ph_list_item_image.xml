@@ -21,9 +21,11 @@
 
     <ImageView
         android:id="@+id/checkmark"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="top|right"
+        android:paddingLeft="20dp"
+        android:paddingBottom="20dp"
         android:src="@drawable/ph_btn_unselected" />
 
 </com.ashlikun.photo_hander.view.SquareFrameLayout>

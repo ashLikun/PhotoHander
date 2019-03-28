@@ -132,6 +132,11 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         if (selectDatas == null) {
             selectDatas = new ArrayList<>();
         }
+        //2个对象一样
+        if (listDatas == selectDatas) {
+            selectDatas = new ArrayList<>();
+            selectDatas.addAll(listDatas);
+        }
         int position = getArguments().getInt(IntentKey.EXTRA_ADAPTER_CLICK_POSITION);
         Image positionData = getArguments().getParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA);
         optionData = getArguments().getParcelable(IntentKey.EXTRA_OPTION_DATA);
@@ -230,12 +235,21 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         if (selectDatas.contains(image)) {
             selectDatas.remove(image);
             //通知底部
-            miniImageAdapter.notifyItemRemoved(miniImageAdapter.setSelectItem(-1));
+            if (selectDatas.isEmpty()) {
+                miniImageAdapter.notifyDataSetChanged();
+            } else {
+                miniImageAdapter.notifyItemRemoved(miniImageAdapter.setSelectItem(-1));
+            }
         } else {
             selectDatas.add(image);
+
             int selectPosition = selectDatas.indexOf(image);
             miniImageAdapter.setSelectItem(selectPosition);
-            miniImageAdapter.notifyItemInserted(selectPosition);
+            if (selectDatas.isEmpty()) {
+                miniImageAdapter.notifyDataSetChanged();
+            } else {
+                miniImageAdapter.notifyItemInserted(selectPosition);
+            }
             recycleView.scrollToPosition(selectPosition);
         }
         recycleView.setVisibility(selectDatas.isEmpty() ? View.GONE : View.VISIBLE);

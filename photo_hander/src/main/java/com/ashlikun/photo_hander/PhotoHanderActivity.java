@@ -245,7 +245,27 @@ public class PhotoHanderActivity extends AppCompatActivity
      */
     @Override
     public void onLookPhoto(List<Image> imageList, List<Image> selectList, int position, Image currentData) {
-        addLookPhotoFragment(imageList, selectList, position, currentData);
+        try {
+            //检查是否有PhotoView库
+            Class.forName(PhotoView.class.getName());
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList(IntentKey.EXTRA_ADAPTER_SHOW_DATA, (ArrayList<? extends Parcelable>) imageList);
+            bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, (ArrayList<? extends Parcelable>) selectList);
+            bundle.putInt(IntentKey.EXTRA_ADAPTER_CLICK_POSITION, position);
+            bundle.putParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA, currentData);
+            bundle.putParcelable(IntentKey.EXTRA_OPTION_DATA, optionData);
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
+            if (fragment != null) {
+                ft.remove(fragment);
+            }
+            fragment = Fragment.instantiate(this, PhotoLookFragment.class.getName(), bundle);
+            ft.setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out)
+                    .add(android.R.id.content, fragment, "PhotoLookFragment")
+                    .commitAllowingStateLoss();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
@@ -371,7 +391,9 @@ public class PhotoHanderActivity extends AppCompatActivity
         resultList = new ArrayList<>();
         if (images != null) {
             for (Image img : images) {
-                resultList.add(new ImageSelectData(img.path));
+                if (img != null) {
+                    resultList.add(new ImageSelectData(img.path));
+                }
             }
         }
         updateDoneText(resultList);
@@ -389,33 +411,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (isSelectOk) {
             //完成选择
             completeSelect();
-        }
-    }
-
-    /**
-     * 添加照片查看Fragment
-     */
-    public void addLookPhotoFragment(List<Image> imageList, List<Image> selectList, int position, Image currentData) {
-        try {
-            //检查是否有PhotoView库
-            Class.forName(PhotoView.class.getName());
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(IntentKey.EXTRA_ADAPTER_SHOW_DATA, (ArrayList<? extends Parcelable>) imageList);
-            bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, (ArrayList<? extends Parcelable>) selectList);
-            bundle.putInt(IntentKey.EXTRA_ADAPTER_CLICK_POSITION, position);
-            bundle.putParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA, currentData);
-            bundle.putParcelable(IntentKey.EXTRA_OPTION_DATA, optionData);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
-            if (fragment != null) {
-                ft.remove(fragment);
-            }
-            fragment = Fragment.instantiate(this, PhotoLookFragment.class.getName(), bundle);
-            ft.setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out)
-                    .add(android.R.id.content, fragment, "PhotoLookFragment")
-                    .commitAllowingStateLoss();
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 

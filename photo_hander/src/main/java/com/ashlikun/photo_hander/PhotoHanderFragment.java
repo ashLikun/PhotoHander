@@ -206,9 +206,23 @@ public class PhotoHanderFragment extends Fragment {
             }
         });
         mFolderAdapter = new FolderAdapter(getActivity());
-        yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
-                getString(R.string.ph_action_yulan), resultList.size()));
+
         yulanTv.setVisibility(optionData.isModeMulti() ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * 设置预览的文字
+     */
+    public void setYulanText() {
+        if (optionData.isModeMulti()) {
+            if (resultList == null || resultList.isEmpty()) {
+                yulanTv.setText(R.string.ph_action_yulan);
+            } else {
+                yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
+                        getString(R.string.ph_action_yulan), resultList.size()));
+            }
+
+        }
     }
 
     /**
@@ -345,8 +359,7 @@ public class PhotoHanderFragment extends Fragment {
             if (optionData.isModeMulti()) {
                 if (resultList.contains(image.path)) {
                     resultList.remove(image.path);
-                    yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
-                            getString(R.string.ph_action_yulan), resultList.size()));
+                    setYulanText();
                     if (mCallback != null) {
                         mCallback.onImageUnselected(image.path);
                     }
@@ -356,8 +369,7 @@ public class PhotoHanderFragment extends Fragment {
                         return;
                     }
                     resultList.add(image.path);
-                    yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
-                            getString(R.string.ph_action_yulan), resultList.size()));
+                    setYulanText();
                     if (mCallback != null) {
                         mCallback.onImageSelected(image.path);
                     }
@@ -483,8 +495,7 @@ public class PhotoHanderFragment extends Fragment {
                 resultList.add(d.path);
             }
         }
-        yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
-                getString(R.string.ph_action_yulan), resultList.size()));
+        setYulanText();
         mImageAdapter.setSelectDatas(selectDatas);
     }
 
