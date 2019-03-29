@@ -174,6 +174,10 @@ public class PhotoHanderFragment extends Fragment {
             public void onItemClick(View view, Image data, int position) {
                 if (mImageAdapter.isShowCamera()) {
                     if (position == 0) {
+                        if (optionData.mDefaultCount <= resultList.size()) {
+                            Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                         mTmpFile = PhotoHanderUtils.showCameraAction(PhotoHanderFragment.this);
                         return;
                     } else {

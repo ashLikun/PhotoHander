@@ -253,6 +253,9 @@ public class PhotoHander {
      * @return
      */
     public static ArrayList<ImageSelectData> getIntentResult(Intent data) {
+        if (data == null) {
+            return null;
+        }
         return data.getParcelableArrayListExtra(IntentKey.EXTRA_RESULT);
     }
 

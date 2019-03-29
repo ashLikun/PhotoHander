@@ -311,6 +311,9 @@ public class PhotoHanderActivity extends AppCompatActivity
                     }).launch();
         } else {
             if (resultList != null && resultList.size() > 0) {
+                if (optionData.mDefaultCount < resultList.size()) {
+                    resultList = (ArrayList<ImageSelectData>) resultList.subList(0, optionData.mDefaultCount);
+                }
                 //回调
                 Intent data = new Intent();
                 data.putParcelableArrayListExtra(IntentKey.EXTRA_RESULT, resultList);

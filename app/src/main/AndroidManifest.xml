@@ -20,12 +20,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <!--<activity-->
+            <!--<activity-->
             <!--android:name="com.ashlikun.multiimageselector.PhotoActivity"-->
             <!--android:configChanges="orientation|screenSize"-->
             <!--android:label="图片选择" />-->
-        <!--<activity-->
+            <!--<activity-->
+        </activity>
+
+        <activity
             android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
             android:configChanges="orientation|screenSize"
             android:label="图片裁剪" />
