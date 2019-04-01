@@ -18,7 +18,7 @@ allprojects {
 ```gradle
 dependencies {
     implementation 'com.github.bumptech.glide:glide:+'
-    implementation 'com.github.ashLikun:PhotoView:1.0.0'
+    implementation 'com.github.ashLikun:PhotoView:1.0.1'
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.y.z'
     implementation 'com.github.ashLikun:PhotoHander:{latest version}'

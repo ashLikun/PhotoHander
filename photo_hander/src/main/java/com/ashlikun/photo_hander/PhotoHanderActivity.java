@@ -90,11 +90,15 @@ public class PhotoHanderActivity extends AppCompatActivity
         //配置属性
         optionData = intent.getParcelableExtra(IntentKey.EXTRA_OPTION_DATA);
         //已选数据
-        resultList = intent.getParcelableArrayListExtra(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
+        if (!optionData.isMustCamera) {
+            //只拍照清空已选数据
+            resultList = intent.getParcelableArrayListExtra(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
+        }
         addList = intent.getStringArrayListExtra(IntentKey.EXTRA_DEFAULT_ADD_IMAGES);
         if (resultList == null) {
             resultList = new ArrayList<>();
         }
+
         //处理数据
         for (ImageSelectData d : resultList) {
             if (d.isHttpImg()) {
@@ -124,6 +128,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         } else {
             mSubmitButton.setVisibility(View.GONE);
         }
+
 
         if (savedInstanceState == null) {
             addFragment();

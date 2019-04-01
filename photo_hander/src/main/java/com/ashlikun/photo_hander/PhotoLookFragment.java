@@ -202,6 +202,9 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
 
     @Override
     public void onPageSelected(int position) {
+        for (int i = 0; i < viewPager.getChildCount(); i++) {
+            adapter.resetView(viewPager.getChildAt(i));
+        }
         changTitle(position);
         //设置选中判断
         Image image = adapter.getItemData(position);

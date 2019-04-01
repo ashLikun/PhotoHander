@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.ashlikun.photo_hander.R;
@@ -60,9 +61,14 @@ public class LookFragmentAdapter extends PagerAdapter {
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         PhotoView imageView = new PhotoView(container.getContext());
         imageView.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
-        container.addView(imageView);
+        imageView.setTag(1);
+        FrameLayout frameLayout = new FrameLayout(container.getContext());
+        frameLayout.addView(imageView);
+        frameLayout.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
+        container.addView(frameLayout);
+
         upDataImageView(imageView, position);
-        return imageView;
+        return frameLayout;
     }
 
     @Override
@@ -104,5 +110,14 @@ public class LookFragmentAdapter extends PagerAdapter {
 
     public int indexOf(Image data) {
         return listDatas.indexOf(data);
+    }
+
+    public void resetView(View childAt) {
+        if (childAt != null && childAt instanceof ViewGroup) {
+            View view = childAt.findViewWithTag(1);
+            if (view != null && view instanceof PhotoView) {
+                ((PhotoView) view).update();
+            }
+        }
     }
 }

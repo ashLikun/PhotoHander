@@ -16,12 +16,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.ashlikun.multiimageselector.simple.R;
 import com.ashlikun.photo_hander.PhotoHander;
 import com.ashlikun.photo_hander.bean.ImageSelectData;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     protected static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 102;
 
     private TextView mResultText;
+    private ImageView imageView;
     private RadioGroup mChoiceMode, mShowCamera, cropRg;
     private EditText mRequestNum, cropWidthEt, cropHeightEt;
 
@@ -46,12 +49,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915539&di=ec1b6b518f6a26aa998505d80e0ede33&imgtype=0&src=http%3A%2F%2Fs9.knowsky.com%2Fbizhi%2Fl%2F20090606%2F200906186%2520%25281%2529.jpg");
-        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915645&di=163f3070e7b24cf924e8340504b7f189&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2Fd043ad4bd11373f0e263de4bae0f4bfbfaed0481.jpg");
+//        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915539&di=ec1b6b518f6a26aa998505d80e0ede33&imgtype=0&src=http%3A%2F%2Fs9.knowsky.com%2Fbizhi%2Fl%2F20090606%2F200906186%2520%25281%2529.jpg");
+//        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915645&di=163f3070e7b24cf924e8340504b7f189&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2Fd043ad4bd11373f0e263de4bae0f4bfbfaed0481.jpg");
 //        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915644&di=4e6734ad58513cf6e17b23a359f4dc24&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2Fcdbf6c81800a19d8a1af34d139fa828ba71e46b1.jpg");
 //        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915644&di=8f38098ae98e3f4b914a3342ce1bd2ce&imgtype=0&src=http%3A%2F%2Fimgsrc.baidu.com%2Fimgad%2Fpic%2Fitem%2Ffaf2b2119313b07e1fcce2dc06d7912396dd8cf5.jpg");
 
         mResultText = (TextView) findViewById(R.id.result);
+        imageView = (ImageView) findViewById(R.id.imageView);
         mChoiceMode = (RadioGroup) findViewById(R.id.choice_mode);
         mShowCamera = (RadioGroup) findViewById(R.id.show_camera);
         cropRg = (RadioGroup) findViewById(R.id.cropRg);
@@ -112,9 +116,9 @@ public class MainActivity extends AppCompatActivity {
             }
             selector.addImage(addHttpImage);
             selector.compress(true);
-//            selector.isMustCamera(true);
-            selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
-            selector.cropCircle(true);
+            selector.isMustCamera(true);
+//            selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
+//            selector.cropCircle(true);
             if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {
                 try {
                     selector.crop(Integer.valueOf(cropWidthEt.getText().toString()), Integer.valueOf(cropHeightEt.getText().toString()));
@@ -163,6 +167,10 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 mSelectPath = PhotoHander.getIntentResult(data);
                 StringBuilder sb = new StringBuilder();
+                if (mSelectPath.size() == 1) {
+                    Glide.with(this).load(mSelectPath.get(0).compressPath)
+                            .into(imageView);
+                }
                 for (ImageSelectData p : mSelectPath) {
                     sb.append(p);
                     if (!p.isHttpImg()) {
