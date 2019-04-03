@@ -156,12 +156,24 @@ public class Luban {
                 compressFiles.clear();
                 for (String f : mFiles) {
                     if (!PhotoHanderUtils.isHttpImg(f)) {
-                        File ff = compress(f);
-                        if (ff != null && ff.exists()) {
-                            compressFiles.add(new ImageSelectData(f, ff.getPath()));
+                        try {
+                            File ff = compress(f);
+                            if (ff != null && ff.exists()) {
+                                compressFiles.add(new ImageSelectData(f, ff.getPath()));
+                                int progress = mFiles.indexOf(f) + 1;
+                                e.onNext(progress);
+                            } else {
+                                //压缩失败
+                                compressFiles.add(new ImageSelectData(f, f, true));
+                                int progress = mFiles.indexOf(f) + 1;
+                                e.onNext(progress);
+                            }
+                        } catch (Exception e1) {
+                            compressFiles.add(new ImageSelectData(f, f, true));
                             int progress = mFiles.indexOf(f) + 1;
                             e.onNext(progress);
                         }
+
                     } else {
                         //如果是网络图直接跳过
                         compressFiles.add(new ImageSelectData(f));

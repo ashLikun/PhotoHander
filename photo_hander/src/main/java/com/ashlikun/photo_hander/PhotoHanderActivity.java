@@ -306,6 +306,7 @@ public class PhotoHanderActivity extends AppCompatActivity
 
                         @Override
                         public void onError(Throwable e) {
+                            compressDialog.dismiss();
                             Toast.makeText(PhotoHanderActivity.this, "图片处理出错", Toast.LENGTH_SHORT).show();
                         }
 

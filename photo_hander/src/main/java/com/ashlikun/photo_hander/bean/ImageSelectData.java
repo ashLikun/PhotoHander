@@ -19,6 +19,10 @@ import java.util.ArrayList;
 public class ImageSelectData implements Parcelable {
     public String originPath;
     public String compressPath;
+    /**
+     * 是否压缩失败
+     */
+    public boolean isComparessError = false;
 
     /**
      * 这张图片是否是网络图
@@ -56,6 +60,12 @@ public class ImageSelectData implements Parcelable {
     public ImageSelectData(String originImage, String compressImage) {
         this.originPath = originImage;
         this.compressPath = compressImage;
+    }
+
+    public ImageSelectData(String originPath, String compressPath, boolean isComparessError) {
+        this.originPath = originPath;
+        this.compressPath = compressPath;
+        this.isComparessError = isComparessError;
     }
 
     public ImageSelectData(String originImage) {

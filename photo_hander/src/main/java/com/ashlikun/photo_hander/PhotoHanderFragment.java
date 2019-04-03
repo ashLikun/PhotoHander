@@ -212,6 +212,7 @@ public class PhotoHanderFragment extends Fragment {
         mFolderAdapter = new FolderAdapter(getActivity());
 
         yulanTv.setVisibility(optionData.isModeMulti() ? View.VISIBLE : View.GONE);
+        setYulanText();
     }
 
     /**
