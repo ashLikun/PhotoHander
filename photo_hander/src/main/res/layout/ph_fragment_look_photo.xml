@@ -5,13 +5,13 @@
     android:background="@android:color/black"
     android:orientation="vertical">
 
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="?actionBarSize"></android.support.v4.view.ViewPager>
+        android:layout_marginTop="?actionBarSize"></androidx.viewpager.widget.ViewPager>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycleView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -19,7 +19,7 @@
         android:layout_marginBottom="45dp"
         android:background="?attr/colorPrimary"
         android:paddingTop="10dp"
-        android:paddingBottom="10dp"></android.support.v7.widget.RecyclerView>
+        android:paddingBottom="10dp"></androidx.recyclerview.widget.RecyclerView>
 
     <include layout="@layout/ph_cmp_customer_actionbar"></include>
 

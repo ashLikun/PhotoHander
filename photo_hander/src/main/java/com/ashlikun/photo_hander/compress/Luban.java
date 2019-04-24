@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.ashlikun.photo_hander.bean.ImageSelectData;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
