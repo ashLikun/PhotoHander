@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Point;
@@ -19,6 +20,16 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.ListPopupWindow;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.ashlikun.photo_hander.adapter.FolderAdapter;
 import com.ashlikun.photo_hander.adapter.ImageGridAdapter;
 import com.ashlikun.photo_hander.bean.Folder;
@@ -30,16 +41,6 @@ import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.ListPopupWindow;
-import androidx.fragment.app.Fragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author　　: 李坤
@@ -102,6 +103,10 @@ public class PhotoHanderFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        //获取主题颜色
+        TypedArray array = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.phBottonColor, R.attr.phTitleColor});
+        int phBottonColor = array.getColor(0, 0xffffffff);
+        array.recycle();
         //配置属性
         optionData = getArguments().getParcelable(IntentKey.EXTRA_OPTION_DATA);
 
@@ -123,6 +128,8 @@ public class PhotoHanderFragment extends Fragment {
         mCategoryText = (TextView) view.findViewById(R.id.category_btn);
         yulanTv = (TextView) view.findViewById(R.id.yulanTv);
         mCategoryText.setText(R.string.ph_folder_all);
+        mCategoryText.setTextColor(phBottonColor);
+        yulanTv.setTextColor(phBottonColor);
         mCategoryText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

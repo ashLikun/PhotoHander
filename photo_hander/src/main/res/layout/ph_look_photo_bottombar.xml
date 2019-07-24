@@ -37,7 +37,6 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:text="选择"
-            android:textColor="@android:color/white"
             android:textSize="14dp" />
 
     </LinearLayout>

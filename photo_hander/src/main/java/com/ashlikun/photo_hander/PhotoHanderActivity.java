@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +16,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.ashlikun.photo_hander.bean.Image;
 import com.ashlikun.photo_hander.bean.ImageSelectData;
@@ -29,12 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 /**
  * 作者　　: 李坤
@@ -71,13 +72,20 @@ public class PhotoHanderActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ph_activity_default);
-        ((TextView) findViewById(R.id.titleView)).setText(getTitle());
+        //获取主题颜色
+        TypedArray array = getTheme().obtainStyledAttributes(new int[]{R.attr.phTitleColor});
+        int titleColor = array.getColor(0, 0xffffffff);
+        array.recycle();
+        TextView titleView = findViewById(R.id.titleView);
+        titleView.setText(getTitle());
+        titleView.setTextColor(titleColor);
+
         mSubmitButton = findViewById(R.id.commit);
         ImageView btnBack = findViewById(R.id.btn_back);
         if (btnBack.getDrawable() == null) {
             Drawable drawable = getResources().getDrawable(R.drawable.material_back);
             drawable.mutate();
-            DrawableCompat.setTint(drawable, 0xffffffff);
+            DrawableCompat.setTint(drawable, titleColor);
             btnBack.setImageDrawable(drawable);
         }
         btnBack.setOnClickListener(new View.OnClickListener() {

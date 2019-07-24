@@ -14,6 +14,11 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import com.ashlikun.multiimageselector.simple.R;
 import com.ashlikun.photo_hander.PhotoHander;
 import com.ashlikun.photo_hander.bean.ImageSelectData;
@@ -22,11 +27,6 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
 
 public class MainActivity extends AppCompatActivity {

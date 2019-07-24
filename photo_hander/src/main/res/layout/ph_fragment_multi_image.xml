@@ -30,7 +30,6 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp"
             android:textAllCaps="false"
-            android:textColor="@color/ph_folder_text_color"
             android:textSize="@dimen/ph_folder_text_size"
             tools:text="所有图片" />
 
@@ -53,7 +52,6 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="@string/ph_action_yulan"
-            android:textColor="@color/ph_folder_text_color"
             android:textSize="@dimen/ph_folder_text_size" />
     </RelativeLayout>
 
