@@ -75,7 +75,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         //获取主题颜色
         TypedArray array = getTheme().obtainStyledAttributes(new int[]{R.attr.phTitleColor, android.R.attr.colorPrimary});
         int titleColor = array.getColor(0, 0xffffffff);
-        int colorPrimary = array.getColor(0, 0xffffffff);
+        int colorPrimary = array.getColor(1, 0xffffffff);
         array.recycle();
         PhotoHanderUtils.autoStatueTextColor(getWindow(), colorPrimary);
         TextView titleView = findViewById(R.id.titleView);
