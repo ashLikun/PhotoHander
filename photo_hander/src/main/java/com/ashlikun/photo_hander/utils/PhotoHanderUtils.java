@@ -6,19 +6,22 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.ashlikun.photo_hander.PhotoHander;
 import com.ashlikun.photo_hander.R;
@@ -343,5 +346,80 @@ public class PhotoHanderUtils {
             res = JPEG_FILE_SUFFIX;
         }
         return res;
+    }
+
+    /**
+     * 根据颜色值自动设置状态栏字体颜色
+     *
+     * @param color
+     */
+    public static void autoStatueTextColor(Window window, int color) {
+        if (isColorDrak(color)) {
+            //浅色文字
+            setStatusLightColor(window);
+        } else {
+            //深色文字
+            setStatusDarkColor(window);
+        }
+    }
+
+    /**
+     * 设置状态栏字体颜色为深色
+     */
+    public static void setStatusDarkColor(Window window) {
+        setStatusTextColor(window, true);
+    }
+
+    /**
+     * 这个颜色是不是深色的
+     *
+     * @param color
+     * @return
+     */
+    public static boolean isColorDrak(int color) {
+        //int t = (color >> 24) & 0xFF;
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+        return r * 0.299 + g * 0.578 + b * 0.114 <= 192;
+    }
+
+    /**
+     * 设置状态栏字体浅色
+     */
+    public static void setStatusLightColor(Window window) {
+        setStatusTextColor(window, false);
+    }
+
+    /**
+     * 是否可以设置状态栏颜色
+     *
+     * @return
+     */
+    public static boolean isSetStatusTextColor() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
+    }
+
+    public static void setStatusTextColor(Window window, boolean drak) {
+        if (!isSetStatusTextColor()) {
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //判断当前是不是6.0以上的系统
+            if (window != null) {
+                View view = window.getDecorView();
+                if (view != null) {
+                    if (drak) {
+                        //黑色
+                        view.setSystemUiVisibility(view.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    } else {
+                        //白色,就是去除View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        if ((view.getSystemUiVisibility() & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0) {
+                            view.setSystemUiVisibility(view.getSystemUiVisibility() ^ View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
