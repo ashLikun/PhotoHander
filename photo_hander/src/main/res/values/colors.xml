@@ -7,8 +7,9 @@
     <color name="crop_selector_focused">#77000000</color>
     <!--分割线颜色-->
     <color name="ph_space_color">#000000</color>
-    <!--顶部发送的字体颜色-->
+    <!--未选中的颜色-->
     <color name="ph_ok_text_color_no">#337523</color>
+    <!--选中的颜色  -->
     <color name="ph_ok_text_color">#44BF1A</color>
     <!--预览时候 小的选中宽的边框颜色-->
     <color name="ph_yulam_mini_stroke_color">#44BF1A</color>

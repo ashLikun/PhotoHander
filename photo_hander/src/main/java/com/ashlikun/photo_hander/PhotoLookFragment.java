@@ -13,13 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.ashlikun.photo_hander.adapter.LookFragmentAdapter;
-import com.ashlikun.photo_hander.adapter.MiniImageAdapter;
-import com.ashlikun.photo_hander.bean.Image;
-import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
-
-import java.util.ArrayList;
-
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -29,6 +22,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
+
+import com.ashlikun.photo_hander.adapter.LookFragmentAdapter;
+import com.ashlikun.photo_hander.adapter.MiniImageAdapter;
+import com.ashlikun.photo_hander.bean.Image;
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
+
+import java.util.ArrayList;
 
 /**
  * 作者　　: 李坤
@@ -42,6 +42,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
     private ImageView btnBack;
     private TextView titleView;
     private ImageView checkmark;
+    private TextView selectText;
     private LinearLayout checkLL;
     private FrameLayout bottomFl;
     private RecyclerView recycleView;
@@ -79,9 +80,15 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
     }
 
     private void initView(final View view) {
+        //获取主题颜色
+        TypedArray array = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.phBottonColor, R.attr.phTitleColor});
+        int phBottonColor = array.getColor(0, 0xffffffff);
+        int phTitleColor = array.getColor(1, 0xffffffff);
+        array.recycle();
         viewPager = view.findViewById(R.id.viewPager);
         btnBack = view.findViewById(R.id.btn_back);
         titleView = view.findViewById(R.id.titleView);
+        selectText = view.findViewById(R.id.selectText);
         checkmark = view.findViewById(R.id.checkmark);
         checkLL = view.findViewById(R.id.checkLL);
         bottomFl = view.findViewById(R.id.bottomFl);
@@ -92,6 +99,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
             drawable.setAlpha(160);
             bottomFl.setBackground(drawable);
         }
+
         if (recycleView.getBackground() != null) {
             Drawable drawable = DrawableCompat.wrap(recycleView.getBackground()).mutate();
             drawable.setAlpha(160);
@@ -110,7 +118,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         if (btnBack.getDrawable() == null) {
             Drawable drawable = getResources().getDrawable(R.drawable.material_back);
             drawable.mutate();
-            DrawableCompat.setTint(drawable, 0xffffffff);
+            DrawableCompat.setTint(drawable, phBottonColor);
             btnBack.setImageDrawable(drawable);
             btnBack.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -119,6 +127,8 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
                 }
             });
         }
+        titleView.setTextColor(phTitleColor);
+        selectText.setTextColor(phBottonColor);
         //选择点击
         checkLL.setOnClickListener(new View.OnClickListener() {
             @Override

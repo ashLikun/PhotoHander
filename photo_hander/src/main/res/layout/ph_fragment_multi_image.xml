@@ -33,14 +33,15 @@
             android:textSize="@dimen/ph_folder_text_size"
             tools:text="所有图片" />
 
-        <View
+        <ImageView
+            android:id="@+id/category_iv"
             android:layout_width="12dp"
             android:layout_height="12dp"
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="-15dp"
             android:layout_marginBottom="14dp"
             android:layout_toRightOf="@+id/category_btn"
-            android:background="@drawable/ph_text_indicator"></View>
+            android:src="@drawable/ph_text_indicator"></ImageView>
 
 
         <TextView

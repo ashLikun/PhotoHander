@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -129,6 +130,8 @@ public class PhotoHanderFragment extends Fragment {
         yulanTv = (TextView) view.findViewById(R.id.yulanTv);
         mCategoryText.setText(R.string.ph_folder_all);
         mCategoryText.setTextColor(phBottonColor);
+        ((ImageView) view.findViewById(R.id.category_iv)).setColorFilter(phBottonColor);
+
         yulanTv.setTextColor(phBottonColor);
         mCategoryText.setOnClickListener(new View.OnClickListener() {
             @Override
