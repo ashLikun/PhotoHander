@@ -176,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
                         File ff = new File(p.compressPath);
                         try {
                             sb.append("\n");
-                            sb.append("   size = " + getFileSize(ff));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -189,24 +188,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * 获取指定文件大小
-     *
-     * @return
-     * @throws Exception
-     */
-    private long getFileSize(File file) throws Exception {
-        long size = 0;
-        if (file.exists()) {
-            FileInputStream fis = null;
-            fis = new FileInputStream(file);
-            size = fis.available();
-        } else {
-            file.createNewFile();
-            Log.e("获取文件大小", "文件不存在!");
-        }
-        return size;
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

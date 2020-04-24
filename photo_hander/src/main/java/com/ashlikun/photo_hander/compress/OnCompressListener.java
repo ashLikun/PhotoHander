@@ -1,27 +1,23 @@
 package com.ashlikun.photo_hander.compress;
 
-import com.ashlikun.photo_hander.bean.ImageSelectData;
-
 import java.util.ArrayList;
 
-/**
- * @author　　: 李坤
- * 创建时间: 2018/8/15 13:24
- * 邮箱　　：496546144@qq.com
- * <p>
- * 功能介绍：压缩监听
- */
+public interface OnCompressListener {
 
-public abstract class OnCompressListener {
+    /**
+     * Fired when the compression is started, override to handle in your own code
+     */
+    void onStart();
 
-    public void onStart() {
-    }
+    /**
+     * Fired when a compression returns successfully, override to handle in your own code
+     */
+    void onSuccess(ArrayList<CompressResult> files);
 
-    public abstract void onSuccess(ArrayList<ImageSelectData> files);
+    void onLoading(int progress, long total);
 
-    public void onError(Throwable e) {
-    }
-
-    public void onLoading(int progress, long total) {
-    }
+    /**
+     * Fired when a compression fails to complete, override to handle in your own code
+     */
+    void onError(Throwable e);
 }

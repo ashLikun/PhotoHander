@@ -63,10 +63,6 @@ class PhotoOptionData implements Parcelable {
      */
     public boolean isCompress = false;
     /**
-     * 压缩等级
-     */
-    public int compressRank = Luban.THIRD_GEAR;
-    /**
      * 选择的模式
      */
     public int selectMode = MODE_MULTI;
@@ -99,7 +95,6 @@ class PhotoOptionData implements Parcelable {
         dest.writeByte(this.cropShowCircle ? (byte) 1 : (byte) 0);
         dest.writeInt(this.cropColor);
         dest.writeByte(this.isCompress ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.compressRank);
         dest.writeInt(this.selectMode);
     }
 
@@ -113,7 +108,6 @@ class PhotoOptionData implements Parcelable {
         this.cropShowCircle = in.readByte() != 0;
         this.cropColor = in.readInt();
         this.isCompress = in.readByte() != 0;
-        this.compressRank = in.readInt();
         this.selectMode = in.readInt();
     }
 

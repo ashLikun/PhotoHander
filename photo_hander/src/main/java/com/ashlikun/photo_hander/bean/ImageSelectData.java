@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -19,10 +20,13 @@ import java.util.ArrayList;
 public class ImageSelectData implements Parcelable {
     public String originPath;
     public String compressPath;
+
     /**
      * 是否压缩失败
      */
     public boolean isComparessError = false;
+    //是否压缩（不是网络图，缓存没有，文件太小）
+    public boolean isCompress;
 
     /**
      * 这张图片是否是网络图
@@ -62,11 +66,12 @@ public class ImageSelectData implements Parcelable {
         this.compressPath = compressImage;
     }
 
-    public ImageSelectData(String originPath, String compressPath, boolean isComparessError) {
+    public ImageSelectData(String originPath, String compressPath, boolean isCompress) {
         this.originPath = originPath;
         this.compressPath = compressPath;
-        this.isComparessError = isComparessError;
+        this.isCompress = isCompress;
     }
+
 
     public ImageSelectData(String originImage) {
         this.originPath = originImage;
@@ -75,9 +80,24 @@ public class ImageSelectData implements Parcelable {
         }
     }
 
+    public ImageSelectData(String originPath, String compressPath, boolean isCompress, boolean isComparessError) {
+        this.originPath = originPath;
+        this.compressPath = compressPath;
+        this.isComparessError = isComparessError;
+        this.isCompress = isCompress;
+    }
+
     @Override
     public String toString() {
-        return "原图：" + originPath + "       压缩图:" + compressPath;
+        long sizeOrigin = 0;
+        long sizeCompress = 0;
+        try {
+            sizeOrigin = PhotoHanderUtils.getFileSizes(new File(originPath));
+            sizeCompress = PhotoHanderUtils.getFileSizes(new File(compressPath));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "原图：" + originPath + "  size = " + sizeOrigin + "       压缩图:" + compressPath + "  size = " + sizeCompress;
     }
 
     @Override

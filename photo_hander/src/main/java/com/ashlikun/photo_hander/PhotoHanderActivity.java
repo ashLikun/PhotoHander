@@ -25,6 +25,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.ashlikun.photo_hander.bean.Image;
 import com.ashlikun.photo_hander.bean.ImageSelectData;
+import com.ashlikun.photo_hander.compress.CompressResult;
 import com.ashlikun.photo_hander.compress.Luban;
 import com.ashlikun.photo_hander.compress.OnCompressListener;
 import com.ashlikun.photo_hander.crop.Crop;
@@ -292,8 +293,8 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (optionData.isCompress) {
             //压缩
             ArrayList<String> resultStrList = ImageSelectData.getOriginPaths(resultList);
-            Luban.get(this).load(resultStrList)
-                    .putGear(optionData.compressRank)
+            Luban.with(this)
+                    .load(resultStrList)
                     .setCompressListener(new OnCompressListener() {
                         @Override
                         public void onStart() {
@@ -308,9 +309,12 @@ public class PhotoHanderActivity extends AppCompatActivity
                         }
 
                         @Override
-                        public void onSuccess(ArrayList<ImageSelectData> files) {
+                        public void onSuccess(ArrayList<CompressResult> files) {
+                            resultList = new ArrayList<>();
+                            for (CompressResult result : files) {
+                                resultList.add(new ImageSelectData(result.provider.getPath(), result.compressPath, result.isCompress, result.isCompress));
+                            }
                             compressDialog.dismiss();
-                            resultList = files;
                             optionData.isCompress = false;
                             completeSelect();
                         }

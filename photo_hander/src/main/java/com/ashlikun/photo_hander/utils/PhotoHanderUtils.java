@@ -116,12 +116,16 @@ public class PhotoHanderUtils {
     public static long getFileSizes(File file) throws Exception {
         long size = 0;
         try {
-            File[] fileList = file.listFiles();
-            for (File aFileList : fileList) {
-                if (aFileList.isDirectory()) {
-                    size = size + getFileSizes(aFileList);
-                } else {
-                    size = size + aFileList.length();
+            if (!file.isDirectory()) {
+                size = size + file.length();
+            } else {
+                File[] fileList = file.listFiles();
+                for (File aFileList : fileList) {
+                    if (aFileList.isDirectory()) {
+                        size = size + getFileSizes(aFileList);
+                    } else {
+                        size = size + aFileList.length();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -133,7 +137,7 @@ public class PhotoHanderUtils {
 
     /**
      * 启动拍照
-     * 用的权限code {@link PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION}
+     * 用的权限code
      *
      * @param activityOrfragment 只能是activity或者fragment
      */
@@ -335,18 +339,6 @@ public class PhotoHanderUtils {
             }
         }
         return num;
-    }
-
-
-    public static String getFileSuffix(String filePath) {
-        String res;
-        String[] sp = filePath.split(".");
-        if (sp != null && sp.length > 0) {
-            res = "." + sp[sp.length - 1];
-        } else {
-            res = JPEG_FILE_SUFFIX;
-        }
-        return res;
     }
 
     /**
