@@ -27,30 +27,24 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.opengl.GLES10;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.ashlikun.photo_hander.R;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.CountDownLatch;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableEmitter;
-import io.reactivex.ObservableOnSubscribe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * 作者　　: 李坤
@@ -204,43 +198,24 @@ public class CropImageActivity extends AppCompatActivity {
                 this, null, getResources().getString(R.string.crop__wait), true, false);
         imageView.setImageRotateBitmapResetBase(rotateBitmap, true);
 
-        Observable.create(new ObservableOnSubscribe<CountDownLatch>() {
+        imageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void subscribe(ObservableEmitter<CountDownLatch> e) throws Exception {
-                final CountDownLatch latch = new CountDownLatch(1);
-                e.onNext(latch);
-                try {
-                    latch.await();
-                } catch (InterruptedException e1) {
-                    throw new RuntimeException(e1);
+            public void onGlobalLayout() {
+                imageView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                if (imageView.getScale() == 1F) {
+                    imageView.center();
                 }
-                new Cropper().crop();
-                e.onComplete();
-            }
-        }).observeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<CountDownLatch>() {
+                AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
                     @Override
-                    public void accept(CountDownLatch o) throws Exception {
-                        if (imageView.getScale() == 1F) {
-                            imageView.center();
-                        }
-                        o.countDown();
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                    }
-                }, new Action() {
-                    @Override
-                    public void run() throws Exception {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
+                    public void run() {
+                        new Cropper().crop();
                     }
                 });
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
 
     }
 
@@ -339,18 +314,12 @@ public class CropImageActivity extends AppCompatActivity {
         if (croppedImage != null) {
             dialog = ProgressDialog.show(
                     this, null, getResources().getString(R.string.crop__saving), true, false);
-            Observable.create(new ObservableOnSubscribe<Bitmap>() {
+            AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
                 @Override
-                public void subscribe(ObservableEmitter<Bitmap> e) throws Exception {
+                public void run() {
                     saveOutput(croppedImage);
                 }
-            }).observeOn(Schedulers.io()).subscribeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Consumer<Bitmap>() {
-                        @Override
-                        public void accept(Bitmap bitmap) throws Exception {
-
-                        }
-                    });
+            });
         } else {
             setResult(RESULT_CANCELED);
             finish();
@@ -449,9 +418,10 @@ public class CropImageActivity extends AppCompatActivity {
             public void run() {
                 imageView.clear();
                 b.recycle();
+                finish();
             }
         });
-        finish();
+
     }
 
     @Override
@@ -487,7 +457,9 @@ public class CropImageActivity extends AppCompatActivity {
     }
 
     private void setResultUri(Uri uri) {
-        setResult(RESULT_OK, new Intent().putExtra(MediaStore.EXTRA_OUTPUT, uri));
+        Intent intent = new Intent().putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        intent.putExtra(Crop.CROP_ORGIN_OUTPUT, optionData.source);
+        setResult(RESULT_OK, intent);
     }
 
     private void setResultException(Throwable throwable) {

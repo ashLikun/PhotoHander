@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +24,6 @@ import com.ashlikun.photo_hander.bean.ImageSelectData;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 
 
@@ -116,8 +114,8 @@ public class MainActivity extends AppCompatActivity {
             selector.addImage(addHttpImage);
             selector.compress(true);
 //            selector.isMustCamera(true);
-//            selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
-//            selector.cropCircle(true);
+            selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
+            selector.cropCircle(true);
             if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {
                 try {
                     selector.crop(Integer.valueOf(cropWidthEt.getText().toString()), Integer.valueOf(cropHeightEt.getText().toString()));

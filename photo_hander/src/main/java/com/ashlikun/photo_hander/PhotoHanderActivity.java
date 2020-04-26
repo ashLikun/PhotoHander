@@ -310,10 +310,19 @@ public class PhotoHanderActivity extends AppCompatActivity
 
                         @Override
                         public void onSuccess(ArrayList<CompressResult> files) {
-                            resultList = new ArrayList<>();
+                            ArrayList mresultList = new ArrayList<>();
                             for (CompressResult result : files) {
-                                resultList.add(new ImageSelectData(result.provider.getPath(), result.compressPath, result.isCompress, result.isCompress));
+                                ImageSelectData data = new ImageSelectData(result.provider.getPath(), result.compressPath, result.isCompress, result.isComparessError);
+                                for (ImageSelectData dd : resultList) {
+                                    //裁剪图还原,压缩完成的结果的originPath == 裁剪的cropPath
+                                    if (TextUtils.equals(dd.cropPath, data.originPath)) {
+                                        data.originPath = dd.originPath;
+                                        break;
+                                    }
+                                }
+                                mresultList.add(data);
                             }
+                            resultList = mresultList;
                             compressDialog.dismiss();
                             optionData.isCompress = false;
                             completeSelect();
@@ -353,7 +362,11 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (requestCode == Crop.REQUEST_CROP) {
             if (resultCode == RESULT_OK) {
                 optionData.mIsCrop = false;
-                onSingleImageSelected(Crop.getOutput(data).getPath());
+                ImageSelectData dd = new ImageSelectData(Crop.getOrginOutput(data).getPath());
+                //裁剪图
+                dd.cropPath = Crop.getOutput(data).getPath();
+                resultList.add(dd);
+                completeSelect();
             } else {
                 setResult(RESULT_CANCELED);
                 finish();

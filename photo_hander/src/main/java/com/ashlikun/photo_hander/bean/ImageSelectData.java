@@ -20,6 +20,8 @@ import java.util.ArrayList;
 public class ImageSelectData implements Parcelable {
     public String originPath;
     public String compressPath;
+    //裁剪的图片
+    public String cropPath;
 
     /**
      * 是否压缩失败
@@ -135,7 +137,13 @@ public class ImageSelectData implements Parcelable {
         ArrayList<String> strings = new ArrayList<>();
         if (resultList != null) {
             for (ImageSelectData d : resultList) {
-                strings.add(d.originPath);
+                //如果有裁剪的图片，优先使用裁剪的图片
+                if (!TextUtils.isEmpty(d.cropPath)) {
+                    strings.add(d.cropPath);
+                } else {
+                    strings.add(d.originPath);
+                }
+
             }
         }
         return strings;

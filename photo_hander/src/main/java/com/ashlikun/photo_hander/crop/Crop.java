@@ -24,6 +24,7 @@ public class Crop {
     public static final int REQUEST_CROP = 6709;
     public static final int REQUEST_PICK = 9162;
     public static final int RESULT_ERROR = 404;
+    public final static String CROP_ORGIN_OUTPUT = "CROP_ORGIN_OUTPUT";
 
     CropOptionData optionData;
 
@@ -188,7 +189,14 @@ public class Crop {
     public static Uri getOutput(Intent result) {
         return result.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
     }
-
+    /**
+     * 获取原图路径
+     *
+     * @param result Output Image URI
+     */
+    public static Uri getOrginOutput(Intent result) {
+        return result.getParcelableExtra(Crop.CROP_ORGIN_OUTPUT);
+    }
     /**
      * 提供给其他界面获取错误信息
      *
