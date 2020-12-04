@@ -204,6 +204,14 @@ public class PhotoHander {
         return this;
     }
 
+    public PhotoHander selectVideo() {
+        optionData.isSelectVideo = true;
+        return this;
+    }
+    public PhotoHander videoMaxDuration(long videoMaxDuration) {
+        optionData.videoMaxDuration = videoMaxDuration;
+        return this;
+    }
     /**
      * 开启
      *

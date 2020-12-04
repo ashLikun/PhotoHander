@@ -82,7 +82,7 @@ public class PhotoOptionData implements Parcelable {
     /**
      * 如果选择视频，那么能选的视频的时长，-1代表不限
      */
-    public int videoMaxDuration = -1;
+    public long videoMaxDuration = -1;
 
     public PhotoOptionData() {
     }
