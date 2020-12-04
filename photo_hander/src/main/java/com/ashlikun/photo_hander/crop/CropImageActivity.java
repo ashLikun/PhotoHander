@@ -69,7 +69,7 @@ public class CropImageActivity extends AppCompatActivity {
     /**
      * 配置参数
      */
-    private CropOptionData optionData;
+    private CropOptionData optionData = CropOptionData.currentData;
 
     private boolean isSaving;
 
@@ -132,7 +132,6 @@ public class CropImageActivity extends AppCompatActivity {
 
     private void loadInput() {
         Intent intent = getIntent();
-        optionData = intent.getParcelableExtra(IntentKey.EXTRA_OPTION_DATA);
         if (optionData.source != null) {
             exifRotation = CropUtil.getExifRotation(CropUtil.getFromMediaUri(this, getContentResolver(), optionData.source));
             InputStream is = null;
@@ -433,6 +432,7 @@ public class CropImageActivity extends AppCompatActivity {
         if (dialog != null) {
             dialog.dismiss();
         }
+        CropOptionData.setCurrentData(null);
     }
 
     @Override
@@ -445,6 +445,7 @@ public class CropImageActivity extends AppCompatActivity {
             dialog.dismiss();
         }
         setResult(RESULT_CANCELED);
+        CropOptionData.setCurrentData(null);
     }
 
     @Override

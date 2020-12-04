@@ -21,10 +21,6 @@ interface IntentKey {
      */
     String EXTRA_DEFAULT_ADD_IMAGES = "add_list_images";
     /**
-     * 配置的选项数据
-     */
-    String EXTRA_OPTION_DATA = "option_data";
-    /**
      * 列表正在显示的数据
      */
     String EXTRA_ADAPTER_SHOW_DATA = "adapter_show_data";

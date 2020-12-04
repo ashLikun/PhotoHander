@@ -22,18 +22,20 @@
         android:text="图片"
         android:textSize="18dp" />
 
-    <TextView
+    <Button
         android:id="@+id/commit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:minHeight="1dp"
+        android:layout_marginRight="15dp"
+        android:background="@drawable/ph_selector_bt_commit"
         android:minWidth="1dp"
-        android:paddingBottom="5dp"
+        android:minHeight="1dp"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp"
         android:paddingTop="5dp"
-        android:textColor="@color/ph_default_text_color"
+        android:paddingRight="10dp"
+        android:paddingBottom="5dp"
+        android:textColor="@android:color/white"
         android:textSize="14sp" />
 
 </LinearLayout>

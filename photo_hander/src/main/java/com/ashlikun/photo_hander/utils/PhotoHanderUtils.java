@@ -24,6 +24,7 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.ashlikun.photo_hander.PhotoHander;
+import com.ashlikun.photo_hander.PhotoOptionData;
 import com.ashlikun.photo_hander.R;
 
 import java.io.File;
@@ -70,11 +71,22 @@ public class PhotoHanderUtils {
         }
     }
 
+    /**
+     * 获取视频时长（格式化）
+     *
+     * @param timestamp
+     * @return
+     */
+    public static String getVideoDuration(long timestamp) {
+        if (timestamp < 1000) {
+            return "00:01";
+        }
+        Date date = new Date(timestamp);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("mm:ss");
+        return simpleDateFormat.format(date);
+    }
 
     /**
-     * 作者　　: 李坤
-     * 创建时间: 2017/6/28 11:25
-     * <p>
      * 方法功能：将dip或dp值转换为px值，保证尺寸大小不变
      */
 
@@ -414,5 +426,21 @@ public class PhotoHanderUtils {
                 }
             }
         }
+    }
+
+    /**
+     * 过滤目录名称
+     */
+    public static String getFolderName(String name) {
+        if (PhotoOptionData.currentData.isFilterFolder && name != null) {
+            if (name.toLowerCase().equals("camera")) {
+                return "相机";
+            } else if (name.toLowerCase().equals("screenshots")) {
+                return "截屏";
+            } else if (name.toLowerCase().equals("weixin")) {
+                return "微信";
+            }
+        }
+        return name;
     }
 }

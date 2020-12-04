@@ -1,8 +1,6 @@
 package com.ashlikun.photo_hander.crop;
 
 import android.net.Uri;
-import android.os.Parcel;
-import android.os.Parcelable;
 
 /**
  * 作者　　: 李坤
@@ -11,7 +9,14 @@ import android.os.Parcelable;
  * <p>
  * 功能介绍：裁剪页面需要的参数
  */
-class CropOptionData implements Parcelable{
+class CropOptionData {
+    //保存
+    public static CropOptionData currentData;
+
+    public static void setCurrentData(CropOptionData data) {
+        currentData = data;
+    }
+
     /**
      * 原始图
      */
@@ -45,48 +50,4 @@ class CropOptionData implements Parcelable{
     public int color;
 
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(this.source, flags);
-        dest.writeParcelable(this.saveUri, flags);
-        dest.writeInt(this.cropWidth);
-        dest.writeInt(this.cropHeight);
-        dest.writeInt(this.outMaxWidth);
-        dest.writeInt(this.outMaxHeight);
-        dest.writeByte(this.outAsPng ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.showCircle ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.color);
-    }
-
-    public CropOptionData() {
-    }
-
-    protected CropOptionData(Parcel in) {
-        this.source = in.readParcelable(Uri.class.getClassLoader());
-        this.saveUri = in.readParcelable(Uri.class.getClassLoader());
-        this.cropWidth = in.readInt();
-        this.cropHeight = in.readInt();
-        this.outMaxWidth = in.readInt();
-        this.outMaxHeight = in.readInt();
-        this.outAsPng = in.readByte() != 0;
-        this.showCircle = in.readByte() != 0;
-        this.color = in.readInt();
-    }
-
-    public static final Creator<CropOptionData> CREATOR = new Creator<CropOptionData>() {
-        @Override
-        public CropOptionData createFromParcel(Parcel source) {
-            return new CropOptionData(source);
-        }
-
-        @Override
-        public CropOptionData[] newArray(int size) {
-            return new CropOptionData[size];
-        }
-    };
 }

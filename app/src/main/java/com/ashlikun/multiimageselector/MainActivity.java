@@ -20,7 +20,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.ashlikun.multiimageselector.simple.R;
 import com.ashlikun.photo_hander.PhotoHander;
-import com.ashlikun.photo_hander.bean.ImageSelectData;
+import com.ashlikun.photo_hander.bean.MediaSelectData;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private RadioGroup mChoiceMode, mShowCamera, cropRg;
     private EditText mRequestNum, cropWidthEt, cropHeightEt;
 
-    private ArrayList<ImageSelectData> mSelectPath;
+    private ArrayList<MediaSelectData> mSelectPath;
     private ArrayList<String> addHttpImage = new ArrayList<>();
 
     @Override
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                     Glide.with(this).load(mSelectPath.get(0).compressPath)
                             .into(imageView);
                 }
-                for (ImageSelectData p : mSelectPath) {
+                for (MediaSelectData p : mSelectPath) {
                     sb.append(p);
                     if (!p.isHttpImg()) {
                         File ff = new File(p.compressPath);

@@ -8,9 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ashlikun.photo_hander.R;
-import com.ashlikun.photo_hander.bean.Image;
+import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -18,8 +22,6 @@ import com.bumptech.glide.request.RequestOptions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * @author　　: 李坤
@@ -31,7 +33,8 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.ViewHolder> {
 
     private static final int TYPE_CAMERA = 0;
-    private static final int TYPE_NORMAL = 1;
+    private static final int TYPE_IMAGE = 1;
+    private static final int TYPE_VIDEO = 2;
 
     private Context mContext;
 
@@ -41,9 +44,9 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     /**
      * 追加的数据
      */
-    private ArrayList<Image> addList = null;
-    private List<Image> mImages = new ArrayList<>();
-    private List<Image> mSelectedImages = new ArrayList<>();
+    private ArrayList<MediaFile> addList = null;
+    private List<MediaFile> mImages = new ArrayList<>();
+    private List<MediaFile> mSelectedImages = new ArrayList<>();
     OnItemClickListener onItemClickListener;
     final int mGridWidth;
 
@@ -90,7 +93,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
      *
      * @param image
      */
-    public void select(Image image) {
+    public void select(MediaFile image) {
         if (mSelectedImages.contains(image)) {
             mSelectedImages.remove(image);
         } else {
@@ -106,7 +109,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
      */
     public void setDefaultSelected(ArrayList<String> resultList) {
         for (String path : resultList) {
-            Image image = getImageByPath(path);
+            MediaFile image = getImageByPath(path);
             if (image != null) {
                 mSelectedImages.add(image);
             }
@@ -116,9 +119,9 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         }
     }
 
-    private Image getImageByPath(String path) {
+    private MediaFile getImageByPath(String path) {
         if (mImages != null && mImages.size() > 0) {
-            for (Image image : mImages) {
+            for (MediaFile image : mImages) {
                 if (image.path.equalsIgnoreCase(path)) {
                     return image;
                 }
@@ -132,7 +135,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
      *
      * @param images
      */
-    public void setData(List<Image> images) {
+    public void setData(List<MediaFile> images) {
         mSelectedImages.clear();
         if (images != null && images.size() > 0) {
             mImages = images;
@@ -179,14 +182,19 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
 
     @Override
     public int getItemViewType(int position) {
-        if (showCamera) {
-            return position == 0 ? TYPE_CAMERA : TYPE_NORMAL;
+        if (showCamera && position == 0) {
+            return TYPE_CAMERA;
         }
-        return TYPE_NORMAL;
+        MediaFile file = getItem(position);
+        if (file.isVideo()) {
+            return TYPE_VIDEO;
+        } else {
+            return TYPE_IMAGE;
+        }
     }
 
 
-    public Image getItem(int i) {
+    public MediaFile getItem(int i) {
         if (showCamera) {
             if (i == 0) {
                 return null;
@@ -211,7 +219,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         this.onItemClickListener = onItemClickListener;
     }
 
-    public void setSelectDatas(ArrayList<Image> selectDatas) {
+    public void setSelectDatas(ArrayList<MediaFile> selectDatas) {
         this.mSelectedImages = selectDatas;
         if (mSelectedImages == null) {
             mSelectedImages = new ArrayList<>();
@@ -223,7 +231,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
         if (addList != null) {
             this.addList = new ArrayList<>();
             for (String s : addList) {
-                this.addList.add(new Image(s, "http", 0));
+                this.addList.add(new MediaFile(s, "http", 0));
             }
         }
     }
@@ -231,6 +239,8 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
+        TextView ph_videoDuration;
+        LinearLayout videoLl;
         ImageView indicator;
         View mask;
 
@@ -239,10 +249,11 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
             image = (ImageView) view.findViewById(R.id.image);
             indicator = (ImageView) view.findViewById(R.id.checkmark);
             mask = view.findViewById(R.id.mask);
-
+            videoLl = view.findViewById(R.id.ph_videoLl);
+            ph_videoDuration = view.findViewById(R.id.ph_videoDuration);
         }
 
-        void bindData(final Image data) {
+        void bindData(final MediaFile data) {
             if (data == null) {
                 return;
             }
@@ -280,15 +291,21 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
                     image.setImageResource(R.drawable.ph_default_error);
                 }
             }
+            if (data.isVideo()) {
+                videoLl.setVisibility(View.VISIBLE);
+                ph_videoDuration.setText(PhotoHanderUtils.getVideoDuration(data.duration));
+            } else {
+                videoLl.setVisibility(View.GONE);
+            }
         }
     }
 
-    public ArrayList<Image> getImages() {
-        return (ArrayList<Image>) mImages;
+    public ArrayList<MediaFile> getImages() {
+        return (ArrayList<MediaFile>) mImages;
     }
 
-    public ArrayList<Image> getSelectedImages() {
-        return (ArrayList<Image>) mSelectedImages;
+    public ArrayList<MediaFile> getSelectedImages() {
+        return (ArrayList<MediaFile>) mSelectedImages;
     }
 
     public interface OnItemClickListener {
@@ -299,7 +316,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
          * @param data
          * @param position
          */
-        void onItemCheckClick(View view, Image data, int position);
+        void onItemCheckClick(View view, MediaFile data, int position);
 
         /**
          * 整个Item点击回掉，用于查看图片
@@ -308,6 +325,6 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
          * @param data
          * @param position
          */
-        void onItemClick(View view, Image data, int position);
+        void onItemClick(View view, MediaFile data, int position);
     }
 }

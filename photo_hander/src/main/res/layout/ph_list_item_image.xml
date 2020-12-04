@@ -28,4 +28,27 @@
         android:paddingBottom="20dp"
         android:src="@drawable/ph_btn_unselected" />
 
+    <LinearLayout
+        android:id="@+id/ph_videoLl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/ph_video"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_marginRight="12dp"
+            android:src="@drawable/ph_icon_video" />
+
+        <TextView
+            android:id="@+id/ph_videoDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="@android:color/white" />
+
+    </LinearLayout>
 </com.ashlikun.photo_hander.view.SquareFrameLayout>

@@ -9,10 +9,6 @@ package com.ashlikun.photo_hander.crop;
  */
 interface IntentKey {
     /**
-     * 配置的选项数据
-     */
-    String EXTRA_OPTION_DATA = "option_data";
-    /**
      * 错误信息
      */
     String EXTRA_ERROR = "error";

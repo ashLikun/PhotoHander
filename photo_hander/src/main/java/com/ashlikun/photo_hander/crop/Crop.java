@@ -114,6 +114,7 @@ public class Crop {
      * @param activity
      */
     public void start(Activity activity) {
+
         start(activity, REQUEST_CROP);
     }
 
@@ -177,7 +178,7 @@ public class Crop {
      */
     public Intent getIntent(Context context) {
         Intent cropIntent = new Intent(context, CropImageActivity.class);
-        cropIntent.putExtra(IntentKey.EXTRA_OPTION_DATA, optionData);
+        CropOptionData.setCurrentData(optionData);
         return cropIntent;
     }
 
@@ -189,6 +190,7 @@ public class Crop {
     public static Uri getOutput(Intent result) {
         return result.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
     }
+
     /**
      * 获取原图路径
      *
@@ -197,6 +199,7 @@ public class Crop {
     public static Uri getOrginOutput(Intent result) {
         return result.getParcelableExtra(Crop.CROP_ORGIN_OUTPUT);
     }
+
     /**
      * 提供给其他界面获取错误信息
      *

@@ -23,14 +23,15 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.ashlikun.photo_hander.bean.Image;
-import com.ashlikun.photo_hander.bean.ImageSelectData;
+import com.ashlikun.photo_hander.bean.MediaSelectData;
+import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.compress.CompressResult;
 import com.ashlikun.photo_hander.compress.Luban;
 import com.ashlikun.photo_hander.compress.OnCompressListener;
 import com.ashlikun.photo_hander.crop.Crop;
 import com.ashlikun.photo_hander.utils.PhotoHanderPermission;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
+import com.ashlikun.photo_hander.utils.PhotoThreadUtils;
 import com.ashlikun.photoview.PhotoView;
 
 import java.io.File;
@@ -53,7 +54,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     /**
      * 已选的数据
      */
-    ArrayList<ImageSelectData> resultList;
+    ArrayList<MediaSelectData> resultList;
     /**
      * 追加的数据
      */
@@ -67,11 +68,15 @@ public class PhotoHanderActivity extends AppCompatActivity
     /**
      * 配置参数
      */
-    PhotoOptionData optionData;
+    PhotoOptionData optionData = PhotoOptionData.currentData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (optionData == null) {
+            finish();
+            return;
+        }
         setContentView(R.layout.ph_activity_default);
         //获取主题颜色
         TypedArray array = getTheme().obtainStyledAttributes(new int[]{R.attr.phTitleColor, android.R.attr.colorPrimary});
@@ -99,8 +104,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         });
 
         Intent intent = getIntent();
-        //配置属性
-        optionData = intent.getParcelableExtra(IntentKey.EXTRA_OPTION_DATA);
         //已选数据
         if (!optionData.isMustCamera) {
             //只拍照清空已选数据
@@ -112,12 +115,12 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
 
         //处理数据
-        for (ImageSelectData d : resultList) {
+        for (MediaSelectData d : resultList) {
             if (d.isHttpImg()) {
-                if (d.originPath != null && d.compressPath == null) {
-                    d.compressPath = d.originPath;
-                } else if (d.compressPath != null && d.originPath == null) {
-                    d.originPath = d.compressPath;
+                if (d.originPath() != null && d.compressPath == null) {
+                    d.compressPath = d.originPath();
+                } else if (d.compressPath != null && d.originPath() == null) {
+                    d.mediaFile = new MediaFile(d.compressPath);
                 }
             }
         }
@@ -160,7 +163,6 @@ public class PhotoHanderActivity extends AppCompatActivity
                     REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
             Bundle bundle = new Bundle();
-            bundle.putParcelable(IntentKey.EXTRA_OPTION_DATA, optionData);
             bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, resultList);
             bundle.putStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES, addList);
             getSupportFragmentManager().beginTransaction()
@@ -183,7 +185,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     /**
      * 更新完成按钮的文字
      */
-    private void updateDoneText(ArrayList<ImageSelectData> resultList) {
+    private void updateDoneText(ArrayList<MediaSelectData> resultList) {
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
             mSubmitButton.setText(R.string.ph_action_done);
@@ -197,10 +199,11 @@ public class PhotoHanderActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSingleImageSelected(String path) {
+    public void onSingleImageSelected(MediaFile file) {
+        resultList.add(new MediaSelectData(file));
         if (optionData.mIsCrop) {
             Uri destination = null;
-            Uri source = Uri.fromFile(new File(path));
+            Uri source = Uri.fromFile(new File(file.path));
             try {
                 destination = Uri.fromFile(PhotoHanderUtils.createCacheTmpFile(this, "crop"));
             } catch (IOException e) {
@@ -217,24 +220,24 @@ public class PhotoHanderActivity extends AppCompatActivity
             }
 
         } else {
-            resultList.add(new ImageSelectData(path));
             completeSelect();
         }
     }
 
     @Override
-    public void onImageSelected(String path) {
-        if (!resultList.contains(path)) {
-            resultList.add(new ImageSelectData(path));
+    public void onImageSelected(MediaFile file) {
+        MediaSelectData data = new MediaSelectData(file);
+        if (!resultList.contains(data)) {
+            resultList.add(data);
         }
         updateDoneText(resultList);
     }
 
     @Override
-    public void onImageUnselected(String path) {
-        ImageSelectData delete = null;
-        for (ImageSelectData d : resultList) {
-            if (TextUtils.equals(path, d.originPath)) {
+    public void onImageUnselected(MediaFile file) {
+        MediaSelectData delete = null;
+        for (MediaSelectData d : resultList) {
+            if (TextUtils.equals(file.path, d.originPath())) {
                 delete = d;
                 break;
             }
@@ -248,7 +251,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (imageFile != null) {
             // notify system the image has change
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
-            onSingleImageSelected(imageFile.getPath());
+            onSingleImageSelected(new MediaFile(imageFile.getPath()));
         }
     }
 
@@ -261,7 +264,7 @@ public class PhotoHanderActivity extends AppCompatActivity
      * @param currentData 点击的数据
      */
     @Override
-    public void onLookPhoto(List<Image> imageList, List<Image> selectList, int position, Image currentData) {
+    public void onLookPhoto(List<MediaFile> imageList, List<MediaFile> selectList, int position, MediaFile currentData) {
         try {
             //检查是否有PhotoView库
             Class.forName(PhotoView.class.getName());
@@ -270,7 +273,6 @@ public class PhotoHanderActivity extends AppCompatActivity
             bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, (ArrayList<? extends Parcelable>) selectList);
             bundle.putInt(IntentKey.EXTRA_ADAPTER_CLICK_POSITION, position);
             bundle.putParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA, currentData);
-            bundle.putParcelable(IntentKey.EXTRA_OPTION_DATA, optionData);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
             if (fragment != null) {
@@ -292,7 +294,7 @@ public class PhotoHanderActivity extends AppCompatActivity
 
         if (optionData.isCompress) {
             //压缩
-            ArrayList<String> resultStrList = ImageSelectData.getOriginPaths(resultList);
+            ArrayList<String> resultStrList = MediaSelectData.getCompressImagePaths(resultList);
             Luban.with(this)
                     .load(resultStrList)
                     .setCompressListener(new OnCompressListener() {
@@ -310,19 +312,16 @@ public class PhotoHanderActivity extends AppCompatActivity
 
                         @Override
                         public void onSuccess(ArrayList<CompressResult> files) {
-                            ArrayList mresultList = new ArrayList<>();
-                            for (CompressResult result : files) {
-                                ImageSelectData data = new ImageSelectData(result.provider.getPath(), result.compressPath, result.isCompress, result.isComparessError);
-                                for (ImageSelectData dd : resultList) {
-                                    //裁剪图还原,压缩完成的结果的originPath == 裁剪的cropPath
-                                    if (TextUtils.equals(dd.cropPath, data.originPath)) {
-                                        data.originPath = dd.originPath;
-                                        break;
+                            for (MediaSelectData resultDd : resultList) {
+                                for (CompressResult result : files) {
+                                    String org = result.provider.getPath();
+                                    if (TextUtils.equals(resultDd.originPath(), org) || TextUtils.equals(resultDd.cropPath, org)) {
+                                        resultDd.compressPath = result.compressPath;
+                                        resultDd.isCompress = result.isCompress;
+                                        resultDd.isComparessError = result.isComparessError;
                                     }
                                 }
-                                mresultList.add(data);
                             }
-                            resultList = mresultList;
                             compressDialog.dismiss();
                             optionData.isCompress = false;
                             completeSelect();
@@ -342,7 +341,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         } else {
             if (resultList != null && resultList.size() > 0) {
                 if (optionData.mDefaultCount < resultList.size()) {
-                    resultList = (ArrayList<ImageSelectData>) resultList.subList(0, optionData.mDefaultCount);
+                    resultList = (ArrayList<MediaSelectData>) resultList.subList(0, optionData.mDefaultCount);
                 }
                 //回调
                 Intent data = new Intent();
@@ -362,10 +361,12 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (requestCode == Crop.REQUEST_CROP) {
             if (resultCode == RESULT_OK) {
                 optionData.mIsCrop = false;
-                ImageSelectData dd = new ImageSelectData(Crop.getOrginOutput(data).getPath());
-                //裁剪图
-                dd.cropPath = Crop.getOutput(data).getPath();
-                resultList.add(dd);
+                for (MediaSelectData dd : resultList) {
+                    if (TextUtils.equals(dd.originPath(), Crop.getOrginOutput(data).getPath())) {
+                        dd.cropPath = Crop.getOutput(data).getPath();
+                        break;
+                    }
+                }
                 completeSelect();
             } else {
                 setResult(RESULT_CANCELED);
@@ -380,6 +381,8 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (compressDialog != null) {
             compressDialog.dismiss();
         }
+        PhotoOptionData.setCurrentData(null);
+        PhotoThreadUtils.onDestroy();
     }
 
     @Override
@@ -387,6 +390,8 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (compressDialog != null) {
             compressDialog.dismiss();
         }
+        PhotoOptionData.setCurrentData(null);
+        PhotoThreadUtils.onDestroy();
     }
 
     private boolean isEquals(String actual, String expected) {
@@ -424,12 +429,12 @@ public class PhotoHanderActivity extends AppCompatActivity
     private void finishPhotoLookFragment(boolean isSelectOk) {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
         //更新顶部已选几个
-        ArrayList<Image> images = ((PhotoLookFragment) fragment).getSelectDatas();
+        ArrayList<MediaFile> images = ((PhotoLookFragment) fragment).getSelectDatas();
         resultList = new ArrayList<>();
         if (images != null) {
-            for (Image img : images) {
+            for (MediaFile img : images) {
                 if (img != null) {
-                    resultList.add(new ImageSelectData(img.path));
+                    resultList.add(new MediaSelectData(img));
                 }
             }
         }

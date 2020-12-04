@@ -3,8 +3,6 @@ package com.ashlikun.photo_hander;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.ashlikun.photo_hander.compress.Luban;
-
 /**
  * 作者　　: 李坤
  * 创建时间: 2018/8/16　13:15
@@ -12,7 +10,14 @@ import com.ashlikun.photo_hander.compress.Luban;
  * <p>
  * 功能介绍：启动照片选择的属性
  */
-class PhotoOptionData implements Parcelable {
+public class PhotoOptionData implements Parcelable {
+    //保存
+    public static PhotoOptionData currentData;
+
+    public static void setCurrentData(PhotoOptionData data) {
+        currentData = data;
+    }
+
     /**
      * 默认的最大图片数量
      */
@@ -66,6 +71,18 @@ class PhotoOptionData implements Parcelable {
      * 选择的模式
      */
     public int selectMode = MODE_MULTI;
+    /**
+     * 是否可以选择视频
+     */
+    public boolean isSelectVideo = true;
+    /**
+     * 是否过滤目录名称
+     */
+    public boolean isFilterFolder = true;
+    /**
+     * 如果选择视频，那么能选的视频的时长，-1代表不限
+     */
+    public int videoMaxDuration = -1;
 
     public PhotoOptionData() {
     }
@@ -77,6 +94,10 @@ class PhotoOptionData implements Parcelable {
      */
     public boolean isModeMulti() {
         return selectMode == MODE_MULTI;
+    }
+
+    public boolean isFilterGif() {
+        return true;
     }
 
     @Override
@@ -122,4 +143,5 @@ class PhotoOptionData implements Parcelable {
             return new PhotoOptionData[size];
         }
     };
+
 }

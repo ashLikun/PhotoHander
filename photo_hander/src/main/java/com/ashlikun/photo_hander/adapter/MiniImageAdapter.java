@@ -6,17 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.ashlikun.photo_hander.R;
-import com.ashlikun.photo_hander.bean.Image;
+import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.io.File;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 作者　　: 李坤
@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.ViewHolder> {
     public static final String PLYLOAD_SELECT = "payload_select";
-    private List<Image> listDatas;
+    private List<MediaFile> listDatas;
     private Context context;
     private int size = 60;
     private int strokeSize = 1;
@@ -38,7 +38,7 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
     private int selectPosition = -1;
     OnItemClickListener onItemClickListener;
 
-    public MiniImageAdapter(Context context, List<Image> listDatas, OnItemClickListener onItemClickListener) {
+    public MiniImageAdapter(Context context, List<MediaFile> listDatas, OnItemClickListener onItemClickListener) {
         this.listDatas = listDatas;
         this.context = context;
         this.onItemClickListener = onItemClickListener;
@@ -105,7 +105,7 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
             image = (ImageView) view;
         }
 
-        void bindData(final int position, final Image data, boolean isPayloads) {
+        void bindData(final int position, final MediaFile data, boolean isPayloads) {
             if (data == null) {
                 return;
             }
@@ -159,6 +159,6 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
          * @param data
          * @param position
          */
-        void onItemClick(View view, Image data, int position);
+        void onItemClick(View view, MediaFile data, int position);
     }
 }

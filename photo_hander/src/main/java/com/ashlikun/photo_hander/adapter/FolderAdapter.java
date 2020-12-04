@@ -5,17 +5,21 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.ashlikun.photo_hander.PhotoOptionData;
 import com.ashlikun.photo_hander.R;
-import com.ashlikun.photo_hander.bean.Folder;
+import com.ashlikun.photo_hander.bean.MediaFile;
+import com.ashlikun.photo_hander.bean.MediaFolder;
+import com.ashlikun.photo_hander.loader.MediaHandler;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,47 +30,125 @@ import java.util.List;
  * 功能介绍：文件夹Adapter
  */
 
-public class FolderAdapter extends BaseAdapter {
+public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder> {
 
     private Context mContext;
     private LayoutInflater mInflater;
-    private List<Folder> mFolders = new ArrayList<>();
-
+    /**
+     * 数据来源
+     */
+    private MediaHandler mediaHandler;
     int mImageSize;
 
     int lastSelected = 0;
 
-    public FolderAdapter(Context context) {
+    public FolderAdapter(Context context, MediaHandler mediaHandler) {
         mContext = context;
+        this.mediaHandler = mediaHandler;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mImageSize = mContext.getResources().getDimensionPixelOffset(R.dimen.ph_folder_cover_size);
     }
 
-    /**
-     * 设置数据集
-     *
-     * @param folders
-     */
-    public void setData(List<Folder> folders) {
-        if (folders != null && folders.size() > 0) {
-            mFolders = folders;
+    public List<MediaFolder> getFolders() {
+        return mediaHandler.getFolder();
+    }
+
+    @Override
+    public int getItemCount() {
+        if (PhotoOptionData.currentData.isSelectVideo) {
+            return mediaHandler.getFolder().size() + 2;
         } else {
-            mFolders.clear();
+            return mediaHandler.getFolder().size() + 1;
         }
-        notifyDataSetChanged();
     }
 
-    @Override
-    public int getCount() {
-        return mFolders.size() + 1;
-    }
-
-    @Override
-    public Folder getItem(int i) {
+    public MediaFolder getItem(int i) {
         if (i == 0) {
             return null;
         }
-        return mFolders.get(i - 1);
+        if (PhotoOptionData.currentData.isSelectVideo) {
+            return mediaHandler.getFolder().get(i - 2);
+        }
+        return mediaHandler.getFolder().get(i - 1);
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return new ViewHolder(mInflater.inflate(R.layout.ph_list_item_folder, parent, false));
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+        if (position == 0) {
+            holder.name.setText(PhotoOptionData.currentData.isSelectVideo ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
+            holder.size.setText(String.format("(%d)",
+                    mediaHandler.getFiles().size()));
+            if (getFolders().size() > 0) {
+                MediaFolder f = getFolders().get(0);
+                if (f != null) {
+                    Glide.with((Activity) mContext)
+                            .load(new File(f.folderCover.path))
+                            .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
+                                    .override(mImageSize, mImageSize)
+                                    .centerCrop())
+                            .into(holder.cover);
+                } else {
+                    holder.cover.setImageResource(R.drawable.ph_default_error);
+                }
+            }
+        } else if (PhotoOptionData.currentData.isSelectVideo && position == 1) {
+            //全部视频
+            holder.name.setText(R.string.ph_folder_all_video);
+            holder.size.setText(String.format("(%d)",
+                    mediaHandler.getVideoFiles().size()));
+            if (mediaHandler.getVideoFiles().size() > 0) {
+                MediaFile f = mediaHandler.getVideoFiles().get(0);
+                if (f != null) {
+                    Glide.with((Activity) mContext)
+                            .load(new File(f.path))
+                            .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
+                                    .override(mImageSize, mImageSize)
+                                    .centerCrop())
+                            .into(holder.cover);
+                } else {
+                    holder.cover.setImageResource(R.drawable.ph_default_error);
+                }
+            }
+        } else {
+            holder.bindData(getItem(position));
+        }
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setSelectIndex(position);
+                notifyDataSetChanged();
+                String text = "";
+                boolean showCamera = false;
+                List<MediaFile> mediaFileList = null;
+                if (position == 0) {
+                    mediaHandler.loader();
+                    text = mContext.getString(PhotoOptionData.currentData.isSelectVideo ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
+                    showCamera = PhotoOptionData.currentData.isShowCamera;
+                } else if (PhotoOptionData.currentData.isSelectVideo && position == 1) {
+                    mediaHandler.loader();
+                    text = mContext.getString(R.string.ph_folder_all_video);
+                    showCamera = false;
+                } else {
+                    MediaFolder folder = getItem(position);
+                    if (null != folder) {
+                        text = folder.folderName;
+                        mediaFileList = folder.mediaFileList;
+                    }
+                    showCamera = false;
+                }
+                mImageFolderChangeListener.onImageFolderChange(position, text, showCamera, mediaFileList);
+            }
+        });
+        if (lastSelected == position) {
+            holder.indicator.setVisibility(View.VISIBLE);
+        } else {
+            holder.indicator.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
@@ -74,55 +156,6 @@ public class FolderAdapter extends BaseAdapter {
         return i;
     }
 
-    @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        ViewHolder holder;
-        if (view == null) {
-            view = mInflater.inflate(R.layout.ph_list_item_folder, viewGroup, false);
-            holder = new ViewHolder(view);
-        } else {
-            holder = (ViewHolder) view.getTag();
-        }
-        if (holder != null) {
-            if (i == 0) {
-                holder.name.setText(R.string.ph_folder_all);
-                holder.path.setText("/sdcard");
-                holder.size.setText(String.format("%d%s",
-                        getTotalImageSize(), mContext.getResources().getString(R.string.ph_photo_unit)));
-                if (mFolders.size() > 0) {
-                    Folder f = mFolders.get(0);
-                    if (f != null) {
-                        Glide.with((Activity) mContext)
-                                .load(new File(f.cover.path))
-                                .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
-                                        .override(mImageSize, mImageSize)
-                                        .centerCrop())
-                                .into(holder.cover);
-                    } else {
-                        holder.cover.setImageResource(R.drawable.ph_default_error);
-                    }
-                }
-            } else {
-                holder.bindData(getItem(i));
-            }
-            if (lastSelected == i) {
-                holder.indicator.setVisibility(View.VISIBLE);
-            } else {
-                holder.indicator.setVisibility(View.INVISIBLE);
-            }
-        }
-        return view;
-    }
-
-    private int getTotalImageSize() {
-        int result = 0;
-        if (mFolders != null && mFolders.size() > 0) {
-            for (Folder f : mFolders) {
-                result += f.images.size();
-            }
-        }
-        return result;
-    }
 
     public void setSelectIndex(int i) {
         if (lastSelected == i) {
@@ -137,36 +170,39 @@ public class FolderAdapter extends BaseAdapter {
         return lastSelected;
     }
 
-    class ViewHolder {
+    public boolean isVideoMode() {
+        return PhotoOptionData.currentData.isSelectVideo ? lastSelected == 1 : false;
+    }
+
+
+    class ViewHolder extends RecyclerView.ViewHolder {
         ImageView cover;
         TextView name;
-        TextView path;
         TextView size;
         ImageView indicator;
 
         ViewHolder(View view) {
+            super(view);
             cover = (ImageView) view.findViewById(R.id.cover);
             name = (TextView) view.findViewById(R.id.name);
-            path = (TextView) view.findViewById(R.id.path);
             size = (TextView) view.findViewById(R.id.size);
             indicator = (ImageView) view.findViewById(R.id.indicator);
             view.setTag(this);
         }
 
-        void bindData(Folder data) {
+        void bindData(MediaFolder data) {
             if (data == null) {
                 return;
             }
-            name.setText(data.name);
-            path.setText(data.path);
-            if (data.images != null) {
-                size.setText(String.format("%d%s", data.images.size(), mContext.getResources().getString(R.string.ph_photo_unit)));
+            name.setText(data.folderName);
+            if (data.mediaFileList != null) {
+                size.setText(String.format("(%d)", data.mediaFileList.size()));
             } else {
-                size.setText("*" + mContext.getResources().getString(R.string.ph_photo_unit));
+                size.setText("(*)");
             }
 
-            if (data.cover != null) {
-                File imageFile = new File(data.cover.path);
+            if (data.folderCover != null) {
+                File imageFile = new File(data.folderCover.path);
                 if (imageFile.exists()) {
                     // 显示图片
                     Glide.with((Activity) mContext)
@@ -184,4 +220,17 @@ public class FolderAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * 接口回调，Item点击事件
+     */
+    private FolderAdapter.OnImageFolderChangeListener mImageFolderChangeListener;
+
+    public void setOnImageFolderChangeListener(FolderAdapter.OnImageFolderChangeListener onItemClickListener) {
+        this.mImageFolderChangeListener = onItemClickListener;
+    }
+
+    public interface OnImageFolderChangeListener {
+
+        void onImageFolderChange(int position, String text, boolean showCamera, List<MediaFile> mediaFileList);
+    }
 }

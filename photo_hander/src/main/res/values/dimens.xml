@@ -3,7 +3,7 @@
     <dimen name="ph_space_size">1.5dp</dimen>
     <dimen name="ph_mini_space_size">15dp</dimen>
     <dimen name="ph_bottom_size">45dp</dimen>
-    <dimen name="ph_folder_cover_size">72dp</dimen>
-    <dimen name="crop__bar_height">56dp</dimen>
+    <dimen name="ph_folder_cover_size">48dp</dimen>
+    <dimen name="crop_bar_height">56dp</dimen>
     <dimen name="ph_folder_text_size">16dp</dimen>
 </resources>

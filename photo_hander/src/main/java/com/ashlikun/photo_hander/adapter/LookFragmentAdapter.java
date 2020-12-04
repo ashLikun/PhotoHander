@@ -2,9 +2,6 @@ package com.ashlikun.photo_hander.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.viewpager.widget.PagerAdapter;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +9,12 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.viewpager.widget.PagerAdapter;
+
 import com.ashlikun.photo_hander.R;
-import com.ashlikun.photo_hander.bean.Image;
+import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photoview.PhotoView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -33,12 +34,12 @@ public class LookFragmentAdapter extends PagerAdapter {
     /**
      * 原数据
      */
-    private ArrayList<Image> listDatas;
+    private ArrayList<MediaFile> listDatas;
 
     DisplayMetrics displayMetrics = new DisplayMetrics();
     RequestOptions options;
 
-    public LookFragmentAdapter(Context context, ArrayList<Image> listDatas) {
+    public LookFragmentAdapter(Context context, ArrayList<MediaFile> listDatas) {
         this.listDatas = listDatas;
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(displayMetrics);
@@ -100,7 +101,7 @@ public class LookFragmentAdapter extends PagerAdapter {
     }
 
 
-    public Image getItemData(int position) {
+    public MediaFile getItemData(int position) {
         if (position < listDatas.size()) {
             return listDatas.get(position);
         }
@@ -108,7 +109,7 @@ public class LookFragmentAdapter extends PagerAdapter {
     }
 
 
-    public int indexOf(Image data) {
+    public int indexOf(MediaFile data) {
         return listDatas.indexOf(data);
     }
 

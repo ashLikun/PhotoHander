@@ -25,7 +25,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.ashlikun.photo_hander.adapter.LookFragmentAdapter;
 import com.ashlikun.photo_hander.adapter.MiniImageAdapter;
-import com.ashlikun.photo_hander.bean.Image;
+import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
 import java.util.ArrayList;
@@ -52,12 +52,12 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
     /**
      * 已经选择的数据,这个数据是要回掉的
      */
-    private ArrayList<Image> selectDatas;
+    private ArrayList<MediaFile> selectDatas;
     /**
      * 提交按钮
      */
     private TextView submitButton;
-    PhotoOptionData optionData;
+    PhotoOptionData optionData = PhotoOptionData.currentData;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -138,7 +138,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
             }
         });
 
-        ArrayList<Image> listDatas = getArguments().getParcelableArrayList(IntentKey.EXTRA_ADAPTER_SHOW_DATA);
+        ArrayList<MediaFile> listDatas = getArguments().getParcelableArrayList(IntentKey.EXTRA_ADAPTER_SHOW_DATA);
         selectDatas = getArguments().getParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
         if (selectDatas == null) {
             selectDatas = new ArrayList<>();
@@ -149,8 +149,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
             selectDatas.addAll(listDatas);
         }
         int position = getArguments().getInt(IntentKey.EXTRA_ADAPTER_CLICK_POSITION);
-        Image positionData = getArguments().getParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA);
-        optionData = getArguments().getParcelable(IntentKey.EXTRA_OPTION_DATA);
+        MediaFile positionData = getArguments().getParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA);
         adapter = new LookFragmentAdapter(getActivity(), listDatas);
 
         //初始化RecycleView
@@ -218,7 +217,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
         }
         changTitle(position);
         //设置选中判断
-        Image image = adapter.getItemData(position);
+        MediaFile image = adapter.getItemData(position);
         int selectPosition = selectDatas.indexOf(image);
         boolean isCheck = selectDatas.contains(image);
         PhotoHanderUtils.setCheck(checkmark, isCheck);
@@ -245,7 +244,7 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
             Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
             return;
         }
-        Image image = adapter.getItemData(position);
+        MediaFile image = adapter.getItemData(position);
         if (selectDatas.contains(image)) {
             selectDatas.remove(image);
             //通知底部
@@ -279,14 +278,14 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
      * @param position
      */
     @Override
-    public void onItemClick(View view, Image data, int position) {
+    public void onItemClick(View view, MediaFile data, int position) {
         int viewPagerPosition = adapter.indexOf(data);
         if (viewPagerPosition != -1) {
             viewPager.setCurrentItem(viewPagerPosition, false);
         }
     }
 
-    public ArrayList<Image> getSelectDatas() {
+    public ArrayList<MediaFile> getSelectDatas() {
         return selectDatas;
     }
 

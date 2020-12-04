@@ -6,7 +6,7 @@ import android.content.Intent;
 
 import androidx.fragment.app.Fragment;
 
-import com.ashlikun.photo_hander.bean.ImageSelectData;
+import com.ashlikun.photo_hander.bean.MediaSelectData;
 
 import java.util.ArrayList;
 
@@ -26,7 +26,7 @@ public class PhotoHander {
     /**
      * 已经选择的数据
      */
-    private ArrayList<ImageSelectData> mOriginData;
+    private ArrayList<MediaSelectData> mOriginData;
     /**
      * 额外添加到顶部的数据,一般是网络图
      */
@@ -105,7 +105,7 @@ public class PhotoHander {
      * @param images
      * @return
      */
-    public PhotoHander origin(ArrayList<ImageSelectData> images) {
+    public PhotoHander origin(ArrayList<MediaSelectData> images) {
         mOriginData = images;
         return this;
     }
@@ -236,7 +236,7 @@ public class PhotoHander {
         if (mAddImages != null) {
             intent.putStringArrayListExtra(IntentKey.EXTRA_DEFAULT_ADD_IMAGES, mAddImages);
         }
-        intent.putExtra(IntentKey.EXTRA_OPTION_DATA, optionData);
+        PhotoOptionData.setCurrentData(optionData);
         optionData = null;
         mOriginData = null;
         mAddImages = null;
@@ -249,7 +249,7 @@ public class PhotoHander {
      * @param data
      * @return
      */
-    public static ArrayList<ImageSelectData> getIntentResult(Intent data) {
+    public static ArrayList<MediaSelectData> getIntentResult(Intent data) {
         if (data == null) {
             return null;
         }
