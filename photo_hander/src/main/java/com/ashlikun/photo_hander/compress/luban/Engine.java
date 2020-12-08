@@ -1,4 +1,4 @@
-package com.ashlikun.photo_hander.compress;
+package com.ashlikun.photo_hander.compress.luban;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

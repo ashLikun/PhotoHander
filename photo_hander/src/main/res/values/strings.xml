@@ -2,8 +2,12 @@
     <string name="ph_folder_all">全部图片</string>
     <string name="ph_folder_all_image_and_video">图片和视频</string>
     <string name="ph_folder_all_video">所有视频</string>
+    <string name="ph_title_all_video">选择视频</string>
+    <string name="ph_title_all_image_and_video">选择图片和视频</string>
+    <string name="ph_title_image">选择图片</string>
     <string name="ph_msg_no_camera">没有系统相机</string>
     <string name="ph_msg_amount_limit">你最多只能选择%1$d张图片</string>
+    <string name="ph_msg_video_duration_limit">您只能选择小于%1$s的视频</string>
     <string name="ph_action_done">完成</string>
     <string name="ph_action_yulan">预览</string>
     <string name="ph_action_button_string">%1$s(%2$d/%3$d)</string>

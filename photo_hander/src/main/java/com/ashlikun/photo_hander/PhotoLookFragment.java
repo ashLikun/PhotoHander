@@ -11,7 +11,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
@@ -236,15 +235,13 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
 
     }
 
+
     /**
      * 选择某个图片，改变选择状态
      */
     public void select(int position) {
-        if (optionData.mDefaultCount <= selectDatas.size()) {
-            Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
-            return;
-        }
         MediaFile image = adapter.getItemData(position);
+
         if (selectDatas.contains(image)) {
             selectDatas.remove(image);
             //通知底部
@@ -254,8 +251,10 @@ public class PhotoLookFragment extends Fragment implements ViewPager.OnPageChang
                 miniImageAdapter.notifyItemRemoved(miniImageAdapter.setSelectItem(-1));
             }
         } else {
+            if (!PhotoHanderUtils.checkLimit(getActivity(), selectDatas, optionData, image)) {
+                return;
+            }
             selectDatas.add(image);
-
             int selectPosition = selectDatas.indexOf(image);
             miniImageAdapter.setSelectItem(selectPosition);
             if (selectDatas.isEmpty()) {

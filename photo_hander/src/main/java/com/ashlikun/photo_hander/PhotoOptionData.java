@@ -74,15 +74,32 @@ public class PhotoOptionData implements Parcelable {
     /**
      * 是否可以选择视频
      */
-    public boolean isSelectVideo = true;
+    public boolean isSelectVideo = false;
+    /**
+     * 如果选择视频，那么能选的视频的时长，-1代表不限,单位秒
+     */
+    public long videoMaxDuration = -1;
+    /**
+     * 是否只能选择视频
+     */
+    public boolean isVideoOnly = false;
+    /**
+     * 是否压缩视频,可以自己实现OnPhotoHandlerListener，
+     * 如果不实现就会调用com.github.yellowcath:VideoProcessor:2.4.2库，内部会检测是否有库
+     */
+    public boolean isVideoCompress = false;
+    /**
+     * 视频压缩的Fps,默认30
+     */
+    public int videoCompressFps = 30;
+    /**
+     * 视频的宽高比是否改变，true:动态计算，false：不变
+     */
+    public boolean isVideoCompressAspectRatio = true;
     /**
      * 是否过滤目录名称
      */
     public boolean isFilterFolder = true;
-    /**
-     * 如果选择视频，那么能选的视频的时长，-1代表不限
-     */
-    public long videoMaxDuration = -1;
 
     public PhotoOptionData() {
     }
@@ -100,10 +117,29 @@ public class PhotoOptionData implements Parcelable {
         return true;
     }
 
+    /**
+     * 是否能选择视频
+     *
+     * @return
+     */
+    public boolean isCanVideo() {
+        return isVideoOnly || isSelectVideo;
+    }
+
+    /**
+     * 是否能选择视频和图片
+     *
+     * @return
+     */
+    public boolean isSelectVideoAndImg() {
+        return !isVideoOnly && isSelectVideo;
+    }
+
     @Override
     public int describeContents() {
         return 0;
     }
+
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -143,5 +179,6 @@ public class PhotoOptionData implements Parcelable {
             return new PhotoOptionData[size];
         }
     };
+
 
 }

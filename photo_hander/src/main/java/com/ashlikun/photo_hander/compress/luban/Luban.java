@@ -1,4 +1,4 @@
-package com.ashlikun.photo_hander.compress;
+package com.ashlikun.photo_hander.compress.luban;
 
 import android.content.Context;
 import android.net.Uri;
@@ -66,7 +66,7 @@ public class Luban implements Handler.Callback {
     public static void deleteDir(File cacheDir) {
         if (cacheDir != null) {
             if (cacheDir.exists()) {
-                if (getFiles(cacheDir) > MAX_SAVE_FILS) {
+                if (PhotoHanderUtils.getFileCount(cacheDir) > MAX_SAVE_FILS) {
                     cacheDir.delete();
                 }
             }
@@ -113,21 +113,7 @@ public class Luban implements Handler.Callback {
         return null;
     }
 
-    public static int getFiles(File mCacheDir) {
-        if (mCacheDir == null || !mCacheDir.exists()) {
-            return 0;
-        }
-        int num = 0;
-        File[] childs = mCacheDir.listFiles();
-        for (int j = 0; j < childs.length; j++) {
-            if (childs[j].isDirectory()) {
-                getFiles(childs[j]);
-            } else {
-                num++;
-            }
-        }
-        return num;
-    }
+
 
     /**
      * start asynchronous compress thread

@@ -90,7 +90,11 @@ public class VideoScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
             // 获取目录数据
             MediaFolder f = MediaFolder.getFolderByName(mResultFolder, mediaFile.folderName);
             if (f == null) {
-                return new MediaFolder(mediaFile.folderId, mediaFile.folderName, mediaFile, new ArrayList<MediaFile>());
+                MediaFolder folder = new MediaFolder(mediaFile.folderId, mediaFile.folderName, mediaFile, new ArrayList<MediaFile>());
+                folder.mediaFileList.add(mediaFile);
+                return folder;
+            } else {
+                f.mediaFileList.add(mediaFile);
             }
         }
         return null;

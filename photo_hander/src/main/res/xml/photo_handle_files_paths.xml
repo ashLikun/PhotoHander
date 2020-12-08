@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path
+        name="photohandle_external"
+        path="." /><!-- sd根目录-->
+    <!--代表context.getFilesDir()-->
+    <files-path
+        name="photohandle_file"
+        path="." />
+</paths>

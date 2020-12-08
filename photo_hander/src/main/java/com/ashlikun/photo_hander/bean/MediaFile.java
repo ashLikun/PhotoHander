@@ -38,6 +38,7 @@ public class MediaFile implements Parcelable, Comparable<MediaFile> {
         return duration > 0;
     }
 
+
     /**
      * 是否是网络数据
      *

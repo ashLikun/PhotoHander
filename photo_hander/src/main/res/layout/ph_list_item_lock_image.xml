@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.ashlikun.photoview.PhotoView
+        android:id="@+id/ph_photoView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></com.ashlikun.photoview.PhotoView>
+
+    <ImageView
+        android:id="@+id/ph_videoPlay"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ph_ic_play"
+        android:visibility="gone"></ImageView>
+</FrameLayout>

@@ -3,10 +3,10 @@ package com.ashlikun.photo_hander.adapter;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +15,7 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import com.ashlikun.photo_hander.R;
 import com.ashlikun.photo_hander.bean.MediaFile;
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 import com.ashlikun.photoview.PhotoView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -35,12 +36,13 @@ public class LookFragmentAdapter extends PagerAdapter {
      * 原数据
      */
     private ArrayList<MediaFile> listDatas;
-
+    private LayoutInflater mInflater;
     DisplayMetrics displayMetrics = new DisplayMetrics();
     RequestOptions options;
 
     public LookFragmentAdapter(Context context, ArrayList<MediaFile> listDatas) {
         this.listDatas = listDatas;
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         wm.getDefaultDisplay().getMetrics(displayMetrics);
         options = new RequestOptions().placeholder(R.drawable.ph_default_error)
@@ -60,15 +62,10 @@ public class LookFragmentAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-        PhotoView imageView = new PhotoView(container.getContext());
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
-        imageView.setTag(1);
-        FrameLayout frameLayout = new FrameLayout(container.getContext());
-        frameLayout.addView(imageView);
-        frameLayout.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
+        MediaFile data = getItemData(position);
+        View frameLayout = mInflater.inflate(R.layout.ph_list_item_lock_image, null);
         container.addView(frameLayout);
-
-        upDataImageView(imageView, position);
+        upDataImageView(frameLayout, data);
         return frameLayout;
     }
 
@@ -80,14 +77,24 @@ public class LookFragmentAdapter extends PagerAdapter {
 
     /**
      * 填充数据
-     *
-     * @param imageView
-     * @param position
      */
-    private void upDataImageView(final PhotoView imageView, int position) {
+    private void upDataImageView(View view, final MediaFile data) {
+        final PhotoView imageView = view.findViewById(R.id.ph_photoView);
+        final ImageView ph_videoPlay = view.findViewById(R.id.ph_videoPlay);
+        if (data.isVideo()) {
+            ph_videoPlay.setVisibility(View.VISIBLE);
+            ph_videoPlay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PhotoHanderUtils.startVideoPlay(v.getContext(), data);
+                }
+            });
+        } else {
+            ph_videoPlay.setVisibility(View.GONE);
+        }
         // 显示图片
         Glide.with(imageView.getContext())
-                .load(listDatas.get(position).path)
+                .load(data.path)
                 .apply(options)
                 .into(new SimpleTarget<Drawable>() {
                     @Override
@@ -102,7 +109,7 @@ public class LookFragmentAdapter extends PagerAdapter {
 
 
     public MediaFile getItemData(int position) {
-        if (position < listDatas.size()) {
+        if (position >= 0 && position < listDatas.size()) {
             return listDatas.get(position);
         }
         return null;

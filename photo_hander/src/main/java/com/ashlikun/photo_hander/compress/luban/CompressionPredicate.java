@@ -1,4 +1,4 @@
-package com.ashlikun.photo_hander.compress;
+package com.ashlikun.photo_hander.compress.luban;
 
 /**
  * Created on 2018/1/3 19:43

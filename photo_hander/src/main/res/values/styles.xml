@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-
+    <style name="PhotoHandle_imageFolderAnimator">
+        <item name="android:windowEnterAnimation">@anim/photo_handle_dialog_slide_show</item>
+        <item name="android:windowExitAnimation">@anim/photo_handle_dialog_slide_dismiss</item>
+    </style>
 
     <style name="Crop"></style>
 

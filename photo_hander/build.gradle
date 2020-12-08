@@ -23,5 +23,7 @@ dependencies {
     //rxjava
     compileOnly 'com.github.ashLikun:PhotoView:2.0.1'
     compileOnly "androidx.recyclerview:recyclerview:1.0.0"
+    //视频压缩
+    compileOnly "com.github.yellowcath:VideoProcessor:2.4.2"
 }
 apply from: '../maven.gradle'

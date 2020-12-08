@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <application >
+    <application>
 
         <activity
             android:name="com.ashlikun.photo_hander.PhotoHanderActivity"
@@ -15,6 +15,16 @@
             android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
             android:configChanges="orientation|screenSize"
             android:label="图片裁剪" />
+        <!-- Android 7.0 文件共享配置，必须配置 -->
+        <provider
+            android:name=".provider.PhotoHandleProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/photo_handle_files_paths" />
+        </provider>
     </application>
 
 </manifest>

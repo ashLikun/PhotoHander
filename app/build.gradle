@@ -25,4 +25,5 @@ dependencies {
     //图片加载
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     implementation 'com.github.ashLikun:PhotoView:2.0.0'
+    implementation 'com.github.yellowcath:VideoProcessor:2.4.2'
 }

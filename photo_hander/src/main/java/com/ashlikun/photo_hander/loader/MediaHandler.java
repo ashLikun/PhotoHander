@@ -38,8 +38,10 @@ public class MediaHandler {
     public MediaHandler(FragmentActivity fragmentActivity, AbsMediaScanner.OnLoadFinished onLoadFinished) {
         this.fragmentActivity = fragmentActivity;
         this.onLoadFinished = onLoadFinished;
-        initImageScanner();
-        if (PhotoOptionData.currentData.isSelectVideo) {
+        if (!PhotoOptionData.currentData.isVideoOnly) {
+            initImageScanner();
+        }
+        if (PhotoOptionData.currentData.isCanVideo()) {
             initVideoScanner();
         }
     }
@@ -181,7 +183,16 @@ public class MediaHandler {
     }
 
     private void onLoadFinishedCallback() {
-        if (!PhotoOptionData.currentData.isSelectVideo) {
+        if (PhotoOptionData.currentData.isVideoOnly) {
+            if (isVideoLoad) {
+                PhotoThreadUtils.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        onLoadFinished.onLoadFinished(mFile, mFolder);
+                    }
+                });
+            }
+        } else if (!PhotoOptionData.currentData.isSelectVideo) {
             if (isImageLoad) {
                 PhotoThreadUtils.post(new Runnable() {
                     @Override

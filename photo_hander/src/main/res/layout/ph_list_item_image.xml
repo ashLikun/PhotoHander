@@ -40,8 +40,8 @@
             android:id="@+id/ph_video"
             android:layout_width="26dp"
             android:layout_height="26dp"
-            android:layout_marginRight="12dp"
-            android:src="@drawable/ph_icon_video" />
+            android:layout_marginRight="8dp"
+            android:src="@drawable/ph_ic_video" />
 
         <TextView
             android:id="@+id/ph_videoDuration"

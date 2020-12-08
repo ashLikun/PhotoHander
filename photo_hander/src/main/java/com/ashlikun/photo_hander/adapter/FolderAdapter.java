@@ -55,7 +55,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        if (PhotoOptionData.currentData.isSelectVideo) {
+        if (PhotoOptionData.currentData.isSelectVideoAndImg()) {
             return mediaHandler.getFolder().size() + 2;
         } else {
             return mediaHandler.getFolder().size() + 1;
@@ -66,7 +66,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
         if (i == 0) {
             return null;
         }
-        if (PhotoOptionData.currentData.isSelectVideo) {
+        if (PhotoOptionData.currentData.isSelectVideoAndImg()) {
             return mediaHandler.getFolder().get(i - 2);
         }
         return mediaHandler.getFolder().get(i - 1);
@@ -78,9 +78,13 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         if (position == 0) {
-            holder.name.setText(PhotoOptionData.currentData.isSelectVideo ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
+            if (PhotoOptionData.currentData.isVideoOnly) {
+                holder.name.setText(R.string.ph_folder_all_video);
+            } else {
+                holder.name.setText(PhotoOptionData.currentData.isCanVideo() ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
+            }
             holder.size.setText(String.format("(%d)",
                     mediaHandler.getFiles().size()));
             if (getFolders().size() > 0) {
@@ -96,7 +100,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
                     holder.cover.setImageResource(R.drawable.ph_default_error);
                 }
             }
-        } else if (PhotoOptionData.currentData.isSelectVideo && position == 1) {
+        } else if (PhotoOptionData.currentData.isSelectVideoAndImg() && position == 1) {
             //全部视频
             holder.name.setText(R.string.ph_folder_all_video);
             holder.size.setText(String.format("(%d)",
@@ -122,16 +126,14 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
             public void onClick(View v) {
                 setSelectIndex(position);
                 notifyDataSetChanged();
-                String text = "";
+                String text = holder.name.getText().toString();
                 boolean showCamera = false;
                 List<MediaFile> mediaFileList = null;
                 if (position == 0) {
                     mediaHandler.loader();
-                    text = mContext.getString(PhotoOptionData.currentData.isSelectVideo ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
                     showCamera = PhotoOptionData.currentData.isShowCamera;
-                } else if (PhotoOptionData.currentData.isSelectVideo && position == 1) {
+                } else if (PhotoOptionData.currentData.isSelectVideoAndImg() && position == 1) {
                     mediaHandler.loader();
-                    text = mContext.getString(R.string.ph_folder_all_video);
                     showCamera = false;
                 } else {
                     MediaFolder folder = getItem(position);

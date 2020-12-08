@@ -11,6 +11,5 @@
     <string name="enable_camera">是否启用照相机</string>
     <string name="enable">是</string>
     <string name="disable">否</string>
-    <string name="go_select">图片选择</string>
 
 </resources>

@@ -22,6 +22,7 @@ import com.ashlikun.multiimageselector.simple.R;
 import com.ashlikun.photo_hander.PhotoHander;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
 import com.bumptech.glide.Glide;
+import com.hw.videoprocessor.util.CL;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        CL.setLogEnable(true);
         setContentView(R.layout.activity_main);
 
 //        addHttpImage.add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1553075915539&di=ec1b6b518f6a26aa998505d80e0ede33&imgtype=0&src=http%3A%2F%2Fs9.knowsky.com%2Fbizhi%2Fl%2F20090606%2F200906186%2520%25281%2529.jpg");
@@ -93,38 +95,38 @@ public class MainActivity extends AppCompatActivity {
 //                    getString(R.string.ph_permission_rationale),
 //                    REQUEST_STORAGE_READ_ACCESS_PERMISSION);
 //        } else {
-            boolean showCamera = mShowCamera.getCheckedRadioButtonId() == R.id.show;
-            int maxNum = 9;
+        boolean showCamera = mShowCamera.getCheckedRadioButtonId() == R.id.show;
+        int maxNum = 9;
 
-            if (!TextUtils.isEmpty(mRequestNum.getText())) {
-                try {
-                    maxNum = Integer.valueOf(mRequestNum.getText().toString());
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
+        if (!TextUtils.isEmpty(mRequestNum.getText())) {
+            try {
+                maxNum = Integer.valueOf(mRequestNum.getText().toString());
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
-            PhotoHander selector = PhotoHander.create();
-            selector.showCamera(showCamera);
-            selector.count(maxNum);
-            if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
-                selector.single();
-            } else {
-                selector.multi();
-            }
-            selector.addImage(addHttpImage);
-            selector.compress(true);
+        }
+        PhotoHander selector = PhotoHander.create();
+        selector.showCamera(showCamera);
+        selector.count(maxNum);
+        if (mChoiceMode.getCheckedRadioButtonId() == R.id.single) {
+            selector.single();
+        } else {
+            selector.multi();
+        }
+        selector.addImage(addHttpImage);
+        selector.compress(true);
 //            selector.isMustCamera(true);
-            selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
+        selector.crop(cropRg.getCheckedRadioButtonId() == R.id.crop);
 //            selector.cropCircle(true);
-            if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {
-                try {
-                    selector.crop(Integer.valueOf(cropWidthEt.getText().toString()), Integer.valueOf(cropHeightEt.getText().toString()));
-                } catch (NumberFormatException e) {
-                    e.printStackTrace();
-                }
+        if (!TextUtils.isEmpty(cropWidthEt.getText()) && !TextUtils.isEmpty(cropHeightEt.getText())) {
+            try {
+                selector.crop(Integer.valueOf(cropWidthEt.getText().toString()), Integer.valueOf(cropHeightEt.getText().toString()));
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
             }
-            selector.origin(mSelectPath);
-            selector.start(MainActivity.this, REQUEST_IMAGE);
+        }
+        selector.origin(mSelectPath);
+        selector.start(MainActivity.this, REQUEST_IMAGE);
 //        }
     }
 

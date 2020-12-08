@@ -1,4 +1,4 @@
-package com.ashlikun.photo_hander.compress;
+package com.ashlikun.photo_hander.compress.luban;
 
 /**
  * 作者　　: 李坤

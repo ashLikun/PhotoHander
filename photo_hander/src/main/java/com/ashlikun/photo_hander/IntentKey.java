@@ -7,7 +7,7 @@ package com.ashlikun.photo_hander;
  * <p>
  * 功能介绍：意图的Key
  */
-interface IntentKey {
+public interface IntentKey {
     /**
      * 选择的结果
      */

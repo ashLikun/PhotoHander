@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,9 +23,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ashlikun.photo_hander.adapter.FolderAdapter;
 import com.ashlikun.photo_hander.adapter.ImageGridAdapter;
-import com.ashlikun.photo_hander.bean.MediaSelectData;
 import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaFolder;
+import com.ashlikun.photo_hander.bean.MediaSelectData;
 import com.ashlikun.photo_hander.loader.AbsMediaScanner;
 import com.ashlikun.photo_hander.loader.MediaHandler;
 import com.ashlikun.photo_hander.utils.PhotoHanderPermission;
@@ -118,7 +117,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
 
         mCategoryText = (TextView) view.findViewById(R.id.category_btn);
         yulanTv = (TextView) view.findViewById(R.id.yulanTv);
-        mCategoryText.setText(R.string.ph_folder_all);
+        mCategoryText.setText(optionData.isVideoOnly ? R.string.ph_folder_all_video : optionData.isCanVideo() ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
         mCategoryText.setTextColor(phBottonColor);
         ((ImageView) view.findViewById(R.id.category_iv)).setColorFilter(phBottonColor);
 
@@ -226,13 +225,9 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         if (mFolderPopupWindow != null) {
             return;
         }
-        Point point = PhotoHanderUtils.getScreenSize(getActivity());
-        int width = point.x;
-        int height = (int) (point.y * (4.5f / 8.0f));
         mFolderPopupWindow = new ImageFolderPopupWindow(getActivity(), mediaHandler);
         mFolderPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
-        mFolderPopupWindow.setWidth(width);
-        mFolderPopupWindow.setHeight(height);
+        mFolderPopupWindow.setAnimationStyle(R.style.PhotoHandle_imageFolderAnimator);
         mFolderPopupWindow.getAdapter().setOnImageFolderChangeListener(new FolderAdapter.OnImageFolderChangeListener() {
             @Override
             public void onImageFolderChange(int position, String text, boolean showCamera, List<MediaFile> mediaFileList) {
@@ -332,8 +327,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
                         mCallback.onImageUnselected(data);
                     }
                 } else {
-                    if (optionData.mDefaultCount <= resultList.size()) {
-                        Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
+                    if (!PhotoHanderUtils.checkLimit(getActivity(), resultList, optionData,data)) {
                         return;
                     }
                     resultList.add(data.path);

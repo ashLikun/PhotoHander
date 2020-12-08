@@ -2,6 +2,7 @@ package com.ashlikun.photo_hander.adapter;
 
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -29,8 +30,7 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
     public static final String PLYLOAD_SELECT = "payload_select";
     private List<MediaFile> listDatas;
     private Context context;
-    private int size = 60;
-    private int strokeSize = 1;
+    private LayoutInflater mInflater;
     GradientDrawable selectDrawable;
     /**
      * 当前选中的位置
@@ -41,25 +41,17 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
     public MiniImageAdapter(Context context, List<MediaFile> listDatas, OnItemClickListener onItemClickListener) {
         this.listDatas = listDatas;
         this.context = context;
+        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.onItemClickListener = onItemClickListener;
-        size = PhotoHanderUtils.dip2px(context, size);
-        strokeSize = PhotoHanderUtils.dip2px(context, strokeSize);
-
         selectDrawable = new GradientDrawable();
-        selectDrawable.setSize(size, size);
-        selectDrawable.setStroke(strokeSize, context.getResources().getColor(R.color.ph_yulam_mini_stroke_color));
+        selectDrawable.setStroke(PhotoHanderUtils.dip2px(context, 1), context.getResources().getColor(R.color.ph_yulam_mini_stroke_color));
         selectDrawable.setColor(0);
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ImageView imageView = new ImageView(context);
-        RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(size, size);
-        imageView.setLayoutParams(params);
-        imageView.setPadding(strokeSize, strokeSize, strokeSize, strokeSize);
-        imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        return new ViewHolder(imageView);
+        return new ViewHolder(mInflater.inflate(R.layout.ph_list_item_lock_image_mini, null));
     }
 
     @Override
@@ -99,10 +91,12 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
 
     class ViewHolder extends RecyclerView.ViewHolder {
         ImageView image;
+        ImageView ph_video;
 
         ViewHolder(View view) {
             super(view);
-            image = (ImageView) view;
+            image = (ImageView) view.findViewById(R.id.ph_imageView);
+            ph_video = (ImageView) view.findViewById(R.id.ph_video);
         }
 
         void bindData(final int position, final MediaFile data, boolean isPayloads) {
@@ -110,12 +104,12 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
                 return;
             }
             if (!isPayloads) {
+                ph_video.setVisibility(data.isVideo() ? View.VISIBLE : View.GONE);
                 if (data.isHttp()) {
                     // 显示网络图片
                     Glide.with(context)
                             .load(data.path)
                             .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
-                                    .override(size, size)
                                     .centerCrop())
                             .into(image);
                 } else {
@@ -125,7 +119,6 @@ public class MiniImageAdapter extends RecyclerView.Adapter<MiniImageAdapter.View
                         Glide.with(context)
                                 .load(imageFile)
                                 .apply(new RequestOptions().placeholder(R.drawable.ph_default_error)
-                                        .override(size, size)
                                         .centerCrop())
                                 .into(image);
                     } else {

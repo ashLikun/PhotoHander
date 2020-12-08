@@ -6,6 +6,7 @@ import android.content.Intent;
 
 import androidx.fragment.app.Fragment;
 
+import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
 
 import java.util.ArrayList;
@@ -19,8 +20,28 @@ import java.util.ArrayList;
  */
 
 public class PhotoHander {
+    //启动视频播放器的回调,在Application里面初始化
+    public final static OnPhotoHandlerListener onPhotoHandlerListener = null;
+
+    public static interface OnPhotoHandlerListener {
+        /**
+         * 播放视频
+         *
+         * @param mediaFile
+         */
+        void onVideoPlay(MediaFile mediaFile);
+    }
+
+
+    public static abstract class OnPhotoHandlerListenerAdapter implements OnPhotoHandlerListener {
+        @Override
+        public void onVideoPlay(MediaFile mediaFile) {
+        }
+    }
+
     //拍照code
     public final static int REQUEST_CAMERA = 100;
+
     //读写存储卡和拍照权限code
     public static final int REQUEST_STORAGE_WRITE_ACCESS_PERMISSION = 110;
     /**
@@ -199,19 +220,73 @@ public class PhotoHander {
      * @param color
      * @return
      */
-    public PhotoHander color(int color) {
+    public PhotoHander cropColor(int color) {
         optionData.cropColor = color;
         return this;
     }
 
-    public PhotoHander selectVideo() {
-        optionData.isSelectVideo = true;
+    /**
+     * 是否过滤目录名称
+     */
+    public PhotoHander filterFolderNameNo() {
+        optionData.isFilterFolder = false;
         return this;
     }
+
+    /**
+     * 能选择视频和图片
+     */
+    public PhotoHander selectVideo() {
+        optionData.isSelectVideo = true;
+        optionData.isVideoCompress = true;
+        return this;
+    }
+
+    /**
+     * 如果选择视频，那么能选的视频的时长，-1代表不限,单位秒
+     *
+     * @param videoMaxDuration
+     * @return
+     */
     public PhotoHander videoMaxDuration(long videoMaxDuration) {
         optionData.videoMaxDuration = videoMaxDuration;
         return this;
     }
+
+    /**
+     * 只能选择视频
+     */
+    public PhotoHander videoOnly() {
+        optionData.isVideoOnly = true;
+        optionData.isVideoCompress = true;
+        return this;
+    }
+
+    /**
+     * 是否压缩视频,可以自己实现OnPhotoHandlerListener，
+     * * 如果不实现就会调用com.github.yellowcath:VideoProcessor:2.4.2库，内部会检测是否有库
+     */
+    public PhotoHander videoCompress() {
+        optionData.isVideoCompress = true;
+        return this;
+    }
+
+    /**
+     * 视频压缩的Fps,默认30
+     */
+    public PhotoHander videoCompressFps(int videoCompressFps) {
+        optionData.videoCompressFps = videoCompressFps;
+        return this;
+    }
+
+    /**
+     * 视频压缩时候的宽高不变
+     */
+    public PhotoHander videoCompressAspectRatio() {
+        optionData.isVideoCompressAspectRatio = false;
+        return this;
+    }
+
     /**
      * 开启
      *

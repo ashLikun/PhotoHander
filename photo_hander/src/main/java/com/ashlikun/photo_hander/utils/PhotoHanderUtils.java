@@ -10,10 +10,11 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -21,19 +22,29 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.ashlikun.photo_hander.IntentKey;
 import com.ashlikun.photo_hander.PhotoHander;
+import com.ashlikun.photo_hander.PhotoLookFragment;
 import com.ashlikun.photo_hander.PhotoOptionData;
 import com.ashlikun.photo_hander.R;
+import com.ashlikun.photo_hander.bean.MediaFile;
+import com.ashlikun.photo_hander.crop.Crop;
+import com.ashlikun.photo_hander.provider.PhotoHandleProvider;
+import com.ashlikun.photoview.PhotoView;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
-import static android.content.ContentValues.TAG;
 import static android.os.Environment.MEDIA_MOUNTED;
 
 /**
@@ -58,6 +69,91 @@ public class PhotoHanderUtils {
         }
         return true;
     }
+
+    public static boolean checkLimit(Activity activity, List selectDatas, PhotoOptionData optionData, MediaFile data) {
+        if (optionData.mDefaultCount <= selectDatas.size()) {
+            Toast.makeText(activity, activity.getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (optionData.videoMaxDuration > 0 && data.duration / 1000 > optionData.videoMaxDuration) {
+            if (optionData.videoMaxDuration < 60) {
+                Toast.makeText(activity, activity.getString(R.string.ph_msg_video_duration_limit, optionData.videoMaxDuration + "秒"), Toast.LENGTH_SHORT).show();
+            } else if (optionData.videoMaxDuration % 60 == 0) {
+                Toast.makeText(activity, activity.getString(R.string.ph_msg_video_duration_limit, optionData.videoMaxDuration / 60 + "分钟"), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(activity, activity.getString(R.string.ph_msg_video_duration_limit, optionData.videoMaxDuration / 60 + "分" + optionData.videoMaxDuration % 60 + "秒"), Toast.LENGTH_SHORT).show();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public static void startVideoPlay(Context context, MediaFile data) {
+        if (PhotoHander.onPhotoHandlerListener != null) {
+            PhotoHander.onPhotoHandlerListener.onVideoPlay(data);
+        } else {
+            //实现播放视频的跳转逻辑(调用原生视频播放器)
+            //实现播放视频的跳转逻辑(调用原生视频播放器)
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.setDataAndType(FileProvider.getUriForFile(context, PhotoHandleProvider.getFileProviderName(context), new File(data.path)), "video/*");
+            } else {
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setDataAndType(Uri.fromFile(new File(data.path)), "video/*");
+            }
+            context.startActivity(intent);
+        }
+    }
+
+    /**
+     * 启动裁剪页面
+     */
+    public static void startCrop(Activity activity, MediaFile file, PhotoOptionData optionData) {
+        Uri destination = null;
+        Uri source = Uri.fromFile(new File(file.path));
+        try {
+            destination = Uri.fromFile(PhotoHanderUtils.createCacheTmpFile(activity, "crop"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (destination != null && source != null) {
+            Crop.of(source, destination)
+                    .withSize(optionData.cropWidth, optionData.cropHeight)
+                    .showCircle(optionData.cropShowCircle)
+                    .color(optionData.cropColor)
+                    .start(activity);
+        } else {
+            Toast.makeText(activity, R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 启动查看照片和视频界面
+     */
+    public static void startLook(FragmentActivity activity, List<MediaFile> imageList, List<MediaFile> selectList, int position, MediaFile currentData) {
+        try {
+            //检查是否有PhotoView库
+            Class.forName(PhotoView.class.getName());
+            Bundle bundle = new Bundle();
+            bundle.putParcelableArrayList(IntentKey.EXTRA_ADAPTER_SHOW_DATA, (ArrayList<? extends Parcelable>) imageList);
+            bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, (ArrayList<? extends Parcelable>) selectList);
+            bundle.putInt(IntentKey.EXTRA_ADAPTER_CLICK_POSITION, position);
+            bundle.putParcelable(IntentKey.EXTRA_ADAPTER_CLICK_DATA, currentData);
+            FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
+            Fragment fragment = activity.getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
+            if (fragment != null) {
+                ft.remove(fragment);
+            }
+            fragment = Fragment.instantiate(activity, PhotoLookFragment.class.getName(), bundle);
+            ft.setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out)
+                    .add(android.R.id.content, fragment, "PhotoLookFragment")
+                    .commitAllowingStateLoss();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     public static void setCheck(ImageView imageView, boolean isCheck) {
         if (isCheck) {
@@ -125,7 +221,7 @@ public class PhotoHanderUtils {
      * @return size
      * @throws Exception
      */
-    public static long getFileSizes(File file) throws Exception {
+    public static long getFileSizes(File file) {
         long size = 0;
         try {
             if (!file.isDirectory()) {
@@ -178,21 +274,16 @@ public class PhotoHanderUtils {
                 if (mTmpFile != null && mTmpFile.exists()) {
                     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-                        if (fragment != null) {
-                            fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                        } else {
-                            activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                        }
                     } else {
                         ContentValues contentValues = new ContentValues(1);
                         contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
                         Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
                         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                        if (fragment != null) {
-                            fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                        } else {
-                            activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                        }
+                    }
+                    if (fragment != null) {
+                        fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+                    } else {
+                        activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
                     }
                 } else {
                     Toast.makeText(activity, R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
@@ -276,6 +367,7 @@ public class PhotoHanderUtils {
         return appCacheDir;
     }
 
+
     public static File getPhotoCacheDir(Context context, String cacheName) {
         File cacheDir = getCacheDirectory(context, false);
         if (cacheDir != null) {
@@ -290,9 +382,6 @@ public class PhotoHanderUtils {
                 return null;
             }
             return result;
-        }
-        if (Log.isLoggable(TAG, Log.ERROR)) {
-            Log.e(TAG, "default disk cache dir is null");
         }
         return null;
     }
@@ -337,7 +426,7 @@ public class PhotoHanderUtils {
         return perm == PackageManager.PERMISSION_GRANTED;
     }
 
-    public static int getFiles(File files) {
+    public static int getFileCount(File files) {
         if (files == null || !files.exists()) {
             return 0;
         }
@@ -345,7 +434,7 @@ public class PhotoHanderUtils {
         File[] childs = files.listFiles();
         for (int j = 0; j < childs.length; j++) {
             if (childs[j].isDirectory()) {
-                getFiles(childs[j]);
+                getFileCount(childs[j]);
             } else {
                 num++;
             }

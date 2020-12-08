@@ -30,7 +30,6 @@ public class MediaSelectData implements Parcelable {
     //是否压缩（不是网络图，缓存没有，文件太小）
     public boolean isCompress;
 
-
     /**
      * 这张图片是否是网络图
      *
@@ -72,6 +71,10 @@ public class MediaSelectData implements Parcelable {
         }
     }
 
+    public boolean isVideo() {
+        return mediaFile.isVideo();
+    }
+
     public MediaSelectData(MediaFile mediaFile, String compressPath, boolean isCompress, boolean isComparessError) {
         this.mediaFile = mediaFile;
         this.compressPath = compressPath;
@@ -106,7 +109,7 @@ public class MediaSelectData implements Parcelable {
         ArrayList<String> strings = new ArrayList<>();
         if (resultList != null) {
             for (MediaSelectData d : resultList) {
-                if (d.mediaFile != null && d.mediaFile.isVideo()) {
+                if (d.isVideo()) {
                     continue;
                 }
                 //如果有裁剪的图片，优先使用裁剪的图片
@@ -116,6 +119,19 @@ public class MediaSelectData implements Parcelable {
                     strings.add(d.mediaFile.path);
                 }
 
+            }
+        }
+        return strings;
+    }
+
+    public static ArrayList<MediaSelectData> getCompressVideoPaths(ArrayList<MediaSelectData> resultList) {
+        ArrayList<MediaSelectData> strings = new ArrayList<>();
+        if (resultList != null) {
+            for (MediaSelectData d : resultList) {
+                if (!d.isVideo()) {
+                    continue;
+                }
+                strings.add(d);
             }
         }
         return strings;
@@ -132,7 +148,7 @@ public class MediaSelectData implements Parcelable {
             e.printStackTrace();
         }
         if (mediaFile != null && mediaFile.isVideo()) {
-            return "视频：" + mediaFile.path + "  size = " + sizeOrigin;
+            return "视频：" + mediaFile.path + "  size = " + sizeOrigin + "       压缩视频:" + compressPath + "  size = " + sizeCompress;
         }
         return "原图：" + mediaFile.path + "  size = " + sizeOrigin + "       压缩图:" + compressPath + "  size = " + sizeCompress + "       裁剪图:" + cropPath;
     }
