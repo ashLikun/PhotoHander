@@ -4,12 +4,18 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
 import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 作者　　: 李坤
@@ -307,6 +313,36 @@ public class PhotoHander {
     public void start(Fragment fragment, int requestCode) {
         final Context context = fragment.getContext();
         fragment.startActivityForResult(createIntent(context), requestCode);
+    }
+
+    /**
+     * 开启
+     */
+    public ActivityResultLauncher start(ComponentActivity activity, final ActivityResultCallback<List<MediaSelectData>> callback) {
+        ActivityResultLauncher launcher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
+                callback.onActivityResult(mSelectPath);
+            }
+        });
+        launcher.launch(createIntent(activity));
+        return launcher;
+    }
+
+    /**
+     * 开启
+     */
+    public ActivityResultLauncher start(Fragment fragment, final ActivityResultCallback<List<MediaSelectData>> callback) {
+        ActivityResultLauncher launcher = fragment.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
+                callback.onActivityResult(mSelectPath);
+            }
+        });
+        launcher.launch(createIntent(fragment.getContext()));
+        return launcher;
     }
 
     private Intent createIntent(Context context) {
