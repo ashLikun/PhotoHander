@@ -22,10 +22,15 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Lifecycle;
 
 import com.ashlikun.photo_hander.IntentKey;
 import com.ashlikun.photo_hander.PhotoHander;
@@ -39,6 +44,7 @@ import com.ashlikun.photoview.PhotoView;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,6 +63,87 @@ import static android.os.Environment.MEDIA_MOUNTED;
 public class PhotoHanderUtils {
     private static final String JPEG_FILE_PREFIX = "IMG_";
     private static final String JPEG_FILE_SUFFIX = ".jpg";
+
+    /**
+     * 反射字段
+     *
+     * @param object    要反射的对象
+     * @param fieldName 要反射的字段名称
+     */
+    public static Field setField(Object object, String fieldName, Object value) {
+        if (object == null || fieldName == null || fieldName.isEmpty()) {
+            return null;
+        }
+        try {
+            Field field = getAllDeclaredField(object.getClass(), fieldName);
+            if (field != null) {
+                field.setAccessible(true);
+                field.set(object, value);
+                return field;
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 获取指定的字段
+     */
+    public static Field getAllDeclaredField(Class<?> claxx, String fieldName) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            return null;
+        }
+
+        while (claxx != null && claxx != Object.class) {
+            try {
+                Field f = claxx.getDeclaredField(fieldName);
+                if (f != null) {
+                    return f;
+                }
+            } catch (NoSuchFieldException e) {
+                e.printStackTrace();
+            }
+            claxx = claxx.getSuperclass();
+        }
+        return null;
+    }
+
+    public static <I, O> ActivityResultLauncher<I> registerForActivityResultX(ComponentActivity activity,
+                                                                              ActivityResultContract<I, O> contract,
+                                                                              ActivityResultCallback<O> callback
+    ) {
+        Lifecycle.State oldStatus = null;
+        //反射修改字段
+        if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+            oldStatus = activity.getLifecycle().getCurrentState();
+            setField(activity.getLifecycle(), "mState", Lifecycle.State.CREATED);
+        }
+        //这段注册代码源码里面做了限制，必须在onStart之前，所以反射修改字段，骗过注册
+        ActivityResultLauncher<I> launcher = activity.registerForActivityResult(contract, callback);
+        if (oldStatus != null) {
+            setField(activity.getLifecycle(), "mState", oldStatus);
+        }
+        return launcher;
+    }
+
+    public static <I, O> ActivityResultLauncher<I> registerForActivityResultXF(Fragment fragment,
+                                                                               ActivityResultContract<I, O> contract,
+                                                                               ActivityResultCallback<O> callback
+    ) {
+        Lifecycle.State oldStatus = null;
+        //反射修改字段
+        if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+            oldStatus = fragment.getLifecycle().getCurrentState();
+            setField(fragment.getLifecycle(), "mState", Lifecycle.State.CREATED);
+        }
+        //这段注册代码源码里面做了限制，必须在onStart之前，所以反射修改字段，骗过注册
+        ActivityResultLauncher<I> launcher = fragment.registerForActivityResult(contract, callback);
+        if (oldStatus != null) {
+            setField(fragment.getLifecycle(), "mState", oldStatus);
+        }
+        return launcher;
+    }
 
     /**
      * 这张图片是否是网络图

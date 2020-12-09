@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 
 import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -319,7 +320,7 @@ public class PhotoHander {
      * 开启
      */
     public ActivityResultLauncher start(ComponentActivity activity, final ActivityResultCallback<List<MediaSelectData>> callback) {
-        ActivityResultLauncher launcher = activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultX(activity, new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
                 List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
@@ -334,7 +335,7 @@ public class PhotoHander {
      * 开启
      */
     public ActivityResultLauncher start(Fragment fragment, final ActivityResultCallback<List<MediaSelectData>> callback) {
-        ActivityResultLauncher launcher = fragment.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultXF(fragment, new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
                 List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
