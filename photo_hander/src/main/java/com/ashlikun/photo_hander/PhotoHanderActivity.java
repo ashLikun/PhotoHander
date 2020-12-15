@@ -352,6 +352,8 @@ public class PhotoHanderActivity extends AppCompatActivity
             Intent data = new Intent();
             data.putParcelableArrayListExtra(IntentKey.EXTRA_RESULT, resultList);
             setResult(RESULT_OK, data);
+        } else {
+            setResult(RESULT_CANCELED);
         }
         finish();
     }
@@ -370,6 +372,7 @@ public class PhotoHanderActivity extends AppCompatActivity
                 }
                 completeSelect();
             } else {
+                setResult(RESULT_CANCELED);
                 finish();
             }
         }
