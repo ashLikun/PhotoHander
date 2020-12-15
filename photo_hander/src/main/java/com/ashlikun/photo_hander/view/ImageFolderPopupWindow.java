@@ -77,7 +77,7 @@ public class ImageFolderPopupWindow extends PopupWindow {
     private void setLightMode(boolean isOpen) {
         WindowManager.LayoutParams layoutParams = mActivity.getWindow().getAttributes();
         if (isOpen) {
-            layoutParams.alpha = 0.7f;
+            layoutParams.alpha = 0.3f;
         } else {
             layoutParams.alpha = 1f;
         }
@@ -103,7 +103,7 @@ public class ImageFolderPopupWindow extends PopupWindow {
                 //设置背景颜色为黑色，加上透明度，就会有半透明的黑色蒙版效果
                 backgoundView.setBackgroundColor(0xff000000);
                 //1.0f 不透明/0.0f 透明
-                backgoundView.setAlpha(0.7f);
+                backgoundView.setAlpha(0.3f);
                 rootView.addView(backgoundView);
             } else {
                 rootView.removeView(backgoundView);

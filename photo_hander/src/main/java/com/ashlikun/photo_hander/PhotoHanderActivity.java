@@ -344,7 +344,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (!isCompressOk || !isVideoCompressOk) {
             return;
         }
-        if (resultList != null && resultList.size() > 0) {
+        if (resultList != null && resultList.size() >= 0) {
             if (optionData.mDefaultCount < resultList.size()) {
                 resultList = (ArrayList<MediaSelectData>) resultList.subList(0, optionData.mDefaultCount);
             }
@@ -352,8 +352,6 @@ public class PhotoHanderActivity extends AppCompatActivity
             Intent data = new Intent();
             data.putParcelableArrayListExtra(IntentKey.EXTRA_RESULT, resultList);
             setResult(RESULT_OK, data);
-        } else {
-            setResult(RESULT_CANCELED);
         }
         finish();
     }
@@ -372,7 +370,6 @@ public class PhotoHanderActivity extends AppCompatActivity
                 }
                 completeSelect();
             } else {
-                setResult(RESULT_CANCELED);
                 finish();
             }
         }
