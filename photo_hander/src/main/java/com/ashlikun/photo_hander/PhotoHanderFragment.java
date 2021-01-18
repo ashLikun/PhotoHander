@@ -327,7 +327,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
                         mCallback.onImageUnselected(data);
                     }
                 } else {
-                    if (!PhotoHanderUtils.checkLimit(getActivity(), resultList, optionData,data)) {
+                    if (!PhotoHanderUtils.checkLimit(getActivity(), resultList, optionData, data)) {
                         return;
                     }
                     resultList.add(data.path);
@@ -372,7 +372,9 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mediaHandler.destroyLoader();
+        if (mediaHandler != null) {
+            mediaHandler.destroyLoader();
+        }
     }
 
     /**
