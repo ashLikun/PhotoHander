@@ -122,7 +122,7 @@ public class PhotoHanderActivity extends AppCompatActivity
                 if (d.originPath() != null && d.compressPath == null) {
                     d.compressPath = d.originPath();
                 } else if (d.compressPath != null && d.originPath() == null) {
-                    d.mediaFile = new MediaFile(d.compressPath);
+                    d.mediaFile = new MediaFile(d.compressPath, d.mediaFile.type);
                 }
             }
         }
@@ -230,7 +230,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     public void onCameraShot(File imageFile) {
         if (imageFile != null) {
             sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
-            onSingleImageSelected(new MediaFile(imageFile.getPath()));
+            onSingleImageSelected(new MediaFile(imageFile.getPath(), 1));
         }
     }
 

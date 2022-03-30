@@ -81,7 +81,7 @@ public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
         String folderName = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
         long dateToken = cursor.getLong(cursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED));
 
-        MediaFile mediaFile = new MediaFile(path);
+        MediaFile mediaFile = new MediaFile(path, 0);
         mediaFile.name = name;
         mediaFile.mime = mime;
         mediaFile.folderId = folderId;

@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+// GitHub账户名
+group = 'com.github.ashLikun'
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -9,16 +12,30 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
     }
+    buildFeatures {
+        buildConfig = false
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    //java8
+//    compileOptions {
+//        //定义生成的META-INF/library_release文件名 More than one file was found with OS independent path 'META-INF/library_release.kotlin_module'
+//        kotlinOptions.freeCompilerArgs += ['-module-name', 'com.ashlikun.photo_hander']
+//        sourceCompatibility JavaVersion.VERSION_1_8
+//        targetCompatibility JavaVersion.VERSION_1_8
+//    }
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//    }
 }
 
 dependencies {
-    compileOnly rootProject.ext.v7AppCompat
+    compileOnly rootProject.ext.designVersion
     compileOnly 'com.github.bumptech.glide:glide:4.9.0'
     //rxjava
     compileOnly 'com.github.ashLikun:PhotoView:2.0.1'

@@ -23,9 +23,14 @@ public class MediaFile implements Parcelable, Comparable<MediaFile> {
     public String folderName;
     public long duration;
     public long dateToken;
+    /**
+     * 0:相册，1：拍摄,2其他（已选）,-1未知
+     */
+    public int type;
 
-    public MediaFile(String path) {
+    public MediaFile(String path, int type) {
         this.path = path;
+        this.type = type;
     }
 
     public MediaFile(String path, String name, long dateToken) {
@@ -83,6 +88,7 @@ public class MediaFile implements Parcelable, Comparable<MediaFile> {
         folderName = in.readString();
         duration = in.readLong();
         dateToken = in.readLong();
+        type = in.readInt();
     }
 
     @Override
@@ -98,6 +104,7 @@ public class MediaFile implements Parcelable, Comparable<MediaFile> {
         dest.writeString(folderName);
         dest.writeLong(duration);
         dest.writeLong(dateToken);
+        dest.writeInt(type);
     }
 
     @Override

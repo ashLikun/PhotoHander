@@ -75,7 +75,7 @@ public class VideoScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
         long duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.DURATION));
         long dateToken = cursor.getLong(cursor.getColumnIndex(MediaStore.Video.Media.DATE_ADDED));
 
-        MediaFile mediaFile = new MediaFile(path);
+        MediaFile mediaFile = new MediaFile(path, 0);
         mediaFile.mime = mime;
         mediaFile.folderId = folderId;
         mediaFile.folderName = PhotoHanderUtils.getFolderName(folderName);

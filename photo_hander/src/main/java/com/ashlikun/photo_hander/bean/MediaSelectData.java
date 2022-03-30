@@ -20,20 +20,46 @@ import java.util.ArrayList;
 public class MediaSelectData implements Parcelable {
     public MediaFile mediaFile;
     public String compressPath;
-    //裁剪的图片
+    /**
+     * 裁剪的图片
+     */
     public String cropPath;
-
     /**
      * 是否压缩失败
      */
     public boolean isComparessError = false;
-    //是否压缩（不是网络图，缓存没有，文件太小）
+    /**
+     * 是否压缩（不是网络图，缓存没有，文件太小）
+     */
     public boolean isCompress;
+
+    public MediaSelectData(MediaFile mediaFile) {
+        this.mediaFile = mediaFile;
+        if (isHttpImg()) {
+            this.compressPath = mediaFile.path;
+        }
+    }
+
+    public MediaSelectData(MediaFile mediaFile, String compressPath, boolean isCompress, boolean isComparessError) {
+        this.mediaFile = mediaFile;
+        this.compressPath = compressPath;
+        this.isComparessError = isComparessError;
+        this.isCompress = isCompress;
+    }
+
+    /**
+     * 0:相册，1：拍摄,2其他（已选）,-1未知
+     */
+    public int getType() {
+        if (mediaFile != null) {
+            return mediaFile.type;
+        } else {
+            return -1;
+        }
+    }
 
     /**
      * 这张图片是否是网络图
-     *
-     * @return
      */
     public boolean isHttpImg() {
         if (mediaFile != null && PhotoHanderUtils.isHttpImg(mediaFile.path)) {
@@ -50,8 +76,6 @@ public class MediaSelectData implements Parcelable {
      * 1：网络图不压缩
      * 2：开启压缩
      * 3：太小图不压缩
-     *
-     * @return
      */
     public boolean isCompress() {
         if (isHttpImg()) {
@@ -64,23 +88,10 @@ public class MediaSelectData implements Parcelable {
     }
 
 
-    public MediaSelectData(MediaFile mediaFile) {
-        this.mediaFile = mediaFile;
-        if (isHttpImg()) {
-            this.compressPath = mediaFile.path;
-        }
-    }
-
     public boolean isVideo() {
         return mediaFile.isVideo();
     }
 
-    public MediaSelectData(MediaFile mediaFile, String compressPath, boolean isCompress, boolean isComparessError) {
-        this.mediaFile = mediaFile;
-        this.compressPath = compressPath;
-        this.isComparessError = isComparessError;
-        this.isCompress = isCompress;
-    }
 
     public String originPath() {
         if (mediaFile != null) {
