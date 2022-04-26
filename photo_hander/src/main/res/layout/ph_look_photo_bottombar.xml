@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
-            android:text="选择"
+            android:text="@string/photo_action_select"
             android:textSize="14dp" />
 
     </LinearLayout>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -64,19 +65,15 @@ public class PhotoHanderPermission {
     }
 
     /**
-     * 作者　　: 李坤
-     * 创建时间: 2017/8/30 0030 22:52
-     * <p>
-     * 方法功能：请求权限
+     * 请求权限
      */
-
     public static void requestPermission(final Object activityOrfragment, final String[] permission, String rationale, final int requestCode) {
         if (shouldShowRequestPermissionRationale(activityOrfragment, permission)) {
             new AlertDialog.Builder((activityOrfragment instanceof Fragment) ?
                     ((Fragment) activityOrfragment).getContext() : ((Activity) activityOrfragment))
-                    .setTitle(R.string.ph_permission_dialog_title)
+                    .setTitle(R.string.photo_permission_dialog_title)
                     .setMessage(rationale)
-                    .setPositiveButton(R.string.ph_permission_dialog_ok, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.photo_permission_dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             if (activityOrfragment instanceof Fragment) {
@@ -86,7 +83,7 @@ public class PhotoHanderPermission {
                             }
                         }
                     })
-                    .setNegativeButton(R.string.ph_permission_dialog_cancel, null)
+                    .setNegativeButton(R.string.photo_permission_dialog_cancel, null)
                     .create().show();
         } else {
             if (activityOrfragment instanceof Fragment) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.ashlikun.multiimageselector.simple">
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
@@ -30,7 +31,8 @@
         <activity
             android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
             android:configChanges="orientation|screenSize"
-            android:label="图片裁剪" />
+            android:label="图片裁剪"
+            tools:replace="android:label" />
     </application>
 
 </manifest>

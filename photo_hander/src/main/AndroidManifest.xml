@@ -10,11 +10,11 @@
         <activity
             android:name="com.ashlikun.photo_hander.PhotoHanderActivity"
             android:configChanges="orientation|screenSize"
-            android:label="图片选择" />
+            android:label="@string/photo_title" />
         <activity
             android:name="com.ashlikun.photo_hander.crop.CropImageActivity"
             android:configChanges="orientation|screenSize"
-            android:label="图片裁剪" />
+            android:label="@string/photo_crop_title" />
         <!-- Android 7.0 文件共享配置，必须配置 -->
         <provider
             android:name=".provider.PhotoHandleProvider"

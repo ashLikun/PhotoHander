@@ -81,9 +81,9 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         if (position == 0) {
             if (PhotoOptionData.currentData.isVideoOnly) {
-                holder.name.setText(R.string.ph_folder_all_video);
+                holder.name.setText(R.string.photo_folder_all_video);
             } else {
-                holder.name.setText(PhotoOptionData.currentData.isCanVideo() ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
+                holder.name.setText(PhotoOptionData.currentData.isCanVideo() ? R.string.photo_folder_all_image_and_video : R.string.photo_folder_all);
             }
             holder.size.setText(String.format("(%d)",
                     mediaHandler.getFiles().size()));
@@ -102,7 +102,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
             }
         } else if (PhotoOptionData.currentData.isSelectVideoAndImg() && position == 1) {
             //全部视频
-            holder.name.setText(R.string.ph_folder_all_video);
+            holder.name.setText(R.string.photo_folder_all_video);
             holder.size.setText(String.format("(%d)",
                     mediaHandler.getVideoFiles().size()));
             if (mediaHandler.getVideoFiles().size() > 0) {

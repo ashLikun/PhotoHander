@@ -126,22 +126,43 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         selector.origin(mSelectPath);
-        selector.start(MainActivity.this, REQUEST_IMAGE);
+        selector.start(MainActivity.this, result -> {
+            mSelectPath = (ArrayList<MediaSelectData>) result;
+            StringBuilder sb = new StringBuilder();
+            if (mSelectPath.size() == 1) {
+                Glide.with(this).load(mSelectPath.get(0).compressPath)
+                        .into(imageView);
+            }
+            for (MediaSelectData p : mSelectPath) {
+                sb.append(p);
+                if (!p.isHttpImg()) {
+                    File ff = new File(p.compressPath);
+                    try {
+                        sb.append("\n");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                sb.append("\n\n");
+            }
+            mResultText.setText(sb.toString());
+        });
 //        }
     }
 
     private void requestPermission(final String permission, String rationale, final int requestCode) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
             new AlertDialog.Builder(this)
-                    .setTitle(R.string.ph_permission_dialog_title)
+                    .setTitle(R.string.photo_permission_dialog_title)
                     .setMessage(rationale)
-                    .setPositiveButton(R.string.ph_permission_dialog_ok, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.photo_permission_dialog_ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             ActivityCompat.requestPermissions(MainActivity.this, new String[]{permission}, requestCode);
                         }
                     })
-                    .setNegativeButton(R.string.ph_permission_dialog_cancel, null)
+                    .setNegativeButton(R.string.photo_permission_dialog_cancel, null)
                     .create().show();
         } else {
             ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
@@ -163,28 +184,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE) {
-            if (resultCode == RESULT_OK) {
-                mSelectPath = PhotoHander.getIntentResult(data);
-                StringBuilder sb = new StringBuilder();
-                if (mSelectPath.size() == 1) {
-                    Glide.with(this).load(mSelectPath.get(0).compressPath)
-                            .into(imageView);
-                }
-                for (MediaSelectData p : mSelectPath) {
-                    sb.append(p);
-                    if (!p.isHttpImg()) {
-                        File ff = new File(p.compressPath);
-                        try {
-                            sb.append("\n");
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
 
-                    sb.append("\n\n");
-                }
-                mResultText.setText(sb.toString());
-            }
         }
     }
 

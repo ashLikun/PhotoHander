@@ -85,7 +85,7 @@ public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
         mediaFile.name = name;
         mediaFile.mime = mime;
         mediaFile.folderId = folderId;
-        mediaFile.folderName = PhotoHanderUtils.getFolderName(folderName);
+        mediaFile.folderName = PhotoHanderUtils.getFolderName(getContext(), folderName);
         mediaFile.dateToken = dateToken;
         return mediaFile;
     }

@@ -1,5 +1,7 @@
 package com.ashlikun.photo_hander.utils;
 
+import static android.os.Environment.MEDIA_MOUNTED;
+
 import android.Manifest;
 import android.app.Activity;
 import android.content.ContentValues;
@@ -30,7 +32,6 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Lifecycle;
 
 import com.ashlikun.photo_hander.IntentKey;
 import com.ashlikun.photo_hander.PhotoHander;
@@ -50,8 +51,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import static android.os.Environment.MEDIA_MOUNTED;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 作者　　: 李坤
@@ -111,38 +111,38 @@ public class PhotoHanderUtils {
 
     public static <I, O> ActivityResultLauncher<I> registerForActivityResultX(ComponentActivity activity,
                                                                               ActivityResultContract<I, O> contract,
-                                                                              ActivityResultCallback<O> callback
+                                                                              final ActivityResultCallback<O> callback
     ) {
-        Lifecycle.State oldStatus = null;
-        //反射修改字段
-        if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-            oldStatus = activity.getLifecycle().getCurrentState();
-            setField(activity.getLifecycle(), "mState", Lifecycle.State.CREATED);
-        }
-        //这段注册代码源码里面做了限制，必须在onStart之前，所以反射修改字段，骗过注册
-        ActivityResultLauncher<I> launcher = activity.registerForActivityResult(contract, callback);
-        if (oldStatus != null) {
-            setField(activity.getLifecycle(), "mState", oldStatus);
-        }
-        return launcher;
+        final ActivityResultLauncher<I>[] launcher = new ActivityResultLauncher[1];
+        //这种注册需要自己unregister
+        launcher[0] = activity.getActivityResultRegistry().register("PhotoForActivityResult" + new AtomicInteger().getAndIncrement(), contract,
+                new ActivityResultCallback<O>() {
+                    @Override
+                    public void onActivityResult(O result) {
+                        callback.onActivityResult(result);
+                        //这里主动释放
+                        launcher[0].unregister();
+                    }
+                });
+        return launcher[0];
     }
 
     public static <I, O> ActivityResultLauncher<I> registerForActivityResultXF(Fragment fragment,
                                                                                ActivityResultContract<I, O> contract,
-                                                                               ActivityResultCallback<O> callback
+                                                                               final ActivityResultCallback<O> callback
     ) {
-        Lifecycle.State oldStatus = null;
-        //反射修改字段
-        if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-            oldStatus = fragment.getLifecycle().getCurrentState();
-            setField(fragment.getLifecycle(), "mState", Lifecycle.State.CREATED);
-        }
-        //这段注册代码源码里面做了限制，必须在onStart之前，所以反射修改字段，骗过注册
-        ActivityResultLauncher<I> launcher = fragment.registerForActivityResult(contract, callback);
-        if (oldStatus != null) {
-            setField(fragment.getLifecycle(), "mState", oldStatus);
-        }
-        return launcher;
+        final ActivityResultLauncher<I>[] launcher = new ActivityResultLauncher[1];
+        //这种注册需要自己unregister
+        launcher[0] = fragment.getActivity().getActivityResultRegistry().register("PhotoForActivityResult" + new AtomicInteger().getAndIncrement(), contract,
+                new ActivityResultCallback<O>() {
+                    @Override
+                    public void onActivityResult(O result) {
+                        callback.onActivityResult(result);
+                        //这里主动释放
+                        launcher[0].unregister();
+                    }
+                });
+        return launcher[0];
     }
 
     /**
@@ -159,16 +159,16 @@ public class PhotoHanderUtils {
 
     public static boolean checkLimit(Activity activity, List selectDatas, PhotoOptionData optionData, MediaFile data) {
         if (optionData.mDefaultCount <= selectDatas.size()) {
-            Toast.makeText(activity, activity.getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, activity.getString(R.string.photo_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
             return false;
         }
         if (optionData.videoMaxDuration > 0 && data.duration / 1000 > optionData.videoMaxDuration) {
             if (optionData.videoMaxDuration < 60) {
-                Toast.makeText(activity, activity.getString(R.string.ph_msg_video_duration_limit, optionData.videoMaxDuration + "秒"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, activity.getString(R.string.photo_msg_video_duration_limit, optionData.videoMaxDuration + "秒"), Toast.LENGTH_SHORT).show();
             } else if (optionData.videoMaxDuration % 60 == 0) {
-                Toast.makeText(activity, activity.getString(R.string.ph_msg_video_duration_limit, optionData.videoMaxDuration / 60 + "分钟"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, activity.getString(R.string.photo_msg_video_duration_limit, optionData.videoMaxDuration / 60 + "分钟"), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(activity, activity.getString(R.string.ph_msg_video_duration_limit, optionData.videoMaxDuration / 60 + "分" + optionData.videoMaxDuration % 60 + "秒"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, activity.getString(R.string.photo_msg_video_duration_limit, optionData.videoMaxDuration / 60 + "分" + optionData.videoMaxDuration % 60 + "秒"), Toast.LENGTH_SHORT).show();
             }
             return false;
         }
@@ -211,7 +211,7 @@ public class PhotoHanderUtils {
                     .color(optionData.cropColor)
                     .start(activity);
         } else {
-            Toast.makeText(activity, R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -347,7 +347,7 @@ public class PhotoHanderUtils {
         }
         String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         if (!PhotoHanderPermission.checkSelfPermission(activity, permission)) {
-            PhotoHanderPermission.requestPermission(activityOrfragment, permission, activity.getString(R.string.ph_permission_rationale_camera),
+            PhotoHanderPermission.requestPermission(activityOrfragment, permission, activity.getString(R.string.photo_permission_rationale_camera),
                     PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
         } else {
             File mTmpFile = null;
@@ -373,10 +373,10 @@ public class PhotoHanderUtils {
                         activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
                     }
                 } else {
-                    Toast.makeText(activity, R.string.ph_error_image_not_exist, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(activity, R.string.ph_msg_no_camera, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.photo_msg_no_camera, Toast.LENGTH_SHORT).show();
             }
             return mTmpFile;
         }
@@ -607,14 +607,14 @@ public class PhotoHanderUtils {
     /**
      * 过滤目录名称
      */
-    public static String getFolderName(String name) {
+    public static String getFolderName(Context context, String name) {
         if (PhotoOptionData.currentData.isFilterFolder && name != null) {
-            if (name.toLowerCase().equals("camera")) {
-                return "相机";
-            } else if (name.toLowerCase().equals("screenshots")) {
-                return "截屏";
-            } else if (name.toLowerCase().equals("weixin")) {
-                return "微信";
+            if (name.equalsIgnoreCase("camera")) {
+                return context.getString(R.string.photo_folder_camera);
+            } else if (name.equalsIgnoreCase("screenshots")) {
+                return context.getString(R.string.photo_folder_screenshots);
+            } else if (name.equalsIgnoreCase("weixin")) {
+                return context.getString(R.string.photo_folder_weixin);
             }
         }
         return name;

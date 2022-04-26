@@ -31,7 +31,7 @@
             android:paddingRight="16dp"
             android:textAllCaps="false"
             android:textSize="@dimen/ph_folder_text_size"
-            tools:text="所有图片" />
+            tools:text="@string/photo_folder_all" />
 
         <ImageView
             android:id="@+id/category_iv"
@@ -52,7 +52,7 @@
             android:gravity="center"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:text="@string/ph_action_yulan"
+            android:text="@string/photo_action_yulan"
             android:textSize="@dimen/ph_folder_text_size" />
     </RelativeLayout>
 

@@ -194,7 +194,7 @@ public class CropImageActivity extends AppCompatActivity {
             return;
         }
         dialog = ProgressDialog.show(
-                this, null, getResources().getString(R.string.crop__wait), true, false);
+                this, null, getResources().getString(R.string.photo_crop_wait), true, false);
         imageView.setImageRotateBitmapResetBase(rotateBitmap, true);
 
         imageView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -312,7 +312,7 @@ public class CropImageActivity extends AppCompatActivity {
     private void saveImage(final Bitmap croppedImage) {
         if (croppedImage != null) {
             dialog = ProgressDialog.show(
-                    this, null, getResources().getString(R.string.crop__saving), true, false);
+                    this, null, getResources().getString(R.string.photo_crop_saving), true, false);
             AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
                 @Override
                 public void run() {

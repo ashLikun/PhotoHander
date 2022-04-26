@@ -115,9 +115,9 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         mImageAdapter.setAddList(getArguments().getStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES));
         mPopupAnchorView = view.findViewById(R.id.footer);
 
-        mCategoryText = (TextView) view.findViewById(R.id.category_btn);
-        yulanTv = (TextView) view.findViewById(R.id.yulanTv);
-        mCategoryText.setText(optionData.isVideoOnly ? R.string.ph_folder_all_video : optionData.isCanVideo() ? R.string.ph_folder_all_image_and_video : R.string.ph_folder_all);
+        mCategoryText = view.findViewById(R.id.category_btn);
+        yulanTv = view.findViewById(R.id.yulanTv);
+        mCategoryText.setText(optionData.isVideoOnly ? R.string.photo_folder_all_video : optionData.isCanVideo() ? R.string.photo_folder_all_image_and_video : R.string.photo_folder_all);
         mCategoryText.setTextColor(phBottonColor);
         ((ImageView) view.findViewById(R.id.category_iv)).setColorFilter(phBottonColor);
 
@@ -165,7 +165,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
                 if (mImageAdapter.isShowCamera()) {
                     if (position == 0) {
                         if (optionData.mDefaultCount <= resultList.size()) {
-                            Toast.makeText(getActivity(), getString(R.string.ph_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), getString(R.string.photo_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
                             return;
                         }
                         mTmpFile = PhotoHanderUtils.showCameraAction(PhotoHanderFragment.this);
@@ -209,10 +209,10 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
     public void setYulanText() {
         if (optionData.isModeMulti()) {
             if (resultList == null || resultList.isEmpty()) {
-                yulanTv.setText(R.string.ph_action_yulan);
+                yulanTv.setText(R.string.photo_action_yulan);
             } else {
-                yulanTv.setText(getString(R.string.ph_action_yulan_button_string,
-                        getString(R.string.ph_action_yulan), resultList.size()));
+                yulanTv.setText(getString(R.string.photo_action_yulan_button_string,
+                        getString(R.string.photo_action_yulan), resultList.size()));
             }
 
         }

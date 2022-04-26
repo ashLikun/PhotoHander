@@ -97,6 +97,9 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
         void onLoadFinished(List<MediaFile> datas, List<MediaFolder> folderDatas);
     }
 
+    public Context getContext() {
+        return mContext;
+    }
 
     @Override
     public void run() {

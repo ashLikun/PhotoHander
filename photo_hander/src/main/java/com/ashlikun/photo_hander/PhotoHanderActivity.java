@@ -78,7 +78,7 @@ public class PhotoHanderActivity extends AppCompatActivity
             finish();
             return;
         }
-        setTitle(optionData.isVideoOnly ? R.string.ph_title_all_video : optionData.isCanVideo() ? R.string.ph_title_all_image_and_video : R.string.ph_title_image);
+        setTitle(optionData.isVideoOnly ? R.string.photo_title_all_video : optionData.isCanVideo() ? R.string.photo_title_all_image_and_video : R.string.photo_title_image);
         setContentView(R.layout.ph_activity_default);
         //获取主题颜色
         TypedArray array = getTheme().obtainStyledAttributes(new int[]{R.attr.phTitleColor, android.R.attr.colorPrimary});
@@ -154,7 +154,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
                 && !PhotoHanderPermission.checkSelfPermission(this, permission)) {
             PhotoHanderPermission.requestPermission(this, permission,
-                    getString(R.string.ph_permission_rationale),
+                    getString(R.string.photo_permission_rationale),
                     REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
             Bundle bundle = new Bundle();
@@ -183,14 +183,14 @@ public class PhotoHanderActivity extends AppCompatActivity
     private void updateDoneText(ArrayList<MediaSelectData> resultList) {
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
-            mSubmitButton.setText(R.string.ph_action_done);
+            mSubmitButton.setText(R.string.photo_action_done);
             mSubmitButton.setEnabled(false);
         } else {
             size = resultList.size();
             mSubmitButton.setEnabled(true);
         }
-        mSubmitButton.setText(getString(R.string.ph_action_button_string,
-                getString(R.string.ph_action_done), size, optionData.mDefaultCount));
+        mSubmitButton.setText(getString(R.string.photo_action_button_string,
+                getString(R.string.photo_action_done), size, optionData.mDefaultCount));
     }
 
     @Override
