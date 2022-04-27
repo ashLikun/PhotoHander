@@ -371,9 +371,11 @@ public class PhotoHander {
      */
     public static ArrayList<MediaSelectData> getIntentResult(Intent data) {
         if (data == null) {
-            return null;
+            return new ArrayList<>();
         }
-        return data.getParcelableArrayListExtra(IntentKey.EXTRA_RESULT);
+        ArrayList<MediaSelectData> result = data.getParcelableArrayListExtra(IntentKey.EXTRA_RESULT);
+        if (result == null) return new ArrayList<>();
+        return result;
     }
 
 }

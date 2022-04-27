@@ -19,12 +19,14 @@ package com.ashlikun.photo_hander.crop;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapRegionDecoder;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.opengl.GLES10;
 import android.os.AsyncTask;
@@ -37,10 +39,13 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.ashlikun.photo_hander.R;
+import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -103,8 +108,31 @@ public class CropImageActivity extends AppCompatActivity {
 
     private void setupViews() {
         setContentView(R.layout.crop_activity_crop);
+        //获取主题颜色
+        TypedArray array = getTheme().obtainStyledAttributes(new int[]{R.attr.phTitleColor, android.R.attr.colorPrimary});
+        int titleColor = array.getColor(0, 0xffffffff);
+        int colorPrimary = array.getColor(1, 0xffffffff);
+        PhotoHanderUtils.autoStatueTextColor(getWindow(), colorPrimary);
 
-        imageView = (CropImageView) findViewById(R.id.crop_image);
+        TextView btn_cancel_tv = findViewById(R.id.btn_cancel_tv);
+        btn_cancel_tv.setTextColor(titleColor);
+        TextView btn_done_tv = findViewById(R.id.btn_done_tv);
+        Drawable drawableDone = getDrawable(R.drawable.crop_ic_done);
+        Drawable drawableCancel = getDrawable(R.drawable.crop_ic_cancel);
+        drawableDone.mutate();
+        int dp24 = PhotoHanderUtils.dip2px(this, 24);
+        DrawableCompat.setTint(drawableDone, titleColor);
+        drawableDone.setBounds(0, 0, dp24, dp24);
+        drawableCancel.mutate();
+        DrawableCompat.setTint(drawableCancel, titleColor);
+        drawableCancel.setBounds(0, 0, dp24, dp24);
+
+        btn_cancel_tv.setCompoundDrawables(drawableCancel, null, null, null);
+        btn_done_tv.setCompoundDrawables(drawableDone, null, null, null);
+        btn_done_tv.setTextColor(titleColor);
+
+
+        imageView = findViewById(R.id.crop_image);
         imageView.context = this;
         imageView.setRecycler(new ImageViewTouchBase.Recycler() {
             @Override

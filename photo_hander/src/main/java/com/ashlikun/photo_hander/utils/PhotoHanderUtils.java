@@ -121,7 +121,8 @@ public class PhotoHanderUtils {
                     public void onActivityResult(O result) {
                         callback.onActivityResult(result);
                         //这里主动释放
-                        launcher[0].unregister();
+                        if (launcher[0] != null)
+                            launcher[0].unregister();
                     }
                 });
         return launcher[0];

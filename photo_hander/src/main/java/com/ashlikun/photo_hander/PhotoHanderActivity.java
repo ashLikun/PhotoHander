@@ -93,7 +93,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         mSubmitButton = findViewById(R.id.commit);
         ImageView btnBack = findViewById(R.id.btn_back);
         if (btnBack.getDrawable() == null) {
-            Drawable drawable = getResources().getDrawable(R.drawable.material_back);
+            Drawable drawable = getDrawable(R.drawable.material_back);
             drawable.mutate();
             DrawableCompat.setTint(drawable, titleColor);
             btnBack.setImageDrawable(drawable);
