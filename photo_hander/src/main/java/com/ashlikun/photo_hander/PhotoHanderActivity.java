@@ -371,9 +371,6 @@ public class PhotoHanderActivity extends AppCompatActivity
                     }
                 }
                 completeSelect();
-            } else {
-                setResult(RESULT_CANCELED);
-                finish();
             }
         }
     }

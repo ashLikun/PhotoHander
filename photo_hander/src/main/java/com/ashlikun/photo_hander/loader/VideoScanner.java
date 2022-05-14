@@ -10,6 +10,7 @@ import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaFolder;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -68,6 +69,9 @@ public class VideoScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
     @Override
     protected MediaFile parse(Cursor cursor) {
         String path = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+        if (!new File(path).exists()) {
+            return null;
+        }
         String name = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME));
         String mime = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.MIME_TYPE));
         Integer folderId = cursor.getInt(cursor.getColumnIndex(MediaStore.Video.Media.BUCKET_ID));

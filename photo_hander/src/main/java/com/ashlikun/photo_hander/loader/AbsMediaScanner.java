@@ -106,24 +106,33 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
         queryMedia();
     }
 
+    public void onLoadPage() {
+
+    }
+
     /**
      * 根据查询条件进行媒体库查询，隐藏查询细节，让开发者更专注业务
      *
      * @return
      */
     public void queryMedia() {
+        int index = 0;
         ContentResolver contentResolver = mContext.getContentResolver();
         Cursor data = contentResolver.query(getScanUri(), getProjection(), getSelection(), getSelectionArgs(), getOrder());
         if (data != null && data.getCount() > 0) {
             while (data.moveToNext()) {
                 T t = parse(data);
-                mDatas.add(t);
-                F f = parseFolder(t);
-                if (f != null) {
-                    mResultFolder.add(f);
+                if (t != null && !mDatas.contains(t)) {
+                    mDatas.add(t);
+                    F f = parseFolder(t);
+                    if (f != null && !mResultFolder.contains(f)) {
+                        mResultFolder.add(f);
+                    }
                 }
+                onLoadPage();
             }
             hasFolderGened = true;
+            index++;
         }
     }
 

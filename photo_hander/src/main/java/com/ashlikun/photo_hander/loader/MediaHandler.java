@@ -32,7 +32,6 @@ public class MediaHandler {
     protected ArrayList<MediaFile> mVideoFile = new ArrayList<>();
     private boolean isImageLoad = false;
     private boolean isVideoLoad = false;
-    private boolean isNeedClean = false;
     protected AbsMediaScanner.OnLoadFinished onLoadFinished;
 
     public MediaHandler(FragmentActivity fragmentActivity, AbsMediaScanner.OnLoadFinished onLoadFinished) {
@@ -58,16 +57,8 @@ public class MediaHandler {
         return mVideoFile;
     }
 
-    public void clean() {
-        if (isNeedClean) {
-            isNeedClean = false;
-            mFile.clear();
-            mFolder.clear();
-        }
-    }
 
     public void loader() {
-        isNeedClean = true;
         for (int i = 0; i < absMediaScanners.size(); i++) {
             PhotoThreadUtils.get().execute(absMediaScanners.get(i));
         }
@@ -80,78 +71,12 @@ public class MediaHandler {
     }
 
 
-    protected MediaFolder getFolderById(int folderId) {
-        if (mFolder != null) {
-            for (MediaFolder folder : mFolder) {
-                if (folder.folderId == folderId) {
-                    return folder;
-                }
-            }
-        }
-        return null;
-    }
-
-    protected MediaFile getFileByPath(String path) {
-        if (mFile != null) {
-            for (MediaFile file : mFile) {
-                if (file.path.equals(path)) {
-                    return file;
-                }
-            }
-        }
-        return null;
-    }
-
-    protected MediaFile getFileByPath(List<MediaFile> files, String path) {
-        if (files != null) {
-            for (MediaFile file : files) {
-                if (file.path.equals(path)) {
-                    return file;
-                }
-            }
-        }
-        return null;
-    }
-
-    private void addFile(List<MediaFile> mediaFiles) {
-        for (MediaFile f : mediaFiles) {
-            MediaFile oldf = getFileByPath(f.path);
-            if (oldf == null) {
-                mFile.add(f);
-            }
-            if (f.isVideo()) {
-                MediaFile oldVideo = getFileByPath(mVideoFile, f.path);
-                if (oldVideo == null) {
-                    mVideoFile.add(f);
-                }
-            }
-        }
-    }
-
-    private void addFolder(List<MediaFolder> folderDatas) {
-        for (MediaFolder f : folderDatas) {
-            MediaFolder oldf = getFolderById(f.folderId);
-            if (oldf != null) {
-                for (MediaFile fff : f.mediaFileList) {
-                    MediaFile oldFile = getFileByPath(oldf.mediaFileList, fff.path);
-                    if (oldFile == null) {
-                        oldf.mediaFileList.add(fff);
-                    }
-                }
-                Collections.sort(oldf.mediaFileList);
-            } else {
-                mFolder.add(f);
-            }
-        }
-    }
-
     private void initImageScanner() {
         ImageScanner imageScanner = new ImageScanner(fragmentActivity, new AbsMediaScanner.OnLoadFinished() {
             @Override
             public void onLoadFinished(List<MediaFile> datas, List<MediaFolder> folderDatas) {
-                clean();
-                addFile(datas);
-                addFolder(folderDatas);
+                mFile = (ArrayList<MediaFile>) datas;
+                mFolder = (ArrayList<MediaFolder>) folderDatas;
                 sort();
                 isImageLoad = true;
                 onLoadFinishedCallback();
@@ -165,9 +90,8 @@ public class MediaHandler {
         VideoScanner videoScanner = new VideoScanner(fragmentActivity, new AbsMediaScanner.OnLoadFinished() {
             @Override
             public void onLoadFinished(List<MediaFile> datas, List<MediaFolder> folderDatas) {
-                clean();
-                addFile(datas);
-                addFolder(folderDatas);
+                mFile = (ArrayList<MediaFile>) datas;
+                mFolder = (ArrayList<MediaFolder>) folderDatas;
                 sort();
                 isVideoLoad = true;
                 onLoadFinishedCallback();
