@@ -116,7 +116,6 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
      * @return
      */
     public void queryMedia() {
-        int index = 0;
         ContentResolver contentResolver = mContext.getContentResolver();
         Cursor data = contentResolver.query(getScanUri(), getProjection(), getSelection(), getSelectionArgs(), getOrder());
         if (data != null && data.getCount() > 0) {
@@ -132,7 +131,6 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
                 onLoadPage();
             }
             hasFolderGened = true;
-            index++;
         }
     }
 
