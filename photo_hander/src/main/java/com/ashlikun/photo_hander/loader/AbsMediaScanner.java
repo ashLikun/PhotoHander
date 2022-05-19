@@ -78,14 +78,6 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
 
     protected OnLoadFinished onLoadFinished;
 
-    public ArrayList<T> getDatas() {
-        return mDatas;
-    }
-
-    public ArrayList<F> getResultFolder() {
-        return mResultFolder;
-    }
-
 
     public AbsMediaScanner(FragmentActivity context, OnLoadFinished onLoadFinished) {
         this.mContext = context;
@@ -106,9 +98,6 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
         queryMedia();
     }
 
-    public void onLoadPage() {
-
-    }
 
     /**
      * 根据查询条件进行媒体库查询，隐藏查询细节，让开发者更专注业务
@@ -116,19 +105,20 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
      * @return
      */
     public void queryMedia() {
+
         ContentResolver contentResolver = mContext.getContentResolver();
         Cursor data = contentResolver.query(getScanUri(), getProjection(), getSelection(), getSelectionArgs(), getOrder());
         if (data != null && data.getCount() > 0) {
+            mDatas.clear();
             while (data.moveToNext()) {
                 T t = parse(data);
-                if (t != null && !mDatas.contains(t)) {
+                if (t != null) {
                     mDatas.add(t);
                     F f = parseFolder(t);
-                    if (f != null && !mResultFolder.contains(f)) {
+                    if (f != null) {
                         mResultFolder.add(f);
                     }
                 }
-                onLoadPage();
             }
             hasFolderGened = true;
         }

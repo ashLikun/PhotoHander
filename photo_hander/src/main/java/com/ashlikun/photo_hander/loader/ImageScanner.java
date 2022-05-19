@@ -3,7 +3,6 @@ package com.ashlikun.photo_hander.loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -12,7 +11,6 @@ import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaFolder;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -49,9 +47,11 @@ public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
     protected String getSelection() {
         if (PhotoOptionData.currentData.isFilterGif()) {
             //过滤GIF
-            return MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=?";
+            return "(" + MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=?)"
+                    + " AND " + MediaStore.MediaColumns.SIZE + ">0";
         }
-        return MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=?" + " or " + MediaStore.Images.Media.MIME_TYPE + "=?";
+        return "(" + MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=?" + " or " + MediaStore.Images.Media.MIME_TYPE + "=?)"
+                + " AND " + MediaStore.MediaColumns.SIZE + ">0";
     }
 
     @Override
@@ -77,9 +77,9 @@ public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
     @Override
     protected MediaFile parse(Cursor cursor) {
         String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        if (TextUtils.isEmpty(path) || !new File(path).exists()) {
-            return null;
-        }
+//        if (TextUtils.isEmpty(path) || !new File(path).exists()) {
+//            return null;
+//        }
         String name = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME));
         String mime = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.MIME_TYPE));
         Integer folderId = cursor.getInt(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_ID));
@@ -95,10 +95,6 @@ public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
         return mediaFile;
     }
 
-    @Override
-    public void onLoadPage() {
-        super.onLoadPage();
-    }
 
     @Override
     public void queryMedia() {

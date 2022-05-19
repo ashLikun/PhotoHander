@@ -50,7 +50,7 @@ public class VideoScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
 
     @Override
     protected String getSelection() {
-        return null;
+        return MediaStore.MediaColumns.SIZE + ">0";
     }
 
     @Override
