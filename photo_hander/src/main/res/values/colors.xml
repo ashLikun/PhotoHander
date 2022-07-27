@@ -5,16 +5,30 @@
     <color name="crop_text_color">#666666</color>
     <color name="crop_selector_pressed">#1a000000</color>
     <color name="crop_selector_focused">#77000000</color>
-    <!--分割线颜色-->
-    <color name="ph_space_color">#000000</color>
-    <!--未选中的颜色-->
-    <color name="ph_ok_text_color_no">#337523</color>
-    <!--选中的颜色  -->
-    <color name="ph_ok_text_color">#44BF1A</color>
-    <!--预览时候 小的选中宽的边框颜色-->
-    <color name="ph_yulam_mini_stroke_color">#44BF1A</color>
-    <!--照片查看底部小的RecycleView选中颜色-->
-    <color name="ph_minirecycle_select_color">#44BF1A</color>
-    <!--照片查看底部的线条-->
-    <color name="ph_lookphoto_bottom_line">#666666</color>
+
+    <color name="ph_space_color">#000000</color>  <!--分割线颜色-->
+
+    <color name="ph_ok_text_color_no">#337523</color>  <!--未选中的颜色-->
+
+    <color name="ph_ok_text_color">#44BF1A</color> <!--选中的颜色  -->
+
+    <color name="ph_yulam_mini_stroke_color">#44BF1A</color> <!--预览时候 小的选中宽的边框颜色-->
+
+    <color name="ph_minirecycle_select_color">#44BF1A</color>  <!--照片查看底部小的RecycleView选中颜色-->
+
+    <color name="ph_lookphoto_bottom_line">#666666</color>  <!--照片查看底部的线条-->
+
+    <color name="ph_check_unselected_color">#FFFFFF</color>  <!--选择框，未选中-->
+
+    <color name="ph_check_selected_color">@color/ph_ok_text_color</color> <!--选择框，选中-->
+
+    <color name="ph_folder_popup_bg">#ffffff</color>  <!--选择目录的背景-->
+
+    <color name="ph_category_btn_text_color">#ffffff</color> <!--顶部全部图片的文字颜色-->
+
+    <color name="ph_category_bg">#4C4C4C</color> <!--顶部全部图片的背景颜色-->
+
+    <color name="ph_commit_enable_bg">#337523</color> <!--确定按钮的颜色-->
+
+    <color name="ph_commit_def_bg">#44BF1A</color> <!--确定按钮的颜色-->
 </resources>

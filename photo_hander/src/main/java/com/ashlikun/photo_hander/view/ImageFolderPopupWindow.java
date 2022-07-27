@@ -6,8 +6,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
@@ -39,12 +39,16 @@ public class ImageFolderPopupWindow extends PopupWindow {
      */
     private MediaHandler mediaHandler;
     View backgoundView;
+    View anchor;
+    View mRootView;
 
-    public ImageFolderPopupWindow(Activity activity, MediaHandler mediaHandler) {
+    public ImageFolderPopupWindow(Activity activity, View rootView, MediaHandler mediaHandler) {
         this.mActivity = activity;
+        this.mRootView = rootView;
         this.mediaHandler = mediaHandler;
         initView();
     }
+
 
     /**
      * 初始化布局
@@ -69,6 +73,7 @@ public class ImageFolderPopupWindow extends PopupWindow {
     public void showAsDropDown(View anchor, int xoff, int yoff, int gravity) {
         super.showAsDropDown(anchor, xoff, yoff, gravity);
         handleBackgroundAlpha(true);
+
     }
 
     /**
@@ -92,8 +97,7 @@ public class ImageFolderPopupWindow extends PopupWindow {
     private void handleBackgroundAlpha(boolean isShow) {
         Activity activity = mActivity;
         if (activity != null) {
-            View decorView = activity.getWindow().getDecorView();
-            FrameLayout rootView = (FrameLayout) decorView.findViewById(android.R.id.content);
+            ViewGroup rootView = (ViewGroup) mRootView;
             if (isShow) {
                 backgoundView = new View(activity);
                 //设置宽高为全屏

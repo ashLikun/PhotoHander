@@ -121,8 +121,9 @@ public class PhotoHanderUtils {
                     public void onActivityResult(O result) {
                         callback.onActivityResult(result);
                         //这里主动释放
-                        if (launcher[0] != null)
+                        if (launcher[0] != null) {
                             launcher[0].unregister();
+                        }
                     }
                 });
         return launcher[0];
@@ -247,11 +248,11 @@ public class PhotoHanderUtils {
         if (isCheck) {
             // 设置选中状态
             imageView.setImageResource(R.drawable.ph_btn_selected);
-            imageView.setColorFilter(imageView.getResources().getColor(R.color.ph_ok_text_color));
+            imageView.setColorFilter(imageView.getResources().getColor(R.color.ph_check_selected_color));
         } else {
             // 未选择
             imageView.setImageResource(R.drawable.ph_btn_unselected);
-            imageView.setColorFilter(0xffffffff);
+            imageView.setColorFilter(imageView.getResources().getColor(R.color.ph_check_unselected_color));
         }
     }
 

@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        selector.selectVideo();
         selector.origin(mSelectPath);
         selector.start(MainActivity.this, result -> {
             mSelectPath = (ArrayList<MediaSelectData>) result;

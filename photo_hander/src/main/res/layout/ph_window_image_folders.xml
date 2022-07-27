@@ -2,7 +2,7 @@
 <com.ashlikun.photo_hander.view.ImageFolderRootView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/white"
+    android:background="@color/ph_folder_popup_bg"
     android:orientation="vertical">
 
     <androidx.recyclerview.widget.RecyclerView
@@ -11,3 +11,4 @@
         android:layout_height="wrap_content" />
 
 </com.ashlikun.photo_hander.view.ImageFolderRootView>
+

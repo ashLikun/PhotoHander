@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,7 +68,6 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
 
     private ImageFolderPopupWindow mFolderPopupWindow;
 
-    private TextView mCategoryText;
     private TextView yulanTv;
     private View mPopupAnchorView;
 
@@ -113,29 +111,12 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         mImageAdapter = new ImageGridAdapter(getActivity(), optionData.isShowCamera, 4);
         mImageAdapter.showSelectIndicator(optionData.isModeMulti());
         mImageAdapter.setAddList(getArguments().getStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES));
-        mPopupAnchorView = view.findViewById(R.id.footer);
+        mPopupAnchorView = view.findViewById(R.id.mPopupAnchorView);
 
-        mCategoryText = view.findViewById(R.id.category_btn);
         yulanTv = view.findViewById(R.id.yulanTv);
-        mCategoryText.setText(optionData.isVideoOnly ? R.string.photo_folder_all_video : optionData.isCanVideo() ? R.string.photo_folder_all_image_and_video : R.string.photo_folder_all);
-        mCategoryText.setTextColor(phBottonColor);
-        ((ImageView) view.findViewById(R.id.category_iv)).setColorFilter(phBottonColor);
 
         yulanTv.setTextColor(phBottonColor);
 
-
-        mCategoryText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                createPopupFolderList();
-                if (mFolderPopupWindow.isShowing()) {
-                    mFolderPopupWindow.dismiss();
-                } else {
-                    mFolderPopupWindow.showAsDropDown(mPopupAnchorView);
-                    mFolderPopupWindow.getAdapter().notifyDataSetChanged();
-                }
-            }
-        });
 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
@@ -218,6 +199,16 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         }
     }
 
+    public void onFolderClick() {
+        createPopupFolderList();
+        if (mFolderPopupWindow.isShowing()) {
+            mFolderPopupWindow.dismiss();
+        } else {
+            mFolderPopupWindow.showAsDropDown(mPopupAnchorView);
+            mFolderPopupWindow.getAdapter().notifyDataSetChanged();
+        }
+    }
+
     /**
      * 选择分类的Popup
      */
@@ -225,14 +216,15 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         if (mFolderPopupWindow != null) {
             return;
         }
-        mFolderPopupWindow = new ImageFolderPopupWindow(getActivity(), mediaHandler);
+        mFolderPopupWindow = new ImageFolderPopupWindow(getActivity(),getView(), mediaHandler);
         mFolderPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         mFolderPopupWindow.setAnimationStyle(R.style.PhotoHandle_imageFolderAnimator);
         mFolderPopupWindow.getAdapter().setOnImageFolderChangeListener(new FolderAdapter.OnImageFolderChangeListener() {
             @Override
             public void onImageFolderChange(int position, String text, boolean showCamera, List<MediaFile> mediaFileList) {
                 mFolderPopupWindow.dismiss();
-                mCategoryText.setText(text);
+                mCallback.onFolderChang(text);
+
                 mImageAdapter.setShowCamera(showCamera);
                 if (mediaFileList != null) {
                     mImageAdapter.setData(mediaFileList);
@@ -413,6 +405,13 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
          * @param currentData 点击的数据
          */
         void onLookPhoto(List<MediaFile> imageList, List<MediaFile> selectList, int position, MediaFile currentData);
+
+        /**
+         * 选择的目录改变
+         *
+         * @param text
+         */
+        void onFolderChang(String text);
     }
 
 

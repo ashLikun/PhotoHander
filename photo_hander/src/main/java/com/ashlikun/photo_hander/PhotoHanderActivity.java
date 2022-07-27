@@ -69,6 +69,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     private boolean isVideoCompressOk = !optionData.isVideoCompress;
     private boolean isCompressOk = !optionData.isCompress;
     private VideoCompress videoCompress;
+    private TextView mCategoryText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +87,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         int colorPrimary = array.getColor(1, 0xffffffff);
         array.recycle();
         PhotoHanderUtils.autoStatueTextColor(getWindow(), colorPrimary);
-        TextView titleView = findViewById(R.id.titleView);
-        titleView.setText(getTitle());
-        titleView.setTextColor(titleColor);
 
         mSubmitButton = findViewById(R.id.commit);
         ImageView btnBack = findViewById(R.id.btn_back);
@@ -146,6 +144,21 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (optionData.isMustCamera) {
             findViewById(R.id.phRootView).setVisibility(View.GONE);
         }
+
+        mCategoryText = findViewById(R.id.category_btn);
+        mCategoryText.setText(optionData.isVideoOnly ? R.string.photo_folder_all_video : optionData.isCanVideo() ? R.string.photo_folder_all_image_and_video : R.string.photo_folder_all);
+//        mCategoryText.setTextColor(phBottonColor);
+        mCategoryText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //有PhotoHanderFragment
+                Fragment fragment2 = getSupportFragmentManager().findFragmentByTag("PhotoHanderFragment");
+                if (fragment2 != null) {
+                    //把事件告诉Fragment
+                    ((PhotoHanderFragment) fragment2).onFolderClick();
+                }
+            }
+        });
     }
 
     public void addFragment() {
@@ -468,5 +481,10 @@ public class PhotoHanderActivity extends AppCompatActivity
     @Override
     public void onLookPhotoCompleteSelect() {
         finishPhotoLookFragment(true);
+    }
+
+    @Override
+    public void onFolderChang(String text) {
+        mCategoryText.setText(text);
     }
 }

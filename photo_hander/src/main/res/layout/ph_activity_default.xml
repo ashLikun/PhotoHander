@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include layout="@layout/ph_cmp_customer_actionbar"></include>
+    <include layout="@layout/ph_main_actionbar"></include>
 
     <FrameLayout
         android:id="@+id/image_grid"
