@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--首页的Toolbar-->
+<?xml version="1.0" encoding="utf-8"?><!--首页的Toolbar-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -42,10 +41,11 @@
 
         <ImageView
             android:id="@+id/category_iv"
-            android:layout_width="10dp"
-            android:layout_height="10dp"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
             android:layout_marginRight="10dp"
-            android:src="@drawable/ph_text_indicator"></ImageView>
+            android:src="@drawable/ph_text_indicator"
+            android:tint="@color/ph_category_btn_text_color"></ImageView>
     </LinearLayout>
 
     <View
