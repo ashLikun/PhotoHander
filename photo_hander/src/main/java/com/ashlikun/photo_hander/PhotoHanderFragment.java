@@ -180,7 +180,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
                 }
             }
         });
-        yulanTv.setVisibility(optionData.isModeMulti() ? View.VISIBLE : View.GONE);
+        view.findViewById(R.id.footer).setVisibility(optionData.isModeMulti() ? View.VISIBLE : View.GONE);
         setYulanText();
     }
 
@@ -216,7 +216,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         if (mFolderPopupWindow != null) {
             return;
         }
-        mFolderPopupWindow = new ImageFolderPopupWindow(getActivity(),getView(), mediaHandler);
+        mFolderPopupWindow = new ImageFolderPopupWindow(getActivity(), getView(), mediaHandler);
         mFolderPopupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         mFolderPopupWindow.setAnimationStyle(R.style.PhotoHandle_imageFolderAnimator);
         mFolderPopupWindow.getAdapter().setOnImageFolderChangeListener(new FolderAdapter.OnImageFolderChangeListener() {
