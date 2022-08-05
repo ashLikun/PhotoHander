@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import androidx.fragment.app.FragmentActivity;
 
+import com.ashlikun.photo_hander.PhotoOptionData;
 import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaFolder;
 
@@ -95,7 +96,9 @@ public abstract class AbsMediaScanner<T, F> implements Runnable {
 
     @Override
     public void run() {
-        queryMedia();
+        if (PhotoOptionData.currentData != null) {
+            queryMedia();
+        }
     }
 
 

@@ -610,7 +610,8 @@ public class PhotoHanderUtils {
      * 过滤目录名称
      */
     public static String getFolderName(Context context, String name) {
-        if (PhotoOptionData.currentData.isFilterFolder && name != null) {
+
+        if (PhotoOptionData.currentData != null && PhotoOptionData.currentData.isFilterFolder && name != null) {
             if (name.equalsIgnoreCase("camera")) {
                 return context.getString(R.string.photo_folder_camera);
             } else if (name.equalsIgnoreCase("screenshots")) {
@@ -620,5 +621,21 @@ public class PhotoHanderUtils {
             }
         }
         return name;
+    }
+
+    public static int parseInt(String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    public static float parseFloat(String str) {
+        try {
+            return Float.parseFloat(str);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

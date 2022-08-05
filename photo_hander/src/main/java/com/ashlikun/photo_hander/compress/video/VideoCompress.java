@@ -192,10 +192,10 @@ public class VideoCompress {
                         }
                         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                         retriever.setDataSource(data.originPath());
-                        int originWidth = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-                        int originHeight = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-                        int bitrate = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
-                        int frameRate = (int) Float.parseFloat(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE));
+                        int originWidth = PhotoHanderUtils.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+                        int originHeight = PhotoHanderUtils.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+                        int bitrate = PhotoHanderUtils.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE));
+                        int frameRate = (int) PhotoHanderUtils.parseFloat(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE));
                         Point aspect = getVideoWidthAspect(originWidth, originHeight);
                         videoOutCompressPath = createTempFile(data).getPath();
                         data.compressPath = videoOutCompressPath;

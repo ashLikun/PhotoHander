@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
+        setResultText();
     }
 
     private void pickImage() {
@@ -129,27 +129,32 @@ public class MainActivity extends AppCompatActivity {
         selector.origin(mSelectPath);
         selector.start(MainActivity.this, result -> {
             mSelectPath = (ArrayList<MediaSelectData>) result;
-            StringBuilder sb = new StringBuilder();
-            if (mSelectPath.size() == 1) {
-                Glide.with(this).load(mSelectPath.get(0).compressPath)
-                        .into(imageView);
-            }
-            for (MediaSelectData p : mSelectPath) {
-                sb.append(p);
-                if (!p.isHttpImg()) {
-                    File ff = new File(p.compressPath);
-                    try {
-                        sb.append("\n");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                sb.append("\n\n");
-            }
-            mResultText.setText(sb.toString());
+            setResultText();
         });
 //        }
+    }
+
+    private void setResultText() {
+        if(mSelectPath == null) return;
+        StringBuilder sb = new StringBuilder();
+        if (mSelectPath.size() == 1) {
+            Glide.with(this).load(mSelectPath.get(0).compressPath)
+                    .into(imageView);
+        }
+        for (MediaSelectData p : mSelectPath) {
+            sb.append(p);
+            if (!p.isHttpImg()) {
+                File ff = new File(p.compressPath);
+                try {
+                    sb.append("\n");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            sb.append("\n\n");
+        }
+        mResultText.setText(sb.toString());
     }
 
     private void requestPermission(final String permission, String rationale, final int requestCode) {

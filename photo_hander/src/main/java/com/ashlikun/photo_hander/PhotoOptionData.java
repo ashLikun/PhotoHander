@@ -1,7 +1,6 @@
 package com.ashlikun.photo_hander;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import java.io.Serializable;
 
 /**
  * 作者　　: 李坤
@@ -10,7 +9,7 @@ import android.os.Parcelable;
  * <p>
  * 功能介绍：启动照片选择的属性
  */
-public class PhotoOptionData implements Parcelable {
+public class PhotoOptionData implements Serializable {
     //保存
     public static PhotoOptionData currentData;
 
@@ -134,51 +133,5 @@ public class PhotoOptionData implements Parcelable {
     public boolean isSelectVideoAndImg() {
         return !isVideoOnly && isSelectVideo;
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.mDefaultCount);
-        dest.writeInt(this.cropWidth);
-        dest.writeInt(this.cropHeight);
-        dest.writeByte(this.isShowCamera ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.isMustCamera ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.mIsCrop ? (byte) 1 : (byte) 0);
-        dest.writeByte(this.cropShowCircle ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.cropColor);
-        dest.writeByte(this.isCompress ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.selectMode);
-    }
-
-    protected PhotoOptionData(Parcel in) {
-        this.mDefaultCount = in.readInt();
-        this.cropWidth = in.readInt();
-        this.cropHeight = in.readInt();
-        this.isShowCamera = in.readByte() != 0;
-        this.isMustCamera = in.readByte() != 0;
-        this.mIsCrop = in.readByte() != 0;
-        this.cropShowCircle = in.readByte() != 0;
-        this.cropColor = in.readInt();
-        this.isCompress = in.readByte() != 0;
-        this.selectMode = in.readInt();
-    }
-
-    public static final Creator<PhotoOptionData> CREATOR = new Creator<PhotoOptionData>() {
-        @Override
-        public PhotoOptionData createFromParcel(Parcel source) {
-            return new PhotoOptionData(source);
-        }
-
-        @Override
-        public PhotoOptionData[] newArray(int size) {
-            return new PhotoOptionData[size];
-        }
-    };
-
 
 }

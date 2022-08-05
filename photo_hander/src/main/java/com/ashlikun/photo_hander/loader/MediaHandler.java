@@ -183,6 +183,7 @@ public class MediaHandler {
     }
 
     private void onLoadFinishedCallback() {
+        if(PhotoOptionData.currentData == null) return;
         if (PhotoOptionData.currentData.isVideoOnly) {
             if (isVideoLoad) {
                 PhotoThreadUtils.post(new Runnable() {

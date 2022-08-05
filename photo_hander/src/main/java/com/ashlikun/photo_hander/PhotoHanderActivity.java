@@ -66,8 +66,8 @@ public class PhotoHanderActivity extends AppCompatActivity
      * 配置参数
      */
     PhotoOptionData optionData = PhotoOptionData.currentData;
-    private boolean isVideoCompressOk = !optionData.isVideoCompress;
-    private boolean isCompressOk = !optionData.isCompress;
+    private boolean isVideoCompressOk = true;
+    private boolean isCompressOk = true;
     private VideoCompress videoCompress;
     private TextView mCategoryText;
 
@@ -79,6 +79,8 @@ public class PhotoHanderActivity extends AppCompatActivity
             finish();
             return;
         }
+        isVideoCompressOk = !optionData.isVideoCompress;
+        isCompressOk = !optionData.isCompress;
         setTitle(optionData.isVideoOnly ? R.string.photo_title_all_video : optionData.isCanVideo() ? R.string.photo_title_all_image_and_video : R.string.photo_title_image);
         setContentView(R.layout.ph_activity_default);
         //获取主题颜色
@@ -184,6 +186,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case android.R.id.home:
                 setResult(RESULT_CANCELED);
+
                 finish();
                 return true;
         }
@@ -397,8 +400,7 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (videoCompress != null) {
             videoCompress.stop();
         }
-        PhotoOptionData.setCurrentData(null);
-        PhotoThreadUtils.onDestroy();
+
     }
 
     @Override
@@ -409,8 +411,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         if (videoCompress != null) {
             videoCompress.stop();
         }
-        PhotoOptionData.setCurrentData(null);
-        PhotoThreadUtils.onDestroy();
     }
 
     private boolean isEquals(String actual, String expected) {
@@ -429,7 +429,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
     }
 
-
     @Override
     public void onBackPressed() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag("PhotoLookFragment");
@@ -437,7 +436,16 @@ public class PhotoHanderActivity extends AppCompatActivity
             finishPhotoLookFragment(false);
         } else {
             super.onBackPressed();
+            PhotoOptionData.setCurrentData(null);
+            PhotoThreadUtils.onDestroy();
         }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        PhotoThreadUtils.onDestroy();
+        PhotoOptionData.setCurrentData(null);
     }
 
     /**
