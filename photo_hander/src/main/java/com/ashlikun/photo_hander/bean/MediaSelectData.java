@@ -33,6 +33,7 @@ public class MediaSelectData implements Parcelable {
      */
     public boolean isCompress;
 
+
     public MediaSelectData(MediaFile mediaFile) {
         this.mediaFile = mediaFile;
         if (isHttpImg()) {
@@ -98,6 +99,13 @@ public class MediaSelectData implements Parcelable {
             return mediaFile.path;
         }
         return "";
+    }
+
+    public String getPath() {
+        if (isCompress) {
+            return compressPath;
+        }
+        return originPath();
     }
 
     public static ArrayList<String> getOriginPaths(ArrayList<MediaSelectData> resultList) {

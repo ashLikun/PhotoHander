@@ -364,13 +364,16 @@ public class PhotoHanderActivity extends AppCompatActivity
             if (optionData.mDefaultCount < resultList.size()) {
                 resultList = (ArrayList<MediaSelectData>) resultList.subList(0, optionData.mDefaultCount);
             }
-            //回调
-            Intent data = new Intent();
-            data.putParcelableArrayListExtra(IntentKey.EXTRA_RESULT, resultList);
-            setResult(RESULT_OK, data);
-        } else {
-            setResult(RESULT_CANCELED);
+
         }
+        finishResult();
+    }
+
+    private void finishResult() {
+        //回调
+        Intent data = new Intent();
+        data.putParcelableArrayListExtra(IntentKey.EXTRA_RESULT, resultList);
+        setResult(RESULT_OK, data);
         finish();
     }
 
@@ -413,10 +416,6 @@ public class PhotoHanderActivity extends AppCompatActivity
         }
     }
 
-    private boolean isEquals(String actual, String expected) {
-        return actual == expected
-                || (actual == null ? expected == null : actual.equals(expected));
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -436,6 +435,7 @@ public class PhotoHanderActivity extends AppCompatActivity
             finishPhotoLookFragment(false);
         } else {
             super.onBackPressed();
+
             PhotoOptionData.setCurrentData(null);
             PhotoThreadUtils.onDestroy();
         }

@@ -323,8 +323,10 @@ public class PhotoHander {
         ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultX(activity, new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
-                callback.onActivityResult(mSelectPath);
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
+                    callback.onActivityResult(mSelectPath);
+                }
             }
         });
         launcher.launch(createIntent(activity));
@@ -338,8 +340,10 @@ public class PhotoHander {
         ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultXF(fragment, new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
-                List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
-                callback.onActivityResult(mSelectPath);
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    List<MediaSelectData> mSelectPath = PhotoHander.getIntentResult(result.getData());
+                    callback.onActivityResult(mSelectPath);
+                }
             }
         });
         launcher.launch(createIntent(fragment.getContext()));
