@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             selector.multi();
         }
+        selector.isNoSelect();
         selector.addImage(addHttpImage);
         selector.compress(true);
 //            selector.isMustCamera(true);
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setResultText() {
-        if(mSelectPath == null) return;
+        if (mSelectPath == null) return;
         StringBuilder sb = new StringBuilder();
         if (mSelectPath.size() == 1) {
             Glide.with(this).load(mSelectPath.get(0).compressPath)

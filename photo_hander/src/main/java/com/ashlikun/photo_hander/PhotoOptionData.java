@@ -99,6 +99,10 @@ public class PhotoOptionData implements Serializable {
      * 是否过滤目录名称
      */
     public boolean isFilterFolder = true;
+    /**
+     * 是否可以选择0个文件
+     */
+    public boolean isNoSelect = false;
 
     public PhotoOptionData() {
     }

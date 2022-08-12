@@ -196,6 +196,14 @@ public class PhotoHander {
     }
 
     /**
+     * 是否可以选择0个文件
+     */
+    public PhotoHander isNoSelect() {
+        optionData.isNoSelect = true;
+        return this;
+    }
+
+    /**
      * 裁剪框
      *
      * @param cropWidth

@@ -200,10 +200,12 @@ public class PhotoHanderActivity extends AppCompatActivity
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
             mSubmitButton.setText(R.string.photo_action_done);
-            mSubmitButton.setEnabled(false);
+            if (!optionData.isNoSelect)
+                mSubmitButton.setEnabled(false);
         } else {
             size = resultList.size();
-            mSubmitButton.setEnabled(true);
+            if (!optionData.isNoSelect)
+                mSubmitButton.setEnabled(true);
         }
         mSubmitButton.setText(getString(R.string.photo_action_button_string,
                 getString(R.string.photo_action_done), size, optionData.mDefaultCount));
