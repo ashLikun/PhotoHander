@@ -44,8 +44,7 @@ import java.util.List;
  * 功能介绍：图片选择主界面
  */
 
-public class PhotoHanderActivity extends AppCompatActivity
-        implements PhotoHanderFragment.Callback, PhotoLookFragment.OnCallback {
+public class PhotoHanderActivity extends AppCompatActivity implements PhotoHanderFragment.Callback, PhotoLookFragment.OnCallback {
     protected static final int REQUEST_STORAGE_READ_ACCESS_PERMISSION = 101;
 
     /**
@@ -166,18 +165,13 @@ public class PhotoHanderActivity extends AppCompatActivity
     public void addFragment() {
         String[] permission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         //请求读写权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN
-                && !PhotoHanderPermission.checkSelfPermission(this, permission)) {
-            PhotoHanderPermission.requestPermission(this, permission,
-                    getString(R.string.photo_permission_rationale),
-                    REQUEST_STORAGE_READ_ACCESS_PERMISSION);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && !PhotoHanderPermission.checkSelfPermission(this, permission)) {
+            PhotoHanderPermission.requestPermission(this, permission, getString(R.string.photo_permission_rationale), REQUEST_STORAGE_READ_ACCESS_PERMISSION);
         } else {
             Bundle bundle = new Bundle();
             bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, resultList);
             bundle.putStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES, addList);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle), "PhotoHanderFragment")
-                    .commitAllowingStateLoss();
+            getSupportFragmentManager().beginTransaction().add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle), "PhotoHanderFragment").commitAllowingStateLoss();
         }
     }
 
@@ -200,15 +194,12 @@ public class PhotoHanderActivity extends AppCompatActivity
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
             mSubmitButton.setText(R.string.photo_action_done);
-            if (!optionData.isNoSelect)
-                mSubmitButton.setEnabled(false);
+            if (!optionData.isNoSelect) mSubmitButton.setEnabled(false);
         } else {
             size = resultList.size();
-            if (!optionData.isNoSelect)
-                mSubmitButton.setEnabled(true);
+            if (!optionData.isNoSelect) mSubmitButton.setEnabled(true);
         }
-        mSubmitButton.setText(getString(R.string.photo_action_button_string,
-                getString(R.string.photo_action_done), size, optionData.mDefaultCount));
+        mSubmitButton.setText(getString(R.string.photo_action_button_string, getString(R.string.photo_action_done), size, optionData.mDefaultCount));
     }
 
     @Override
@@ -278,49 +269,47 @@ public class PhotoHanderActivity extends AppCompatActivity
                 completeSelect();
                 return;
             }
-            Luban.with(this)
-                    .load(resultStrList)
-                    .setCompressListener(new OnCompressListener() {
-                        @Override
-                        public void onStart() {
-                            if (compressDialog == null) {
-                                compressDialog = new ProgressDialog(PhotoHanderActivity.this);
-                                compressDialog.setTitle("图片处理中");
-                                compressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                                compressDialog.setCanceledOnTouchOutside(false);
-                                compressDialog.setMax(100);
+            Luban.with(this).load(resultStrList).setCompressListener(new OnCompressListener() {
+                @Override
+                public void onStart() {
+                    if (compressDialog == null) {
+                        compressDialog = new ProgressDialog(PhotoHanderActivity.this);
+                        compressDialog.setTitle("图片处理中");
+                        compressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                        compressDialog.setCanceledOnTouchOutside(false);
+                        compressDialog.setMax(100);
+                    }
+                    compressDialog.show();
+                }
+
+                @Override
+                public void onSuccess(ArrayList<CompressResult> files) {
+                    for (MediaSelectData resultDd : resultList) {
+                        for (CompressResult result : files) {
+                            String org = result.provider.getPath();
+                            if (TextUtils.equals(resultDd.originPath(), org) || TextUtils.equals(resultDd.cropPath, org)) {
+                                resultDd.compressPath = result.compressPath;
+                                resultDd.isCompress = result.isCompress;
+                                resultDd.isComparessError = result.isComparessError;
                             }
-                            compressDialog.show();
                         }
+                    }
+                    compressDialog.dismiss();
+                    isCompressOk = true;
+                    completeSelect();
+                }
 
-                        @Override
-                        public void onSuccess(ArrayList<CompressResult> files) {
-                            for (MediaSelectData resultDd : resultList) {
-                                for (CompressResult result : files) {
-                                    String org = result.provider.getPath();
-                                    if (TextUtils.equals(resultDd.originPath(), org) || TextUtils.equals(resultDd.cropPath, org)) {
-                                        resultDd.compressPath = result.compressPath;
-                                        resultDd.isCompress = result.isCompress;
-                                        resultDd.isComparessError = result.isComparessError;
-                                    }
-                                }
-                            }
-                            compressDialog.dismiss();
-                            isCompressOk = true;
-                            completeSelect();
-                        }
+                @Override
+                public void onError(Throwable e) {
+                    compressDialog.dismiss();
+                    Toast.makeText(PhotoHanderActivity.this, "图片处理出错", Toast.LENGTH_SHORT).show();
+                }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            compressDialog.dismiss();
-                            Toast.makeText(PhotoHanderActivity.this, "图片处理出错", Toast.LENGTH_SHORT).show();
-                        }
-
-                        @Override
-                        public void onLoading(int progress, long total) {
-                            compressDialog.setProgress((int) (progress / (total * 1.0f) * 100));
-                        }
-                    }).launch();
+                @Override
+                public void onLoading(int progress, long total) {
+                    compressDialog.setProgress((int) (progress / (total * 1.0f) * 100));
+                }
+            }).launch();
         } else if (!isVideoCompressOk) {
             try {
                 //视频压缩
@@ -382,6 +371,7 @@ public class PhotoHanderActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //图片裁剪返回
         if (requestCode == Crop.REQUEST_CROP) {
             if (resultCode == RESULT_OK) {
                 optionData.mIsCrop = false;
@@ -392,6 +382,13 @@ public class PhotoHanderActivity extends AppCompatActivity
                     }
                 }
                 completeSelect();
+            } else {
+                if (optionData.mIsCrop) {
+                    //清除已经选择的图
+                    if (resultList.size() > 0) {
+                        resultList.remove(resultList.size() - 1);
+                    }
+                }
             }
         }
     }
@@ -475,10 +472,7 @@ public class PhotoHanderActivity extends AppCompatActivity
             ((PhotoHanderFragment) fragment2).setSelectDatas(images);
         }
 
-        getSupportFragmentManager().beginTransaction()
-                .setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out)
-                .remove(fragment)
-                .commitAllowingStateLoss();
+        getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.mis_anim_fragment_lookphotp_in, R.anim.mis_anim_fragment_lookphotp_out).remove(fragment).commitAllowingStateLoss();
         if (isSelectOk) {
             //完成选择
             completeSelect();

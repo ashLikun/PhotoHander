@@ -141,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
         if (mSelectPath.size() == 1) {
             Glide.with(this).load(mSelectPath.get(0).compressPath)
                     .into(imageView);
+        } else {
+            imageView.setImageDrawable(null);
         }
         for (MediaSelectData p : mSelectPath) {
             sb.append(p);
