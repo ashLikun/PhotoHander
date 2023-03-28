@@ -4,7 +4,6 @@ import static android.os.Environment.MEDIA_MOUNTED;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -182,7 +181,6 @@ public class PhotoHanderUtils {
             PhotoHander.onPhotoHandlerListener.onVideoPlay(data);
         } else {
             //实现播放视频的跳转逻辑(调用原生视频播放器)
-            //实现播放视频的跳转逻辑(调用原生视频播放器)
             Intent intent = new Intent(Intent.ACTION_VIEW);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -354,31 +352,34 @@ public class PhotoHanderUtils {
         } else {
             File mTmpFile = null;
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (intent.resolveActivity(activity.getPackageManager()) != null) {
-                try {
-                    mTmpFile = PhotoHanderUtils.createTmpFile(activity);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (mTmpFile != null && mTmpFile.exists()) {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-                    } else {
-                        ContentValues contentValues = new ContentValues(1);
-                        contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
-                        Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                    }
-                    if (fragment != null) {
-                        fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                    } else {
-                        activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                    }
+            try {
+                mTmpFile = PhotoHanderUtils.createTmpFile(activity);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (mTmpFile != null && mTmpFile.exists()) {
+//                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+//                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
+//                } else {
+//                    ContentValues contentValues = new ContentValues(1);
+//                    contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
+//                    Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+//                    intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+//                }
+                Uri uri = null;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    uri = Uri.fromFile(mTmpFile);
                 } else {
-                    Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
+                    uri = FileProvider.getUriForFile(activity, PhotoHandleProvider.getFileProviderName(activity), mTmpFile);
+                }
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                if (fragment != null) {
+                    fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
+                } else {
+                    activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
                 }
             } else {
-                Toast.makeText(activity, R.string.photo_msg_no_camera, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
             }
             return mTmpFile;
         }
