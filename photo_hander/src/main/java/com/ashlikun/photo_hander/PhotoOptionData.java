@@ -48,6 +48,7 @@ public class PhotoOptionData implements Serializable {
     public boolean isShowCamera = true;
     /**
      * 是否只能拍照
+     * 注意在主题里面设置  <item name="android:windowIsTranslucent">true</item>
      */
     public boolean isMustCamera = false;
     /**

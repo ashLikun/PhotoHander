@@ -2,12 +2,11 @@ package com.ashlikun.photo_hander;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MenuItem;
@@ -16,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
@@ -71,6 +69,11 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
     private TextView mCategoryText;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (optionData == null) {
@@ -78,6 +81,7 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
             finish();
             return;
         }
+
         isVideoCompressOk = !optionData.isVideoCompress;
         isCompressOk = !optionData.isCompress;
         setTitle(optionData.isVideoOnly ? R.string.photo_title_all_video : optionData.isCanVideo() ? R.string.photo_title_all_image_and_video : R.string.photo_title_image);
@@ -142,6 +146,16 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
         if (savedInstanceState == null) {
             addFragment();
         }
+//        findViewById(R.id.phRootView).setVisibility(View.GONE);
+//        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//        getWindow().setStatusBarColor(Color.TRANSPARENT);
+//        getWindow().setNavigationBarColor(Color.TRANSPARENT);
+//        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//            setTranslucent(true);
+//        }
         if (optionData.isMustCamera) {
             findViewById(R.id.phRootView).setVisibility(View.GONE);
         }
@@ -165,14 +179,17 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
     public void addFragment() {
         String[] permission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         //请求读写权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && !PhotoHanderPermission.checkSelfPermission(this, permission)) {
-            PhotoHanderPermission.requestPermission(this, permission, getString(R.string.photo_permission_rationale), REQUEST_STORAGE_READ_ACCESS_PERMISSION);
-        } else {
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, resultList);
-            bundle.putStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES, addList);
-            getSupportFragmentManager().beginTransaction().add(R.id.image_grid, Fragment.instantiate(this, PhotoHanderFragment.class.getName(), bundle), "PhotoHanderFragment").commitAllowingStateLoss();
-        }
+        PhotoHanderPermission.requestPermission(this, permission, getString(R.string.photo_permission_rationale), new Runnable() {
+            @Override
+            public void run() {
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST, resultList);
+                bundle.putStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES, addList);
+                getSupportFragmentManager().beginTransaction().add(R.id.image_grid,
+                        Fragment.instantiate(PhotoHanderActivity.this, PhotoHanderFragment.class.getName(), bundle), "PhotoHanderFragment").commitAllowingStateLoss();
+            }
+        });
     }
 
     @Override
@@ -194,10 +211,14 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
         int size = 0;
         if (resultList == null || resultList.size() <= 0) {
             mSubmitButton.setText(R.string.photo_action_done);
-            if (!optionData.isNoSelect) mSubmitButton.setEnabled(false);
+            if (!optionData.isNoSelect) {
+                mSubmitButton.setEnabled(false);
+            }
         } else {
             size = resultList.size();
-            if (!optionData.isNoSelect) mSubmitButton.setEnabled(true);
+            if (!optionData.isNoSelect) {
+                mSubmitButton.setEnabled(true);
+            }
         }
         mSubmitButton.setText(getString(R.string.photo_action_button_string, getString(R.string.photo_action_done), size, optionData.mDefaultCount));
     }
@@ -415,17 +436,6 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
         }
     }
 
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_STORAGE_READ_ACCESS_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                addFragment();
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     @Override
     public void onBackPressed() {

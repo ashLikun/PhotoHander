@@ -43,5 +43,6 @@ dependencies {
     //视频压缩
     compileOnly "com.github.yellowcath:VideoProcessor:2.4.2"
     compileOnly rootProject.ext.fragment
+    compileOnly "androidx.activity:activity:1.3.+"
 }
 apply from: '../maven.gradle'

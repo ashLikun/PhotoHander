@@ -5,15 +5,20 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AlertDialog;
 
 import com.ashlikun.photo_hander.PhotoHander;
 import com.ashlikun.photo_hander.R;
 
 import java.io.File;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 作者　　: 李坤
@@ -67,54 +72,41 @@ public class PhotoHanderPermission {
     /**
      * 请求权限
      */
-    public static void requestPermission(final Object activityOrfragment, final String[] permission, String rationale, final int requestCode) {
-        if (shouldShowRequestPermissionRationale(activityOrfragment, permission)) {
-            new AlertDialog.Builder((activityOrfragment instanceof Fragment) ?
-                    ((Fragment) activityOrfragment).getContext() : ((Activity) activityOrfragment))
-                    .setTitle(R.string.photo_permission_dialog_title)
-                    .setMessage(rationale)
-                    .setPositiveButton(R.string.photo_permission_dialog_ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (activityOrfragment instanceof Fragment) {
-                                ((Fragment) activityOrfragment).requestPermissions(permission, requestCode);
-                            } else {
-                                ActivityCompat.requestPermissions((Activity) activityOrfragment, permission, requestCode);
+    public static void requestPermission(final ComponentActivity activity, final String[] permission, String rationale, final Runnable call) {
+        if (!PhotoHanderPermission.checkSelfPermission(activity, permission)) {
+            if (shouldShowRequestPermissionRationale(activity, permission)) {
+                new AlertDialog.Builder(activity)
+                        .setTitle(R.string.photo_permission_dialog_title)
+                        .setMessage(rationale)
+                        .setPositiveButton(R.string.photo_permission_dialog_ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                requestPermissionRegister(activity, permission, call);
                             }
-                        }
-                    })
-                    .setNegativeButton(R.string.photo_permission_dialog_cancel, null)
-                    .create().show();
-        } else {
-            if (activityOrfragment instanceof Fragment) {
-                ((Fragment) activityOrfragment).requestPermissions(permission, requestCode);
+                        })
+                        .setNegativeButton(R.string.photo_permission_dialog_cancel, null)
+                        .create().show();
             } else {
-                ActivityCompat.requestPermissions((Activity) activityOrfragment, permission, requestCode);
+                requestPermissionRegister(activity, permission, call);
             }
+        } else {
+            call.run();
         }
     }
 
     /**
-     * 启动拍照后的权限返回
-     *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
-     * @param activityOrfragment 只能是activity或者fragment
+     * 获取请求权限
      */
-    public static File onRequestPermissionsResult(Object activityOrfragment, int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION) {
-            boolean result = true;
-            for (int p : grantResults) {
-                if (p != PackageManager.PERMISSION_GRANTED) {
-                    result = false;
+    public static void requestPermissionRegister(final ComponentActivity activity, final String[] permission, final Runnable call) {
+        activity.getActivityResultRegistry().register("ForActivityResult" + new AtomicInteger().getAndIncrement(), new ActivityResultContracts.RequestMultiplePermissions(), new ActivityResultCallback<Map<String, Boolean>>() {
+            @Override
+            public void onActivityResult(Map<String, Boolean> result) {
+                if (result != null) {
+                    if (!result.values().contains(false)) {
+                        call.run();
+                    }
                 }
             }
-            if (result) {
-                return PhotoHanderUtils.showCameraAction(activityOrfragment);
-            }
-            return new File("");
-        }
-        return null;
+        }).launch(permission);
     }
 }

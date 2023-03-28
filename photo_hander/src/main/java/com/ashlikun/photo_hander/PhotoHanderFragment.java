@@ -2,21 +2,22 @@ package com.ashlikun.photo_hander;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.activity.result.ActivityResult;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,8 +28,8 @@ import com.ashlikun.photo_hander.bean.MediaFolder;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
 import com.ashlikun.photo_hander.loader.AbsMediaScanner;
 import com.ashlikun.photo_hander.loader.MediaHandler;
-import com.ashlikun.photo_hander.utils.PhotoHanderPermission;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
+import com.ashlikun.photo_hander.utils.ShowCameraActionCall;
 import com.ashlikun.photo_hander.view.ImageFolderPopupWindow;
 
 import java.io.File;
@@ -70,25 +71,50 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
 
     private TextView yulanTv;
     private View mPopupAnchorView;
-
-
-    private File mTmpFile;
-
+    FragmentActivity activity;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
             mCallback = (Callback) getActivity();
+            activity = getActivity();
         } catch (ClassCastException e) {
             throw new ClassCastException("The Activity must implement MultiImageSelectorFragment.Callback interface...");
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.ph_fragment_multi_image, container, false);
     }
+
+    ShowCameraActionCall ShowCameraActionCall = new ShowCameraActionCall() {
+        @Override
+        public void call(Pair<File, ActivityResult> data) {
+            File tmpFile = data.first;
+            if (data.second.getResultCode() == Activity.RESULT_OK) {
+                if (tmpFile != null) {
+                    if (mCallback != null) {
+                        mCallback.onCameraShot(tmpFile);
+                    }
+                }
+            } else {
+                // delete tmp file
+                while (tmpFile != null && tmpFile.exists()) {
+                    boolean success = tmpFile.delete();
+                    if (success) {
+                        tmpFile = null;
+                    }
+                }
+                if (optionData.isMustCamera) {
+                    getActivity().finish();
+                }
+            }
+        }
+    };
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -100,7 +126,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
 
         if (optionData.isMustCamera) {
             view.setVisibility(View.GONE);
-            mTmpFile = PhotoHanderUtils.showCameraAction(PhotoHanderFragment.this);
+            PhotoHanderUtils.showCameraAction(activity, ShowCameraActionCall);
             return;
         }
 
@@ -149,7 +175,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
                             Toast.makeText(getActivity(), getString(R.string.photo_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        mTmpFile = PhotoHanderUtils.showCameraAction(PhotoHanderFragment.this);
+                        PhotoHanderUtils.showCameraAction(activity, ShowCameraActionCall);
                         return;
                     } else {
                         //减去拍照
@@ -237,19 +263,6 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         });
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putSerializable(KEY_TEMP_FILE, mTmpFile);
-    }
-
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            mTmpFile = (File) savedInstanceState.getSerializable(KEY_TEMP_FILE);
-        }
-    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -261,30 +274,6 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         mediaHandler.loader();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PhotoHander.REQUEST_CAMERA) {
-            if (resultCode == Activity.RESULT_OK) {
-                if (mTmpFile != null) {
-                    if (mCallback != null) {
-                        mCallback.onCameraShot(mTmpFile);
-                    }
-                }
-            } else {
-                // delete tmp file
-                while (mTmpFile != null && mTmpFile.exists()) {
-                    boolean success = mTmpFile.delete();
-                    if (success) {
-                        mTmpFile = null;
-                    }
-                }
-                if (optionData.isMustCamera) {
-                    getActivity().finish();
-                }
-            }
-        }
-    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -296,13 +285,6 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         super.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        mTmpFile = PhotoHanderPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
-        if (mTmpFile == null) {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     /**
      * 点击图片的回掉

@@ -17,6 +17,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -25,9 +26,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -331,59 +334,66 @@ public class PhotoHanderUtils {
         return size;
     }
 
+    /**
+     * 获取拍照Intent
+     *
+     * @return null:失败
+     */
+    public static Pair<File, Intent> getImageCapterIntent(Activity activity) {
+        boolean isSuccess = false;
+        File tmpFile = null;
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            tmpFile = PhotoHanderUtils.createTmpFile(activity);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (tmpFile != null && tmpFile.exists()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tmpFile));
+            } else {
+                ContentValues contentValues = new ContentValues(1);
+                contentValues.put(MediaStore.Images.Media.DATA, tmpFile.getAbsolutePath());
+                Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            }
+            isSuccess = true;
+        } else {
+            Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
+        }
+        return isSuccess ? new Pair<>(tmpFile, intent) : null;
+    }
+
+    public static void permissionStorage(ComponentActivity activity, final Runnable call) {
+        String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        PhotoHanderPermission.requestPermission(activity, permission, activity.getString(R.string.photo_permission_rationale_camera), call);
+    }
 
     /**
      * 启动拍照
      * 用的权限code
-     *
-     * @param activityOrfragment 只能是activity或者fragment
      */
-    public static File showCameraAction(Object activityOrfragment) {
-        Activity activity = null;
-        Fragment fragment = null;
-        if (activityOrfragment instanceof Fragment) {
-            fragment = (Fragment) activityOrfragment;
-            activity = fragment.getActivity();
-        } else {
-            activity = (Activity) activityOrfragment;
-        }
-        String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (!PhotoHanderPermission.checkSelfPermission(activity, permission)) {
-            PhotoHanderPermission.requestPermission(activityOrfragment, permission, activity.getString(R.string.photo_permission_rationale_camera),
-                    PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
-        } else {
-            File mTmpFile = null;
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            if (intent.resolveActivity(activity.getPackageManager()) != null) {
-                try {
-                    mTmpFile = PhotoHanderUtils.createTmpFile(activity);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (mTmpFile != null && mTmpFile.exists()) {
-                    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-                    } else {
-                        ContentValues contentValues = new ContentValues(1);
-                        contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
-                        Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-                        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+    public static void showCameraAction(final ComponentActivity activity, final ShowCameraActionCall call) {
+        permissionStorage(activity, new Runnable() {
+            @Override
+            public void run() {
+                final Pair<File, Intent> intent = getImageCapterIntent(activity);
+                if (intent != null) {
+                    try {
+                        activity.getActivityResultRegistry().register("ForActivityResult" + new AtomicInteger().getAndIncrement(), new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+                            @Override
+                            public void onActivityResult(ActivityResult result) {
+                                call.call(new Pair(intent.first, result));
+                            }
+                        }).launch(intent.second);
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    if (fragment != null) {
-                        fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                    } else {
-                        activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                    }
-                } else {
-                    Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
                 }
-            } else {
-                Toast.makeText(activity, R.string.photo_msg_no_camera, Toast.LENGTH_SHORT).show();
             }
-            return mTmpFile;
-        }
-        return null;
+        });
     }
+
 
     public static File createTmpFile(Context context, String dirStr) throws IOException {
         File dir = null;

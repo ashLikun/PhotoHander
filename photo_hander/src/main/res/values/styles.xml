@@ -43,5 +43,11 @@
         <item name="android:drawableLeft">@drawable/crop_ic_cancel</item>
         <item name="android:text">@string/photo_crop_cancel</item>
     </style>
-
+    <style name="PhotoHandle_Translucent" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>
