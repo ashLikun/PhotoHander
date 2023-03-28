@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
 import com.ashlikun.photo_hander.bean.MediaFile;
@@ -93,6 +92,16 @@ public class PhotoHander {
      */
     public PhotoHander isMustCamera(boolean isMustCamera) {
         optionData.isMustCamera = isMustCamera;
+        return this;
+    }
+
+    /**
+     * 拍照是否插入相册
+     * true:拍照会存放在/DCIM 目录
+     * false:拍照会存放在/data/data/pack/cache 目录
+     */
+    public PhotoHander isInsetPhoto(boolean isInsetPhoto) {
+        optionData.isInsetPhoto = isInsetPhoto;
         return this;
     }
 
@@ -301,34 +310,11 @@ public class PhotoHander {
         optionData.isVideoCompressAspectRatio = false;
         return this;
     }
-
-    /**
-     * 开启
-     *
-     * @param activity
-     * @param requestCode
-     */
-    public void start(Activity activity, int requestCode) {
-        final Context context = activity;
-        activity.startActivityForResult(createIntent(context), requestCode);
-    }
-
-    /**
-     * 开启
-     *
-     * @param fragment
-     * @param requestCode
-     */
-    public void start(Fragment fragment, int requestCode) {
-        final Context context = fragment.getContext();
-        fragment.startActivityForResult(createIntent(context), requestCode);
-    }
-
     /**
      * 开启
      */
     public ActivityResultLauncher start(ComponentActivity activity, final ActivityResultCallback<List<MediaSelectData>> callback) {
-        ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultX(activity, new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultX(activity, new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == Activity.RESULT_OK) {
@@ -345,7 +331,7 @@ public class PhotoHander {
      * 开启
      */
     public ActivityResultLauncher start(Fragment fragment, final ActivityResultCallback<List<MediaSelectData>> callback) {
-        ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultXF(fragment, new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        ActivityResultLauncher launcher = PhotoHanderUtils.registerForActivityResultX(fragment, new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == Activity.RESULT_OK) {

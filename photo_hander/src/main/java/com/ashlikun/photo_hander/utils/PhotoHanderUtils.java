@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Pair;
 import android.view.Display;
 import android.view.View;
 import android.view.Window;
@@ -24,9 +25,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -108,42 +110,25 @@ public class PhotoHanderUtils {
         return null;
     }
 
-    public static <I, O> ActivityResultLauncher<I> registerForActivityResultX(ComponentActivity activity,
-                                                                              ActivityResultContract<I, O> contract,
-                                                                              final ActivityResultCallback<O> callback
-    ) {
-        final ActivityResultLauncher<I>[] launcher = new ActivityResultLauncher[1];
+    public static ActivityResultLauncher registerForActivityResultX(ComponentActivity activity, final ActivityResultCallback<ActivityResult> callback) {
+        final ActivityResultLauncher<Intent>[] launcher = new ActivityResultLauncher[1];
         //这种注册需要自己unregister
-        launcher[0] = activity.getActivityResultRegistry().register("PhotoForActivityResult" + new AtomicInteger().getAndIncrement(), contract,
-                new ActivityResultCallback<O>() {
+        launcher[0] = activity.getActivityResultRegistry().register("PhotoForActivityResult" + new AtomicInteger().getAndIncrement(), new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
                     @Override
-                    public void onActivityResult(O result) {
-                        callback.onActivityResult(result);
+                    public void onActivityResult(ActivityResult result) {
                         //这里主动释放
                         if (launcher[0] != null) {
                             launcher[0].unregister();
                         }
+                        callback.onActivityResult(result);
                     }
                 });
         return launcher[0];
     }
 
-    public static <I, O> ActivityResultLauncher<I> registerForActivityResultXF(Fragment fragment,
-                                                                               ActivityResultContract<I, O> contract,
-                                                                               final ActivityResultCallback<O> callback
-    ) {
-        final ActivityResultLauncher<I>[] launcher = new ActivityResultLauncher[1];
-        //这种注册需要自己unregister
-        launcher[0] = fragment.getActivity().getActivityResultRegistry().register("PhotoForActivityResult" + new AtomicInteger().getAndIncrement(), contract,
-                new ActivityResultCallback<O>() {
-                    @Override
-                    public void onActivityResult(O result) {
-                        callback.onActivityResult(result);
-                        //这里主动释放
-                        launcher[0].unregister();
-                    }
-                });
-        return launcher[0];
+    public static ActivityResultLauncher<Intent> registerForActivityResultX(Fragment fragment, final ActivityResultCallback<ActivityResult> callback) {
+        return registerForActivityResultX(fragment.getActivity(), callback);
     }
 
     /**
@@ -196,7 +181,7 @@ public class PhotoHanderUtils {
     /**
      * 启动裁剪页面
      */
-    public static void startCrop(Activity activity, MediaFile file, PhotoOptionData optionData) {
+    public static void startCrop(ComponentActivity activity, MediaFile file, PhotoOptionData optionData, ActivityResultLauncher launcher) {
         Uri destination = null;
         Uri source = Uri.fromFile(new File(file.path));
         try {
@@ -209,7 +194,7 @@ public class PhotoHanderUtils {
                     .withSize(optionData.cropWidth, optionData.cropHeight)
                     .showCircle(optionData.cropShowCircle)
                     .color(optionData.cropColor)
-                    .start(activity);
+                    .start(activity, launcher);
         } else {
             Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
         }
@@ -297,10 +282,6 @@ public class PhotoHanderUtils {
         return format.format(new Date(timeMillis));
     }
 
-    public static File createTmpFile(Context context) throws IOException {
-        return createTmpFile(context, "Camera");
-    }
-
     /**
      * 获取指定文件夹内所有文件大小的和
      *
@@ -329,75 +310,79 @@ public class PhotoHanderUtils {
         return size;
     }
 
+    /**
+     * 获取拍照Intent
+     *
+     * @return null:失败
+     */
+    public static Pair<File, Intent> getImageCapterIntent(Activity activity, boolean preferExternal) {
+        boolean isSuccess = false;
+        File tmpFile = null;
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        try {
+            tmpFile = PhotoHanderUtils.createTmpFile(activity, preferExternal);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (tmpFile != null && tmpFile.exists()) {
+            Uri uri;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                uri = Uri.fromFile(tmpFile);
+            } else {
+                uri = FileProvider.getUriForFile(activity, PhotoHandleProvider.getFileProviderName(activity), tmpFile);
+            }
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            isSuccess = true;
+        } else {
+            Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
+        }
+        return isSuccess ? new Pair<>(tmpFile, intent) : null;
+    }
+
+    public static void permissionStorage(ComponentActivity activity, final Runnable call) {
+        String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        PhotoHanderPermission.requestPermission(activity, permission, activity.getString(R.string.photo_permission_rationale_camera), call);
+    }
 
     /**
      * 启动拍照
      * 用的权限code
-     *
-     * @param activityOrfragment 只能是activity或者fragment
      */
-    public static File showCameraAction(Object activityOrfragment) {
-        Activity activity = null;
-        Fragment fragment = null;
-        if (activityOrfragment instanceof Fragment) {
-            fragment = (Fragment) activityOrfragment;
-            activity = fragment.getActivity();
-        } else {
-            activity = (Activity) activityOrfragment;
-        }
-        String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (!PhotoHanderPermission.checkSelfPermission(activity, permission)) {
-            PhotoHanderPermission.requestPermission(activityOrfragment, permission, activity.getString(R.string.photo_permission_rationale_camera),
-                    PhotoHander.REQUEST_STORAGE_WRITE_ACCESS_PERMISSION);
-        } else {
-            File mTmpFile = null;
-            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            try {
-                mTmpFile = PhotoHanderUtils.createTmpFile(activity);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (mTmpFile != null && mTmpFile.exists()) {
-//                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-//                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mTmpFile));
-//                } else {
-//                    ContentValues contentValues = new ContentValues(1);
-//                    contentValues.put(MediaStore.Images.Media.DATA, mTmpFile.getAbsolutePath());
-//                    Uri uri = activity.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
-//                    intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-//                }
-                Uri uri = null;
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                    uri = Uri.fromFile(mTmpFile);
-                } else {
-                    uri = FileProvider.getUriForFile(activity, PhotoHandleProvider.getFileProviderName(activity), mTmpFile);
+    public static void showCameraAction(final ComponentActivity activity, final boolean preferExternal, final ShowCameraActionCall call) {
+        permissionStorage(activity, new Runnable() {
+            @Override
+            public void run() {
+                final Pair<File, Intent> intent = getImageCapterIntent(activity, preferExternal);
+                if (intent != null) {
+                    try {
+                        registerForActivityResultX(activity, new ActivityResultCallback<ActivityResult>() {
+                            @Override
+                            public void onActivityResult(ActivityResult result) {
+                                call.call(new Pair(intent.first, result));
+                            }
+                        }).launch(intent.second);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-                if (fragment != null) {
-                    fragment.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                } else {
-                    activity.startActivityForResult(intent, PhotoHander.REQUEST_CAMERA);
-                }
-            } else {
-                Toast.makeText(activity, R.string.photo_error_image_not_exist, Toast.LENGTH_SHORT).show();
             }
-            return mTmpFile;
-        }
-        return null;
+        });
     }
 
-    public static File createTmpFile(Context context, String dirStr) throws IOException {
+    /**
+     * 创建图片
+     */
+    public static File createTmpFile(Context context, boolean preferExternal) throws IOException {
         File dir = null;
-        if (TextUtils.equals(Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED)) {
-            dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-            if (!dir.exists()) {
-                dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM + File.separator + dirStr);
-                if (!dir.exists()) {
-                    dir = getCacheDirectory(context, true);
-                }
+        if (preferExternal) {
+            //是否挂载外部存储卡
+            if (TextUtils.equals(Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED)) {
+                //外部DCIM 目录
+                dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
             }
-        } else {
-            dir = getCacheDirectory(context, true);
+        }
+        if (dir == null || !dir.exists()) {
+            dir = getCacheDirectory(context, preferExternal);
         }
         return File.createTempFile(JPEG_FILE_PREFIX, JPEG_FILE_SUFFIX, dir);
     }
@@ -410,29 +395,18 @@ public class PhotoHanderUtils {
     private static final String EXTERNAL_STORAGE_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
 
     /**
-     * Returns application cache directory. Cache directory will be created on SD card
-     * <i>("/Android/data/[app_package_name]/cache")</i> if card is mounted and app has appropriate permission. Else -
-     * Android defines cache directory on device's file system.
-     *
-     * @param context Application context
-     * @return Cache {@link File directory}.<br />
-     * <b>NOTE:</b> Can be null in some unpredictable cases (if SD card is unmounted and
-     * {@link android.content.Context#getCacheDir() Context.getCacheDir()} returns null).
+     * 返回应用程序缓存目录。将在SD卡上创建缓存目录
+     * <i>("/Android/data/[app_package_name]/cache")</i> 如果卡已安装并且应用程序具有适当的权限。否则，Android会在设备的文件系统上定义缓存目录。
      */
     public static File getCacheDirectory(Context context) {
         return getCacheDirectory(context, true);
     }
 
     /**
-     * Returns application cache directory. Cache directory will be created on SD card
-     * <i>("/Android/data/[app_package_name]/cache")</i> (if card is mounted and app has appropriate permission) or
-     * on device's file system depending incoming parameters.
+     * 返回应用程序缓存目录。将在SD卡上创建缓存目录
+     * <i>("/Android/data/[app_package_name]/cache")</i> （如果安装了卡并且应用程序具有适当的权限）或在设备的文件系统上，具体取决于传入的参数。
      *
-     * @param context        Application context
-     * @param preferExternal Whether prefer external location for cache
-     * @return Cache {@link File directory}.<br />
-     * <b>NOTE:</b> Can be null in some unpredictable cases (if SD card is unmounted and
-     * {@link android.content.Context#getCacheDir() Context.getCacheDir()} returns null).
+     * @param preferExternal 优先使用外部
      */
     public static File getCacheDirectory(Context context, boolean preferExternal) {
         File appCacheDir = null;
@@ -448,6 +422,7 @@ public class PhotoHanderUtils {
             appCacheDir = getExternalCacheDir(context);
         }
         if (appCacheDir == null) {
+            //   /data/data/package/cache.
             appCacheDir = context.getCacheDir();
         }
         if (appCacheDir == null) {
@@ -476,39 +451,19 @@ public class PhotoHanderUtils {
         return null;
     }
 
-    /**
-     * Returns individual application cache directory (for only image caching from ImageLoader). Cache directory will be
-     * created on SD card <i>("/Android/data/[app_package_name]/cache/uil-images")</i> if card is mounted and app has
-     * appropriate permission. Else - Android defines cache directory on device's file system.
-     *
-     * @param context  Application context
-     * @param cacheDir Cache directory path (e.g.: "AppCacheDir", "AppDir/cache/images")
-     * @return Cache {@link File directory}
-     */
-    public static File getIndividualCacheDirectory(Context context, String cacheDir) {
-        File appCacheDir = getCacheDirectory(context);
-        File individualCacheDir = new File(appCacheDir, cacheDir);
-        if (!individualCacheDir.exists()) {
-            if (!individualCacheDir.mkdir()) {
-                individualCacheDir = appCacheDir;
-            }
-        }
-        return individualCacheDir;
-    }
 
+    /**
+     * 外部缓存目录
+     * /Android/data/packageName/cache
+     */
     private static File getExternalCacheDir(Context context) {
-        File dataDir = new File(new File(Environment.getExternalStorageDirectory(), "Android"), "data");
-        File appCacheDir = new File(new File(dataDir, context.getPackageName()), "cache");
-        if (!appCacheDir.exists()) {
-            if (!appCacheDir.mkdirs()) {
+        File dataDir = context.getExternalCacheDir();
+        if (!dataDir.exists()) {
+            if (!dataDir.mkdirs()) {
                 return null;
             }
-            try {
-                new File(appCacheDir, ".nomedia").createNewFile();
-            } catch (IOException e) {
-            }
         }
-        return appCacheDir;
+        return dataDir;
     }
 
     private static boolean hasExternalStoragePermission(Context context) {

@@ -1,15 +1,11 @@
 package com.ashlikun.photo_hander.crop;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.widget.Toast;
 
-import com.ashlikun.photo_hander.R;
+import androidx.activity.result.ActivityResultLauncher;
 
 /**
  * @author　　: 李坤
@@ -21,8 +17,6 @@ import com.ashlikun.photo_hander.R;
 
 public class Crop {
 
-    public static final int REQUEST_CROP = 6709;
-    public static final int REQUEST_PICK = 9162;
     public static final int RESULT_ERROR = 404;
     public final static String CROP_ORGIN_OUTPUT = "CROP_ORGIN_OUTPUT";
 
@@ -108,67 +102,14 @@ public class Crop {
         return this;
     }
 
-    /**
-     * 开始启动裁剪界面
-     *
-     * @param activity
-     */
-    public void start(Activity activity) {
-
-        start(activity, REQUEST_CROP);
-    }
 
     /**
      * 开始启动裁剪界面
-     *
-     * @param activity
-     * @param requestCode requestCode for result
      */
-    public void start(Activity activity, int requestCode) {
-        activity.startActivityForResult(getIntent(activity), requestCode);
+    public void start(Context context, ActivityResultLauncher launcher) {
+        launcher.launch(getIntent(context));
     }
 
-    /**
-     * 开始启动裁剪界面
-     *
-     * @param context  Context
-     * @param fragment Fragment to receive result
-     */
-    public void start(Context context, Fragment fragment) {
-        start(context, fragment, REQUEST_CROP);
-    }
-
-    /**
-     * 开始启动裁剪界面
-     *
-     * @param context  Context
-     * @param fragment Fragment to receive result
-     */
-    public void start(Context context, androidx.fragment.app.Fragment fragment) {
-        start(context, fragment, REQUEST_CROP);
-    }
-
-    /**
-     * 开始启动裁剪界面
-     *
-     * @param context     Context
-     * @param fragment    Fragment to receive result
-     * @param requestCode requestCode for result
-     */
-    public void start(Context context, Fragment fragment, int requestCode) {
-        fragment.startActivityForResult(getIntent(context), requestCode);
-    }
-
-    /**
-     * 开始启动裁剪界面
-     *
-     * @param context     Context
-     * @param fragment    Fragment to receive result
-     * @param requestCode requestCode for result
-     */
-    public void start(Context context, androidx.fragment.app.Fragment fragment, int requestCode) {
-        fragment.startActivityForResult(getIntent(context), requestCode);
-    }
 
     /**
      * 获取启动裁剪页面的意图
@@ -210,85 +151,7 @@ public class Crop {
         return (Throwable) result.getSerializableExtra(IntentKey.EXTRA_ERROR);
     }
 
-    /**
-     * 从图库里面选择图片
-     *
-     * @param activity Activity to receive result
-     */
-    public static void pickImage(Activity activity) {
-        pickImage(activity, REQUEST_PICK);
-    }
-
-    /**
-     * 从图库里面选择图片
-     *
-     * @param context  Context
-     * @param fragment Fragment to receive result
-     */
-    public static void pickImage(Context context, Fragment fragment) {
-        pickImage(context, fragment, REQUEST_PICK);
-    }
-
-    /**
-     * 从图库里面选择图片
-     *
-     * @param context  Context
-     * @param fragment Fragment to receive result
-     */
-    public static void pickImage(Context context, androidx.fragment.app.Fragment fragment) {
-        pickImage(context, fragment, REQUEST_PICK);
-    }
-
-    /**
-     * 从图库里面选择图片
-     *
-     * @param activity    Activity to receive result
-     * @param requestCode requestCode for result
-     */
-    public static void pickImage(Activity activity, int requestCode) {
-        try {
-            activity.startActivityForResult(getImagePicker(), requestCode);
-        } catch (ActivityNotFoundException e) {
-            showImagePickerError(activity);
-        }
-    }
-
-    /**
-     * 从图库里面选择图片
-     *
-     * @param context     Context
-     * @param fragment    Fragment to receive result
-     * @param requestCode requestCode for result
-     */
-    public static void pickImage(Context context, Fragment fragment, int requestCode) {
-        try {
-            fragment.startActivityForResult(getImagePicker(), requestCode);
-        } catch (ActivityNotFoundException e) {
-            showImagePickerError(context);
-        }
-    }
-
-    /**
-     * 从图库里面选择图片
-     *
-     * @param context     Context
-     * @param fragment    Fragment to receive result
-     * @param requestCode requestCode for result
-     */
-    public static void pickImage(Context context, androidx.fragment.app.Fragment fragment, int requestCode) {
-        try {
-            fragment.startActivityForResult(getImagePicker(), requestCode);
-        } catch (ActivityNotFoundException e) {
-            showImagePickerError(context);
-        }
-    }
-
     private static Intent getImagePicker() {
         return new Intent(Intent.ACTION_GET_CONTENT).setType("image/*");
     }
-
-    private static void showImagePickerError(Context context) {
-        Toast.makeText(context.getApplicationContext(), R.string.photo_crop_pick_error, Toast.LENGTH_SHORT).show();
-    }
-
 }
