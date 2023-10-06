@@ -283,6 +283,7 @@ public class PhotoHander {
     public PhotoHander videoOnly() {
         optionData.isVideoOnly = true;
         optionData.isVideoCompress = true;
+        optionData.isSelectVideo = true;
         return this;
     }
 

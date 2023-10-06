@@ -183,7 +183,16 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
 
     public void addFragment() {
         String[] permission = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        //请求读写权限
+        //请求读写权限,适配android 13
+        if (Build.VERSION.SDK_INT >= 33 && getApplicationInfo().targetSdkVersion >= 33) {
+            if (optionData.isVideoOnly) {
+                permission = new String[]{Manifest.permission.READ_MEDIA_VIDEO};
+            } else if (optionData.isSelectVideo) {
+                permission = new String[]{Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO};
+            } else {
+                permission = new String[]{Manifest.permission.READ_MEDIA_IMAGES};
+            }
+        }
         PhotoHanderPermission.requestPermission(this, permission, getString(R.string.photo_permission_rationale), new Runnable() {
             @Override
             public void run() {

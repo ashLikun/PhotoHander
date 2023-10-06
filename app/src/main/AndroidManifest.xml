@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"></uses-permission>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"></uses-permission>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"></uses-permission>
 
     <application
         android:allowBackup="true"
@@ -17,6 +20,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name="com.ashlikun.multiimageselector.MainActivity"
+            android:exported="true"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
