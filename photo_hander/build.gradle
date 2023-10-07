@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion 30
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
     }

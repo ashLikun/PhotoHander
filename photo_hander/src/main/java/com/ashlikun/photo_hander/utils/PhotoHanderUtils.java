@@ -341,6 +341,9 @@ public class PhotoHanderUtils {
 
     public static void permissionStorage(ComponentActivity activity, final Runnable call) {
         String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (Build.VERSION.SDK_INT >= 33 && activity.getApplicationInfo().targetSdkVersion >= 33) {
+            permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES};
+        }
         PhotoHanderPermission.requestPermission(activity, permission, activity.getString(R.string.photo_permission_rationale_camera), call);
     }
 
