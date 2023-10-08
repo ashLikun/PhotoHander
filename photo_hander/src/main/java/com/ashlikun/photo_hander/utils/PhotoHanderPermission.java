@@ -71,6 +71,10 @@ public class PhotoHanderPermission {
      * 请求权限
      */
     public static void requestPermission(final ComponentActivity activity, final String[] permission, String rationale, final Runnable call) {
+        if (permission.length == 0) {
+            call.run();
+            return;
+        }
         if (!PhotoHanderPermission.checkSelfPermission(activity, permission)) {
             if (shouldShowRequestPermissionRationale(activity, permission)) {
                 new AlertDialog.Builder(activity)
