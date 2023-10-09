@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment;
 
 import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
+import com.ashlikun.photo_hander.compress.heif.HeifHandle;
 import com.ashlikun.photo_hander.compress.luban.CompressResult;
 import com.ashlikun.photo_hander.compress.luban.Luban;
 import com.ashlikun.photo_hander.compress.luban.OnCompressListener;
@@ -70,6 +71,7 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
     PhotoOptionData optionData = PhotoOptionData.currentData;
     private boolean isVideoCompressOk = true;
     private boolean isCompressOk = true;
+    private boolean isHeifToJpgOk = true;
     private VideoCompress videoCompress;
     private TextView mCategoryText;
 
@@ -86,8 +88,13 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
             finish();
             return;
         }
+        compressDialog = new ProgressDialog(PhotoHanderActivity.this);
+        compressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        compressDialog.setCanceledOnTouchOutside(false);
+        compressDialog.setMax(100);
 
         isVideoCompressOk = !optionData.isVideoCompress;
+        isHeifToJpgOk = !optionData.isHeifToJpg;
         isCompressOk = !optionData.isCompress;
         setTitle(optionData.isVideoOnly ? R.string.photo_title_all_video : optionData.isCanVideo() ? R.string.photo_title_all_image_and_video : R.string.photo_title_image);
         setContentView(R.layout.ph_activity_default);
@@ -326,7 +333,30 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
      * 图片选择完成, 还没压缩
      */
     void completeSelect() {
-        if (!isCompressOk) {
+        if (!isHeifToJpgOk) {
+            //处理heif格式
+            ArrayList<MediaSelectData> resultHeifList = MediaSelectData.getHeifFiles(resultList);
+            if (resultHeifList != null && !resultHeifList.isEmpty()) {
+                compressDialog.setTitle(getString(R.string.photo_dialog_title));
+                HeifHandle heifHandle = new HeifHandle(this, resultHeifList, new HeifHandle.PhotoHandleHeifProgressListener() {
+                    @Override
+                    public void onProgress(int progress, HeifHandle heifHandle) {
+                        compressDialog.setProgress(progress);
+                    }
+
+                    @Override
+                    public void onEnd(HeifHandle heifHandle) {
+                        isHeifToJpgOk = true;
+                        completeSelect();
+                    }
+                });
+                compressDialog.setProgress(0);
+                compressDialog.show();
+                heifHandle.start();
+            } else {
+                isHeifToJpgOk = true;
+            }
+        } else if (!isCompressOk) {
             //压缩
             ArrayList<String> resultStrList = MediaSelectData.getCompressImagePaths(resultList);
             if (resultStrList == null || resultStrList.isEmpty()) {
@@ -337,13 +367,8 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
             Luban.with(this).load(resultStrList).setCompressListener(new OnCompressListener() {
                 @Override
                 public void onStart() {
-                    if (compressDialog == null) {
-                        compressDialog = new ProgressDialog(PhotoHanderActivity.this);
-                        compressDialog.setTitle("图片处理中");
-                        compressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                        compressDialog.setCanceledOnTouchOutside(false);
-                        compressDialog.setMax(100);
-                    }
+                    compressDialog.setTitle(getString(R.string.photo_dialog_title));
+                    compressDialog.setProgress(0);
                     compressDialog.show();
                 }
 
@@ -359,15 +384,13 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
                             }
                         }
                     }
-                    compressDialog.dismiss();
                     isCompressOk = true;
                     completeSelect();
                 }
 
                 @Override
                 public void onError(Throwable e) {
-                    compressDialog.dismiss();
-                    Toast.makeText(PhotoHanderActivity.this, "图片处理出错", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PhotoHanderActivity.this, getString(R.string.photo_error), Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -384,21 +407,14 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
                     completeSelect();
                     return;
                 }
-                if (compressDialog == null) {
-                    compressDialog = new ProgressDialog(PhotoHanderActivity.this);
-                    compressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    compressDialog.setCanceledOnTouchOutside(false);
-                    compressDialog.setMax(100);
-                }
                 compressDialog.setProgress(0);
-                compressDialog.setTitle("视频压缩中");
+                compressDialog.setTitle(getString(R.string.photo_dialog_video_title));
                 compressDialog.show();
                 videoCompress = new VideoCompress(this, resultStrList, optionData, new VideoCompress.PhotoHandleVideoProgressListener() {
                     @Override
                     public void onProgress(int progress, VideoCompress videoCompress) {
                         compressDialog.setProgress(progress);
                         if (progress >= 100) {
-                            compressDialog.dismiss();
                             isVideoCompressOk = true;
                             completeSelect();
                         }
@@ -406,14 +422,11 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
                 });
                 videoCompress.start();
             } catch (Exception e) {
-                if (compressDialog != null) {
-                    compressDialog.dismiss();
-                }
                 isVideoCompressOk = true;
                 completeSelect();
             }
         }
-        if (!isCompressOk || !isVideoCompressOk) {
+        if (!isCompressOk || !isVideoCompressOk || !isHeifToJpgOk) {
             return;
         }
         if (resultList != null && resultList.size() >= 0) {
@@ -421,6 +434,9 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
                 resultList = (ArrayList<MediaSelectData>) resultList.subList(0, optionData.mDefaultCount);
             }
 
+        }
+        if (compressDialog != null && compressDialog.isShowing()) {
+            compressDialog.dismiss();
         }
         finishResult();
     }
@@ -437,7 +453,7 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (compressDialog != null) {
+        if (compressDialog != null && compressDialog.isShowing()) {
             compressDialog.dismiss();
         }
         if (videoCompress != null) {
@@ -448,7 +464,7 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
 
     @Override
     public void onLowMemory() {
-        if (compressDialog != null) {
+        if (compressDialog != null && compressDialog.isShowing()) {
             compressDialog.dismiss();
         }
         if (videoCompress != null) {

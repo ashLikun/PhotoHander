@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             selector.multi();
         }
+        selector.heifToJpg();
         selector.isNoSelect();
         selector.addImage(addHttpImage);
         selector.compress(true);
@@ -147,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
         for (MediaSelectData p : mSelectPath) {
             sb.append(p);
             if (!p.isHttpImg()) {
-                File ff = new File(p.compressPath);
                 try {
                     sb.append("\n");
                 } catch (Exception e) {

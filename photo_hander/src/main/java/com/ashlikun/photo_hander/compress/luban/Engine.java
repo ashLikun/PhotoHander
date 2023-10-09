@@ -104,8 +104,8 @@ class Engine {
         Bitmap tagBitmap = BitmapFactory.decodeStream(srcImg.open(), null, options);
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-        if (Checker.SINGLE.isJPG(srcImg.open())) {
-            tagBitmap = rotatingImage(tagBitmap, Checker.SINGLE.getOrientation(srcImg.open()));
+        if (Checker.isJPG(srcImg.open())) {
+            tagBitmap = rotatingImage(tagBitmap, Checker.getOrientation(srcImg.open()));
         }
         //图片质量
         int optionsSize = 100;

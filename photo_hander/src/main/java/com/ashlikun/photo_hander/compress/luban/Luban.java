@@ -76,13 +76,13 @@ public class Luban implements Handler.Callback {
     /**
      * 创建缓存文件
      */
-    public File createTempFile(Context context, InputStreamProvider path) {
+    public File createTempFile(Context context, String path, String suffix) {
         deleteDir(mTargetDir);
         if (!mTargetDir.exists()) {
             mTargetDir = getCacheDir(context);
         }
         try {
-            File file = new File(mTargetDir, Math.abs(path.getPath().hashCode()) + Checker.SINGLE.extSuffix(path));
+            File file = new File(mTargetDir, Math.abs(path.hashCode()) + suffix);
             file.createNewFile();
             return file;
         } catch (IOException e) {
@@ -103,9 +103,9 @@ public class Luban implements Handler.Callback {
     /**
      * 获取文件夹中已经存在的文件
      */
-    public File getTempFile(InputStreamProvider input) {
+    public File getTempFile(String path, String suffix) {
         String tempPath = mTargetDir + File.separator +
-                Math.abs(input.getPath().hashCode()) + Checker.SINGLE.extSuffix(input);
+                Math.abs(path.hashCode()) + suffix;
         File file = new File(tempPath);
         if (file.exists()) {
             return file;
@@ -114,9 +114,8 @@ public class Luban implements Handler.Callback {
     }
 
 
-
     /**
-     * start asynchronous compress thread
+     * 启动异步压缩线程
      */
     private void launch(final Context context) {
         if (mStreamProviders == null || mStreamProviders.size() == 0 && mCompressListener != null) {
@@ -155,11 +154,11 @@ public class Luban implements Handler.Callback {
     }
 
     /**
-     * start compress and return the file
+     * 启动压缩并返回文件
      */
     private File get(InputStreamProvider input, Context context) throws IOException {
         try {
-            return new Engine(input, focusAlpha).compress(createTempFile(context, input));
+            return new Engine(input, focusAlpha).compress(createTempFile(context, input.getPath(), Checker.extSuffix(input)));
         } finally {
             input.close();
         }
@@ -185,29 +184,30 @@ public class Luban implements Handler.Callback {
         }
     }
 
-    private File compressReal(Context context, InputStreamProvider path) throws IOException {
+    private File compressReal(Context context, InputStreamProvider input) throws IOException {
         //是否存在缓存
-        File tempFile = getTempFile(path);
+        String extSuffix = Checker.extSuffix(input);
+        File tempFile = getTempFile(input.getPath(), extSuffix);
         if (tempFile != null) {
             return tempFile;
         }
         //必须先执行计算
-        Engine engine = new Engine(path, focusAlpha);
+        Engine engine = new Engine(input, focusAlpha);
         //是否忽略
-        boolean isNeedCompress = mCompressionPredicate != null ? mCompressionPredicate.apply(path.getPath()) && Checker.SINGLE.needCompress(path.expectSize(), path.getPath()) :
-                Checker.SINGLE.needCompress(path.expectSize(), path.getPath());
+        boolean isNeedCompress = mCompressionPredicate != null ? mCompressionPredicate.apply(input.getPath()) && Checker.needCompress(input.expectSize(), input.getPath()) :
+                Checker.needCompress(input.expectSize(), input.getPath());
 
         File result;
         if (isNeedCompress) {
-            File outFile = createTempFile(context, path);
+            File outFile = createTempFile(context, input.getPath(), extSuffix);
 
             if (mRenameListener != null) {
-                String filename = mRenameListener.rename(path.getPath());
+                String filename = mRenameListener.rename(input.getPath());
                 outFile = createTempCustomFile(context, filename);
             }
             result = engine.compress(outFile);
         } else {
-            result = new File(path.getPath());
+            result = new File(input.getPath());
         }
         return result;
     }
@@ -306,10 +306,10 @@ public class Luban implements Handler.Callback {
         }
 
         /**
-         * Do I need to keep the image's alpha channel
+         * 我需要保留图像的alpha通道吗
          *
-         * @param focusAlpha <p> true - to keep alpha channel, the compress speed will be slow. </p>
-         *                   <p> false - don't keep alpha channel, it might have a black background.</p>
+         * @param focusAlpha <p> true - 为了保持alpha通道，压缩速度会很慢。 </p>
+         *                   <p> false - 不要保留alpha通道，它可能有黑色背景。</p>
          */
         public Builder setFocusAlpha(boolean focusAlpha) {
             this.focusAlpha = focusAlpha;
@@ -338,20 +338,21 @@ public class Luban implements Handler.Callback {
 
 
         /**
-         * begin compress image with asynchronous
+         * 以异步方式开始压缩图像
          */
         public void launch() {
             build().launch(context);
         }
 
+        /**
+         * 使用synchronize开始压缩图像
+         */
         public File get(final String path) throws IOException {
             return build().get(new InputStreamAdapter.InputStreamStringAdapter(path), context);
         }
 
         /**
-         * begin compress image with synchronize
-         *
-         * @return the thumb image file list
+         * 使用synchronize开始压缩图像
          */
         public List<File> get() throws IOException {
             return build().get(context);

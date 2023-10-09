@@ -26,6 +26,10 @@
     <string name="photo_permission_rationale">浏览图片需要您提供浏览存储的权限</string>
     <string name="photo_permission_rationale_write_storage">保存拍照图片需要您提供写存储权限</string>
     <string name="photo_permission_rationale_camera">保存拍照图片需要您提供写存储权限和拍照权限</string>
+    <string name="photo_dialog_title">图片处理中</string>
+    <string name="photo_dialog_video_title">视频压缩中</string>
+    <string name="photo_error">图片处理出错</string>
+
 
     <string name="photo_crop_title">图片裁剪</string>
     <string name="photo_crop_saving">正在保存照片…</string>
@@ -34,4 +38,5 @@
 
     <string name="photo_crop_done">完成</string>
     <string name="photo_crop_cancel">取消</string>
+
 </resources>

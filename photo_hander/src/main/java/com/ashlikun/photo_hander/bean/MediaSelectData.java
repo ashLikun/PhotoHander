@@ -19,6 +19,9 @@ import java.util.ArrayList;
  */
 public class MediaSelectData implements Parcelable {
     public MediaFile mediaFile;
+    //转码后的路径，用于HEIF转jpg,如果不需要转码就是原图
+    public String convertPath;
+    //压缩后的文件
     public String compressPath;
     /**
      * 裁剪的图片
@@ -36,6 +39,7 @@ public class MediaSelectData implements Parcelable {
 
     public MediaSelectData(MediaFile mediaFile) {
         this.mediaFile = mediaFile;
+        this.convertPath = mediaFile.path;
         if (isHttpImg()) {
             this.compressPath = mediaFile.path;
         }
@@ -43,6 +47,7 @@ public class MediaSelectData implements Parcelable {
 
     public MediaSelectData(MediaFile mediaFile, String compressPath, boolean isCompress, boolean isComparessError) {
         this.mediaFile = mediaFile;
+        this.convertPath = mediaFile.path;
         this.compressPath = compressPath;
         this.isComparessError = isComparessError;
         this.isCompress = isCompress;
@@ -93,6 +98,10 @@ public class MediaSelectData implements Parcelable {
         return mediaFile.isVideo();
     }
 
+    public boolean isHeif() {
+        return "image/heif".equalsIgnoreCase(mediaFile.mime) || "image/heic".equalsIgnoreCase(mediaFile.mime);
+    }
+
 
     public String originPath() {
         if (mediaFile != null) {
@@ -104,6 +113,9 @@ public class MediaSelectData implements Parcelable {
     public String getPath() {
         if (isCompress) {
             return compressPath;
+        }
+        if(convertPath != null && !convertPath.isEmpty()){
+            return convertPath;
         }
         return originPath();
     }
@@ -128,7 +140,7 @@ public class MediaSelectData implements Parcelable {
         ArrayList<String> strings = new ArrayList<>();
         if (resultList != null) {
             for (MediaSelectData d : resultList) {
-                if (d.isVideo()) {
+                if (d.isVideo() || d.isHttpImg()) {
                     continue;
                 }
                 //如果有裁剪的图片，优先使用裁剪的图片
@@ -147,7 +159,20 @@ public class MediaSelectData implements Parcelable {
         ArrayList<MediaSelectData> strings = new ArrayList<>();
         if (resultList != null) {
             for (MediaSelectData d : resultList) {
-                if (!d.isVideo()) {
+                if (!d.isVideo() || d.isHttpImg()) {
+                    continue;
+                }
+                strings.add(d);
+            }
+        }
+        return strings;
+    }
+
+    public static ArrayList<MediaSelectData> getHeifFiles(ArrayList<MediaSelectData> resultList) {
+        ArrayList<MediaSelectData> strings = new ArrayList<>();
+        if (resultList != null) {
+            for (MediaSelectData d : resultList) {
+                if (!d.isHeif() || d.isHttpImg()) {
                     continue;
                 }
                 strings.add(d);
@@ -159,17 +184,37 @@ public class MediaSelectData implements Parcelable {
     @Override
     public String toString() {
         long sizeOrigin = 0;
+        long sizeConvert = 0;
         long sizeCompress = 0;
+        long sizeCrop = 0;
         try {
             sizeOrigin = PhotoHanderUtils.getFileSizes(new File(mediaFile.path));
+        } catch (Exception e) {
+
+        }
+        try {
+            sizeConvert = PhotoHanderUtils.getFileSizes(new File(convertPath));
+        } catch (Exception e) {
+
+        }
+        try {
             sizeCompress = PhotoHanderUtils.getFileSizes(new File(compressPath));
         } catch (Exception e) {
-            e.printStackTrace();
+
+        }
+        try {
+            sizeCrop = PhotoHanderUtils.getFileSizes(new File(cropPath));
+        } catch (Exception e) {
+
         }
         if (mediaFile != null && mediaFile.isVideo()) {
-            return "视频：" + mediaFile.path + "  size = " + sizeOrigin + "       压缩视频:" + compressPath + "  size = " + sizeCompress;
+            return "视频：" + mediaFile.path + "  size = " + sizeOrigin +
+                    "\n压缩视频:" + compressPath + "  size = " + sizeCompress;
         }
-        return "原图：" + mediaFile.path + "  size = " + sizeOrigin + "       压缩图:" + compressPath + "  size = " + sizeCompress + "       裁剪图:" + cropPath;
+        return "原图：" + mediaFile.path + "  size = " + sizeOrigin +
+                "\n转码后:" + convertPath + "  size = " + sizeConvert +
+                "\n压缩图:" + compressPath + "  size = " + sizeCompress +
+                "\n裁剪图:" + cropPath + "  size = " + sizeCrop;
     }
 
     @Override
@@ -180,6 +225,7 @@ public class MediaSelectData implements Parcelable {
 
     protected MediaSelectData(Parcel in) {
         mediaFile = in.readParcelable(MediaFile.class.getClassLoader());
+        convertPath = in.readString();
         compressPath = in.readString();
         cropPath = in.readString();
         isComparessError = in.readByte() != 0;
@@ -189,6 +235,7 @@ public class MediaSelectData implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(mediaFile, flags);
+        dest.writeString(convertPath);
         dest.writeString(compressPath);
         dest.writeString(cropPath);
         dest.writeByte((byte) (isComparessError ? 1 : 0));

@@ -95,6 +95,10 @@ public class PhotoOptionData implements Serializable {
      */
     public boolean isVideoCompress = false;
     /**
+     * 是否转码HEIF文件为JPG
+     */
+    public boolean isHeifToJpg = false;
+    /**
      * 视频压缩的Fps,默认30
      */
     public int videoCompressFps = 30;

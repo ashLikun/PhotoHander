@@ -258,6 +258,14 @@ public class PhotoHander {
     }
 
     /**
+     * 是否转码HEIF文件为JPG
+     */
+    public PhotoHander heifToJpg() {
+        optionData.isHeifToJpg = true;
+        return this;
+    }
+
+    /**
      * 能选择视频和图片
      */
     public PhotoHander selectVideo() {
@@ -311,6 +319,7 @@ public class PhotoHander {
         optionData.isVideoCompressAspectRatio = false;
         return this;
     }
+
     /**
      * 开启
      */

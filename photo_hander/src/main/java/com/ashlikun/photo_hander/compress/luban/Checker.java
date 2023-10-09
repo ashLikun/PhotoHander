@@ -3,45 +3,41 @@ package com.ashlikun.photo_hander.compress.luban;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.ashlikun.photo_hander.PhotoHanderConst;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-enum Checker {
-    SINGLE;
-
+class Checker {
     private static final String TAG = "Luban";
 
-    private static final String JPG = ".jpg";
-
-    private final byte[] JPEG_SIGNATURE = new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
+    private static final byte[] JPEG_SIGNATURE = new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF};
 
     /**
-     * Determine if it is JPG.
-     *
-     * @param is image file input stream
+     * 确定是否为JPG。
      */
-    boolean isJPG(InputStream is) {
+    static boolean isJPG(InputStream is) {
         return isJPG(to3ByteArray(is));
     }
 
     /**
-     * Returns the degrees in clockwise. Values are 0, 90, 180, or 270.
+     * 返回顺时针方向的度数。值为0、90、180或270。
      */
-    int getOrientation(InputStream is) {
+    static int getOrientation(InputStream is) {
         return getOrientation(toByteArray(is));
     }
 
-    private boolean isJPG(byte[] data) {
+    static private boolean isJPG(byte[] data) {
         if (data == null || data.length < 3) {
             return false;
         }
         return Arrays.equals(JPEG_SIGNATURE, data);
     }
 
-    private int getOrientation(byte[] jpeg) {
+    private static int getOrientation(byte[] jpeg) {
         if (jpeg == null) {
             return 0;
         }
@@ -59,23 +55,23 @@ enum Checker {
             }
             offset++;
 
-            // Check if the marker is SOI or TEM.
+            // 检查标记是SOI还是TEM。
             if (marker == 0xD8 || marker == 0x01) {
                 continue;
             }
-            // Check if the marker is EOI or SOS.
+            // 检查标记是否为EOI或SOS。
             if (marker == 0xD9 || marker == 0xDA) {
                 break;
             }
 
-            // Get the length and check if it is reasonable.
+            // 获取长度并检查其是否合理。
             length = pack(jpeg, offset, 2, false);
             if (length < 2 || offset + length > jpeg.length) {
                 Log.e(TAG, "Invalid length");
                 return 0;
             }
 
-            // Break if the marker is EXIF in APP1.
+            // 如果标记在APP1中为EXIF，则中断。
             if (marker == 0xE1 && length >= 8
                     && pack(jpeg, offset + 2, 4, false) == 0x45786966
                     && pack(jpeg, offset + 6, 2, false) == 0) {
@@ -84,7 +80,7 @@ enum Checker {
                 break;
             }
 
-            // Skip other markers.
+            // 跳过其他标记。
             offset += length;
             length = 0;
         }
@@ -99,7 +95,7 @@ enum Checker {
             }
             boolean littleEndian = (tag == 0x49492A00);
 
-            // Get the offset and check if it is reasonable.
+            // 获取偏移量并检查其是否合理。
             int count = pack(jpeg, offset + 4, 4, littleEndian) + 2;
             if (count < 10 || count > length) {
                 Log.e(TAG, "Invalid offset");
@@ -108,7 +104,7 @@ enum Checker {
             offset += count;
             length -= count;
 
-            // Get the count and go through all the elements.
+            // 计算并浏览所有元素。
             count = pack(jpeg, offset - 2, 2, littleEndian);
             while (count-- > 0 && length >= 12) {
                 // Get the tag and check if it is orientation.
@@ -137,22 +133,22 @@ enum Checker {
         return 0;
     }
 
-    String extSuffix(InputStreamProvider input) {
+    static String extSuffix(InputStreamProvider input) {
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(input.open(), null, options);
-            String res = options.outMimeType.replace("image/", ".");
-            if ("jpeg".equals(res)) {
-                return JPG;
+            String res = options.outMimeType.replace(PhotoHanderConst.MIME_IMAGE_START, ".");
+            if (PhotoHanderConst.JPEG.equalsIgnoreCase(res) || PhotoHanderConst.HEIC.equalsIgnoreCase(res) || PhotoHanderConst.HEIF.equalsIgnoreCase(res)) {
+                return PhotoHanderConst.JPG;
             }
             return res;
         } catch (Exception e) {
-            return JPG;
+            return PhotoHanderConst.JPG;
         }
     }
 
-    boolean needCompress(int leastCompressSize, String path) {
+    static boolean needCompress(int leastCompressSize, String path) {
         if (leastCompressSize > 0) {
             File source = new File(path);
             return source.exists() && source.length() / 1024.0f > leastCompressSize;
@@ -160,7 +156,7 @@ enum Checker {
         return true;
     }
 
-    private int pack(byte[] bytes, int offset, int length, boolean littleEndian) {
+    private static int pack(byte[] bytes, int offset, int length, boolean littleEndian) {
         int step = 1;
         if (littleEndian) {
             offset += length - 1;
@@ -175,7 +171,7 @@ enum Checker {
         return value;
     }
 
-    private byte[] toByteArray(InputStream is) {
+    private static byte[] toByteArray(InputStream is) {
         if (is == null) {
             return new byte[0];
         }
@@ -201,7 +197,7 @@ enum Checker {
         return buffer.toByteArray();
     }
 
-    private byte[] to3ByteArray(InputStream is) {
+    private static byte[] to3ByteArray(InputStream is) {
         if (is == null) {
             return new byte[0];
         }

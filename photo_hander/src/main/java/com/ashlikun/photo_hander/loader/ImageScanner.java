@@ -6,6 +6,7 @@ import android.provider.MediaStore;
 
 import androidx.fragment.app.FragmentActivity;
 
+import com.ashlikun.photo_hander.PhotoHanderConst;
 import com.ashlikun.photo_hander.PhotoOptionData;
 import com.ashlikun.photo_hander.bean.MediaFile;
 import com.ashlikun.photo_hander.bean.MediaFolder;
@@ -20,11 +21,13 @@ import java.util.ArrayList;
  * <p>
  * 功能介绍： 媒体库扫描类(图片)
  */
-
 public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
     public ImageScanner(FragmentActivity context, OnLoadFinished onLoadFinished) {
         super(context, onLoadFinished);
     }
+
+    public static final String[] defaultArgs = new String[]{PhotoHanderConst.MIME_IMAGE_JPEG, PhotoHanderConst.MIME_IMAGE_PNG, PhotoHanderConst.MIME_IMAGE_HEIC, PhotoHanderConst.MIME_IMAGE_HEIF};
+    public static final String[] gifArgs = new String[]{PhotoHanderConst.MIME_IMAGE_JPEG, PhotoHanderConst.MIME_IMAGE_PNG, PhotoHanderConst.MIME_IMAGE_HEIC, PhotoHanderConst.MIME_IMAGE_HEIF, PhotoHanderConst.MIME_IMAGE_GIF};
 
     @Override
     protected Uri getScanUri() {
@@ -47,10 +50,17 @@ public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
     protected String getSelection() {
         if (PhotoOptionData.currentData.isFilterGif()) {
             //过滤GIF
-            return "(" + MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=?)"
+            return "(" + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                    + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                    + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                    + MediaStore.Images.Media.MIME_TYPE + "=? )"
                     + " AND " + MediaStore.MediaColumns.SIZE + ">0";
         }
-        return "(" + MediaStore.Images.Media.MIME_TYPE + "=? or " + MediaStore.Images.Media.MIME_TYPE + "=?" + " or " + MediaStore.Images.Media.MIME_TYPE + "=?)"
+        return "(" + MediaStore.Images.Media.MIME_TYPE + "=? or "
+                + MediaStore.Images.Media.MIME_TYPE + "=?" + " or "
+                + MediaStore.Images.Media.MIME_TYPE + "=?" + " or "
+                + MediaStore.Images.Media.MIME_TYPE + "=?" + " or "
+                + MediaStore.Images.Media.MIME_TYPE + "=?)"
                 + " AND " + MediaStore.MediaColumns.SIZE + ">0";
     }
 
@@ -58,9 +68,9 @@ public class ImageScanner extends AbsMediaScanner<MediaFile, MediaFolder> {
     protected String[] getSelectionArgs() {
         if (PhotoOptionData.currentData.isFilterGif()) {
             //过滤GIF
-            return new String[]{"image/jpeg", "image/png"};
+            return defaultArgs;
         }
-        return new String[]{"image/jpeg", "image/png", "image/gif"};
+        return gifArgs;
     }
 
     @Override
