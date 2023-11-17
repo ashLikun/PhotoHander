@@ -114,7 +114,7 @@ public class MediaSelectData implements Parcelable {
         if (isCompress) {
             return compressPath;
         }
-        if(convertPath != null && !convertPath.isEmpty()){
+        if (convertPath != null && !convertPath.isEmpty()) {
             return convertPath;
         }
         return originPath();
@@ -209,9 +209,13 @@ public class MediaSelectData implements Parcelable {
         }
         if (mediaFile != null && mediaFile.isVideo()) {
             return "视频：" + mediaFile.path + "  size = " + sizeOrigin +
+                    "\n是否压缩:" + isCompress +
+                    "\n是否压缩报错:" + isComparessError +
                     "\n压缩视频:" + compressPath + "  size = " + sizeCompress;
         }
         return "原图：" + mediaFile.path + "  size = " + sizeOrigin +
+                "\n是否压缩:" + isCompress +
+                "\n是否压缩报错:" + isComparessError +
                 "\n转码后:" + convertPath + "  size = " + sizeConvert +
                 "\n压缩图:" + compressPath + "  size = " + sizeCompress +
                 "\n裁剪图:" + cropPath + "  size = " + sizeCrop;

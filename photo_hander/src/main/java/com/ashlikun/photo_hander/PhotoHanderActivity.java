@@ -355,6 +355,7 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
                 heifHandle.start();
             } else {
                 isHeifToJpgOk = true;
+                completeSelect();
             }
         } else if (!isCompressOk) {
             //压缩

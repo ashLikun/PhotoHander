@@ -1,10 +1,10 @@
 package com.ashlikun.multiimageselector;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,7 +24,6 @@ import com.ashlikun.photo_hander.bean.MediaSelectData;
 import com.bumptech.glide.Glide;
 import com.hw.videoprocessor.util.CL;
 
-import java.io.File;
 import java.util.ArrayList;
 
 
@@ -137,7 +136,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setResultText() {
-        if (mSelectPath == null) return;
+        if (mSelectPath == null) {
+            return;
+        }
         StringBuilder sb = new StringBuilder();
         if (mSelectPath.size() == 1) {
             Glide.with(this).load(mSelectPath.get(0).compressPath)
@@ -157,6 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
             sb.append("\n\n");
         }
+        Log.e("结果", mSelectPath.toString());
         mResultText.setText(sb.toString());
     }
 
@@ -165,12 +167,7 @@ public class MainActivity extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.photo_permission_dialog_title)
                     .setMessage(rationale)
-                    .setPositiveButton(R.string.photo_permission_dialog_ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ActivityCompat.requestPermissions(MainActivity.this, new String[]{permission}, requestCode);
-                        }
-                    })
+                    .setPositiveButton(R.string.photo_permission_dialog_ok, (dialog, which) -> ActivityCompat.requestPermissions(MainActivity.this, new String[]{permission}, requestCode))
                     .setNegativeButton(R.string.photo_permission_dialog_cancel, null)
                     .create().show();
         } else {

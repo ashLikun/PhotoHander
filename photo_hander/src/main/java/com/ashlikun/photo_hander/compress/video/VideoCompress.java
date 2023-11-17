@@ -3,6 +3,7 @@ package com.ashlikun.photo_hander.compress.video;
 import android.content.Context;
 import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
+import android.util.Log;
 
 import com.ashlikun.photo_hander.PhotoOptionData;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
@@ -142,6 +143,7 @@ public class VideoCompress {
     private class MyVideoProgressListener implements VideoProgressListener {
         MediaSelectData data;
         int index;
+        boolean isError = false;
 
         public MyVideoProgressListener(MediaSelectData data, int index) {
             this.data = data;
@@ -157,13 +159,23 @@ public class VideoCompress {
             for (Integer pp : mProgress) {
                 curr += pp;
             }
-            final int zhenshiPro = (int) (curr / (allPro * (1f)) * 100);
-            if (zhenshiPro < 100) {
+            if (intProgress >= 100) {
+                //这个文件压缩完成
+                data.isCompress = !isError;
+                data.isComparessError = isError;
+            }
+            if (isError) {
+                data.compressPath = data.originPath();
+            }
+            //总进度
+            final int allProgress = (int) (curr / (allPro * (1f)) * 100);
+            Log.e("aaaaa", "allProgress = " + allProgress + ",intProgress = " + intProgress + ",mProgress = " + mProgress);
+            if (allProgress <= 100) {
                 PhotoThreadUtils.post(new Runnable() {
                     @Override
                     public void run() {
                         if (mListener.get() != null) {
-                            mListener.get().onProgress(zhenshiPro, VideoCompress.this);
+                            mListener.get().onProgress(allProgress, VideoCompress.this);
                         }
                     }
                 });
@@ -186,9 +198,12 @@ public class VideoCompress {
                     try {
                         String filePath = getTempFile(data);
                         if (filePath != null) {
+                            data.compressPath = filePath;
+                            listener.isError = false;
                             //已经存在了
                             listener.onProgress(1);
-                            break;
+                            index++;
+                            continue;
                         }
                         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                         retriever.setDataSource(data.originPath());
@@ -199,8 +214,13 @@ public class VideoCompress {
                         Point aspect = getVideoWidthAspect(originWidth, originHeight);
                         videoOutCompressPath = createTempFile(data).getPath();
                         data.compressPath = videoOutCompressPath;
-                        int frameRateO = (Math.min(frameRate <= 24 ? 30 : frameRate, optionData.videoCompressFps));
+                        int frameRateO = (Math.min(frameRate <= 24 ? 24 : frameRate, optionData.videoCompressFps));
                         int bitrateO = aspect.x * aspect.y * ((frameRateO + 9) / 10);
+                        bitrateO = bitrate <= 0 ? bitrateO : (int) Math.min(bitrateO, bitrate * 0.4);
+                        Log.e("媒体信息", ",originWidth = " + originWidth + ",originHeight = " + originHeight +
+                                ",bitrate = " + bitrate + ",frameRate = " + frameRate +
+                                ",aspect = " + aspect + ",frameRateO = " + frameRateO + ",bitrateO = " + bitrateO);
+
                         VideoProcessor.processor(context)
                                 .input(data.originPath())
                                 .outWidth(aspect.x)
@@ -215,6 +235,7 @@ public class VideoCompress {
                         if (!videoOutCompressPath.isEmpty()) {
                             new File(videoOutCompressPath).delete();
                         }
+                        listener.isError = true;
                         listener.onProgress(1);
                     }
                 }

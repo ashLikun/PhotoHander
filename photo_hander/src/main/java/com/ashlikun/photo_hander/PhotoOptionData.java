@@ -99,9 +99,9 @@ public class PhotoOptionData implements Serializable {
      */
     public boolean isHeifToJpg = false;
     /**
-     * 视频压缩的Fps,默认30
+     * 视频压缩的Fps,默认24
      */
-    public int videoCompressFps = 30;
+    public int videoCompressFps = 24;
     /**
      * 视频的宽高比是否改变，true:动态计算，false：不变
      */
