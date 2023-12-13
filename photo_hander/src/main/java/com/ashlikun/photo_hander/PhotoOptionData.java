@@ -153,4 +153,11 @@ public class PhotoOptionData implements Serializable {
         return !isVideoOnly && isSelectVideo;
     }
 
+    /**
+     * 是否视频录制
+     */
+    public boolean isVideoCamera() {
+        return isVideoOnly && isShowCamera;
+    }
+
 }

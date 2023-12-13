@@ -33,7 +33,7 @@ public class ImpShowCameraActionCall implements ShowCameraActionCall {
         if (data.second.getResultCode() == Activity.RESULT_OK) {
             if (tmpFile != null) {
                 if (mCallback != null) {
-                    if (PhotoOptionData.currentData.isVideoOnly && PhotoOptionData.currentData.isShowCamera) {
+                    if (PhotoOptionData.currentData.isVideoCamera()) {
                         final File finalTmpFile = tmpFile;
                         PhotoThreadUtils.get().execute(new Runnable() {
                             @Override

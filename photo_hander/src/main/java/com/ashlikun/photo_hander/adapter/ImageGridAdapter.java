@@ -40,6 +40,7 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
 
     private LayoutInflater mInflater;
     private boolean showCamera;
+    private boolean isVideoCamera;
     private boolean showSelectIndicator = true;
     /**
      * 追加的数据
@@ -50,10 +51,11 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     OnItemClickListener onItemClickListener;
     final int mGridWidth;
 
-    public ImageGridAdapter(Context context, boolean showCamera, int column) {
+    public ImageGridAdapter(Context context, boolean showCamera, boolean isVideoCamera, int column) {
         mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.showCamera = showCamera;
+        this.isVideoCamera = isVideoCamera;
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         int width = 0;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
@@ -152,7 +154,11 @@ public class ImageGridAdapter extends RecyclerView.Adapter<ImageGridAdapter.View
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ViewHolder viewHolder;
         if (viewType == TYPE_CAMERA) {
-            viewHolder = new ViewHolder(mInflater.inflate(R.layout.ph_list_item_camera, parent, false));
+            if (isVideoCamera) {
+                viewHolder = new ViewHolder(mInflater.inflate(R.layout.ph_list_item_camera_video, parent, false));
+            } else {
+                viewHolder = new ViewHolder(mInflater.inflate(R.layout.ph_list_item_camera, parent, false));
+            }
         } else {
             viewHolder = new ViewHolder(mInflater.inflate(R.layout.ph_list_item_image, parent, false));
         }

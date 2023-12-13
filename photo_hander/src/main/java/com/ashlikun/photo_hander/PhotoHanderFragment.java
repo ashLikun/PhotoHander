@@ -113,7 +113,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         ArrayList<MediaSelectData> resultListM = getArguments().getParcelableArrayList(IntentKey.EXTRA_DEFAULT_SELECTED_LIST);
 
         resultList = MediaSelectData.getOriginPaths(resultListM);
-        mImageAdapter = new ImageGridAdapter(getActivity(), optionData.isShowCamera, 4);
+        mImageAdapter = new ImageGridAdapter(getActivity(), optionData.isShowCamera, optionData.isVideoCamera(), 4);
         mImageAdapter.showSelectIndicator(optionData.isModeMulti());
         mImageAdapter.setAddList(getArguments().getStringArrayList(IntentKey.EXTRA_DEFAULT_ADD_IMAGES));
         mPopupAnchorView = view.findViewById(R.id.mPopupAnchorView);
@@ -154,7 +154,7 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
                             Toast.makeText(getActivity(), getString(R.string.photo_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        if (optionData.isVideoOnly && optionData.isShowCamera) {
+                        if (optionData.isVideoCamera()) {
                             PhotoHanderUtils.showCameraAction(activity, false, showCameraActionCall);
                         } else {
                             PhotoHanderUtils.showCameraAction(activity, true, showCameraActionCall);

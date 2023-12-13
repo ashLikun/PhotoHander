@@ -17,7 +17,7 @@
         android:layout_gravity="bottom|center_horizontal"
         android:drawablePadding="10dp"
         android:gravity="center_horizontal"
-        android:text="@string/photo_tip_take_photo"
+        android:text="@string/photo_tip_take_video"
         android:textColor="#CDCECE"
         android:textSize="14dp" />
 
