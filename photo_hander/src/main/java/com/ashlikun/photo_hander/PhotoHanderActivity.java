@@ -308,10 +308,10 @@ public class PhotoHanderActivity extends AppCompatActivity implements PhotoHande
     }
 
     @Override
-    public void onCameraShot(File imageFile) {
-        if (imageFile != null) {
-            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(imageFile)));
-            onSingleImageSelected(new MediaFile(imageFile.getPath(), 1));
+    public void onCameraShot(MediaFile mediaFile) {
+        if (mediaFile != null) {
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(mediaFile.path))));
+            onSingleImageSelected(mediaFile);
         }
     }
 

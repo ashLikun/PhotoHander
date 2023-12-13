@@ -3,6 +3,7 @@ package com.ashlikun.photo_hander.compress.video;
 import android.content.Context;
 import android.graphics.Point;
 import android.media.MediaMetadataRetriever;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.ashlikun.photo_hander.PhotoOptionData;
@@ -72,14 +73,20 @@ public class VideoCompress {
     /**
      * 获取文件夹中已经存在的文件
      */
-    public String getTempFile(MediaSelectData input) {
-        String tempPath = mTargetDir + File.separator +
-                Math.abs(input.mediaFile.path.hashCode()) + input.mediaFile.mime.replace("video/", ".");
-        File file = new File(tempPath);
-        if (file.exists()) {
-            return file.getPath();
+    public File getTempFile(MediaSelectData input) {
+        String suff = "";
+        if (TextUtils.isEmpty(input.mediaFile.mime)) {
+            //使用文件名后缀
+            String[] resultArr = input.getPath().split(",");
+            if (resultArr != null && resultArr.length >= 2) {
+                suff = resultArr[resultArr.length - 1];
+            }
+        } else {
+            suff = input.mediaFile.mime.replace("video/", ".");
         }
-        return null;
+        String tempPath = mTargetDir + File.separator + Math.abs(input.mediaFile.path.hashCode()) + suff;
+        File file = new File(tempPath);
+        return file;
     }
 
     /**
@@ -91,7 +98,7 @@ public class VideoCompress {
             mTargetDir = getCacheDir(context);
         }
         try {
-            File file = new File(mTargetDir, Math.abs(input.originPath().hashCode()) + input.mediaFile.mime.replace("video/", "."));
+            File file = getTempFile(input);
             file.createNewFile();
             return file;
         } catch (IOException e) {
@@ -196,9 +203,9 @@ public class VideoCompress {
                     String videoOutCompressPath = "";
                     MyVideoProgressListener listener = new MyVideoProgressListener(data, index);
                     try {
-                        String filePath = getTempFile(data);
-                        if (filePath != null) {
-                            data.compressPath = filePath;
+                        File oldFile = getTempFile(data);
+                        if (oldFile != null && oldFile.exists()) {
+                            data.compressPath = oldFile.getPath();
                             listener.isError = false;
                             //已经存在了
                             listener.onProgress(1);

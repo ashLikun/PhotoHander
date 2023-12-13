@@ -24,7 +24,7 @@ public class MediaFile implements Parcelable, Comparable<MediaFile> {
     public long duration;
     public long dateToken;
     /**
-     * 0:相册，1：拍摄,2其他（已选）,-1未知
+     * 0:相册，1：拍摄,2其他（已选）,3:视频拍摄,-1未知
      */
     public int type;
 
@@ -40,7 +40,7 @@ public class MediaFile implements Parcelable, Comparable<MediaFile> {
     }
 
     public boolean isVideo() {
-        return duration > 0;
+        return duration > 0 || type == 3;
     }
 
 

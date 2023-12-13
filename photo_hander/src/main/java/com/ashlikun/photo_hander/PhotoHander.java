@@ -105,6 +105,11 @@ public class PhotoHander {
         return this;
     }
 
+    public PhotoHander shootMaxSize(long shootMaxSize) {
+        optionData.shootMaxSize = shootMaxSize;
+        return this;
+    }
+
     /**
      * 最大多少张
      *

@@ -112,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             selector.multi();
         }
+//        selector.videoOnly();
+//        selector.isMustCamera(true);
         selector.heifToJpg();
         selector.isNoSelect();
         selector.addImage(addHttpImage);

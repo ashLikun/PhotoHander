@@ -18,7 +18,8 @@
     <string name="photo_action_button_string">%1$s(%2$d/%3$d)</string>
     <string name="photo_action_yulan_button_string">%1$s(%2$d)</string>
     <string name="photo_tip_take_photo">拍摄照片</string>
-    <string name="photo_error_image_not_exist">图片错误</string>
+    <string name="photo_error_image_not_exist">图片文件错误</string>
+    <string name="photo_error_video_not_exist">视频文件错误</string>
     <string name="photo_error_no_permission">无权限</string>
     <string name="photo_permission_dialog_title">权限申请</string>
     <string name="photo_permission_dialog_ok">确定</string>

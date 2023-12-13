@@ -1,20 +1,17 @@
 package com.ashlikun.photo_hander;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -28,11 +25,11 @@ import com.ashlikun.photo_hander.bean.MediaFolder;
 import com.ashlikun.photo_hander.bean.MediaSelectData;
 import com.ashlikun.photo_hander.loader.AbsMediaScanner;
 import com.ashlikun.photo_hander.loader.MediaHandler;
+import com.ashlikun.photo_hander.utils.ImpShowCameraActionCall;
 import com.ashlikun.photo_hander.utils.PhotoHanderUtils;
 import com.ashlikun.photo_hander.utils.ShowCameraActionCall;
 import com.ashlikun.photo_hander.view.ImageFolderPopupWindow;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,35 +87,13 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
         return inflater.inflate(R.layout.ph_fragment_multi_image, container, false);
     }
 
-    ShowCameraActionCall showCameraActionCall = new ShowCameraActionCall() {
-        @Override
-        public void call(Pair<File, ActivityResult> data) {
-            File tmpFile = data.first;
-            if (data.second.getResultCode() == Activity.RESULT_OK) {
-                if (tmpFile != null) {
-                    if (mCallback != null) {
-                        mCallback.onCameraShot(tmpFile);
-                    }
-                }
-            } else {
-                // delete tmp file
-                while (tmpFile != null && tmpFile.exists()) {
-                    boolean success = tmpFile.delete();
-                    if (success) {
-                        tmpFile = null;
-                    }
-                }
-                if (optionData.isMustCamera) {
-                    getActivity().finish();
-                }
-            }
-        }
-    };
+    ShowCameraActionCall showCameraActionCall;
 
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        showCameraActionCall = new ImpShowCameraActionCall(getActivity(), mCallback);
         //获取主题颜色
         TypedArray array = getActivity().getTheme().obtainStyledAttributes(new int[]{R.attr.phBottonColor, R.attr.phTitleColor});
         int phBottonColor = array.getColor(0, 0xffffffff);
@@ -126,7 +101,11 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
 
         if (optionData.isMustCamera) {
             view.setVisibility(View.GONE);
-            PhotoHanderUtils.showCameraAction(activity, !optionData.isInsetPhoto, showCameraActionCall);
+            if (optionData.isVideoOnly) {
+                PhotoHanderUtils.showCameraAction(activity, false, showCameraActionCall);
+            } else {
+                PhotoHanderUtils.showCameraAction(activity, true, showCameraActionCall);
+            }
             return;
         }
 
@@ -175,7 +154,12 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
                             Toast.makeText(getActivity(), getString(R.string.photo_msg_amount_limit, optionData.mDefaultCount), Toast.LENGTH_SHORT).show();
                             return;
                         }
-                        PhotoHanderUtils.showCameraAction(activity, !optionData.isInsetPhoto, showCameraActionCall);
+                        if (optionData.isVideoOnly && optionData.isShowCamera) {
+                            PhotoHanderUtils.showCameraAction(activity, false, showCameraActionCall);
+                        } else {
+                            PhotoHanderUtils.showCameraAction(activity, true, showCameraActionCall);
+                        }
+
                         return;
                     } else {
                         //减去拍照
@@ -373,10 +357,9 @@ public class PhotoHanderFragment extends Fragment implements AbsMediaScanner.OnL
 
         /**
          * 当拍照完成时候
-         *
-         * @param imageFile
+         * 当录制视频完成时候
          */
-        void onCameraShot(File imageFile);
+        void onCameraShot(MediaFile mediaFile);
 
         /**
          * 查看照片

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -64,6 +65,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PhotoHanderUtils {
     private static final String JPEG_FILE_PREFIX = "IMG_";
     private static final String JPEG_FILE_SUFFIX = ".jpg";
+    private static final String VIDEO_FILE_PREFIX = "VIDEO_";
+    private static final String MP4_FILE_SUFFIX = ".mp4";
 
     /**
      * 反射字段
@@ -315,12 +318,15 @@ public class PhotoHanderUtils {
      *
      * @return null:失败
      */
-    public static Pair<File, Intent> getImageCapterIntent(Activity activity, boolean preferExternal) {
+    public static Pair<File, Intent> getImageCapterIntent(Activity activity) {
         boolean isSuccess = false;
         File tmpFile = null;
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         try {
-            tmpFile = PhotoHanderUtils.createTmpFile(activity, preferExternal);
+            if (PhotoOptionData.currentData.shootMaxSize > 0) {
+                intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, PhotoOptionData.currentData.shootMaxSize);
+            }
+            tmpFile = PhotoHanderUtils.createTmpFile(activity, PhotoOptionData.currentData.isInsetPhoto);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -339,23 +345,92 @@ public class PhotoHanderUtils {
         return isSuccess ? new Pair<>(tmpFile, intent) : null;
     }
 
-    public static void permissionStorage(ComponentActivity activity, final Runnable call) {
-        String[] permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        if (Build.VERSION.SDK_INT >= 33 && activity.getApplicationInfo().targetSdkVersion >= 33) {
-            permission = new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES};
+    public static MediaFile getVideoInfo(File file, int type) {
+        MediaFile mediaFile = new MediaFile(file.getPath(), type);
+        // 创建MediaMetadataRetriever对象
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        // 设置资源位置
+        retriever.setDataSource(file.getPath());
+        // 获取视频时长
+        try {
+            mediaFile.duration = Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        PhotoHanderPermission.requestPermission(activity, permission, activity.getString(R.string.photo_permission_rationale_camera), call);
+        // 获取mime
+        try {
+            mediaFile.mime = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // 释放资源
+        try {
+            retriever.release();
+        } catch (Exception e) {
+        }
+        return mediaFile;
+    }
+
+    /**
+     * 获取视频录制Intent
+     *
+     * @return null:失败
+     */
+    public static Pair<File, Intent> getVideoCapterIntent(Activity activity) {
+        boolean isSuccess = false;
+        File tmpFile = null;
+        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        // 将视频图像质量设置为高
+//        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        try {
+            if (PhotoOptionData.currentData.shootMaxSize > 0) {
+                intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, PhotoOptionData.currentData.shootMaxSize);
+            }
+            tmpFile = PhotoHanderUtils.createTmpVideoFile(activity, PhotoOptionData.currentData.isInsetPhoto);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (tmpFile != null && tmpFile.exists()) {
+            Uri uri;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                uri = Uri.fromFile(tmpFile);
+            } else {
+                uri = FileProvider.getUriForFile(activity, PhotoHandleProvider.getFileProviderName(activity), tmpFile);
+            }
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            isSuccess = true;
+        } else {
+            Toast.makeText(activity, R.string.photo_error_video_not_exist, Toast.LENGTH_SHORT).show();
+        }
+        return isSuccess ? new Pair<>(tmpFile, intent) : null;
+    }
+
+    public static void permissionStorage(ComponentActivity activity, boolean isImage, boolean isVideo, final Runnable call) {
+        ArrayList<String> permission = new ArrayList();
+        permission.add(Manifest.permission.CAMERA);
+        if (Build.VERSION.SDK_INT >= 33 && activity.getApplicationInfo().targetSdkVersion >= 33) {
+            if (isImage) {
+                permission.add(Manifest.permission.READ_MEDIA_IMAGES);
+            }
+            if (isVideo) {
+                permission.add(Manifest.permission.READ_MEDIA_VIDEO);
+            }
+        } else {
+            permission.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            permission.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        PhotoHanderPermission.requestPermission(activity, permission.toArray(new String[permission.size()]), activity.getString(R.string.photo_permission_rationale_camera), call);
     }
 
     /**
      * 启动拍照
      * 用的权限code
      */
-    public static void showCameraAction(final ComponentActivity activity, final boolean preferExternal, final ShowCameraActionCall call) {
-        permissionStorage(activity, new Runnable() {
+    public static void showCameraAction(final ComponentActivity activity, final boolean isImage, final ShowCameraActionCall call) {
+        permissionStorage(activity, true, true, new Runnable() {
             @Override
             public void run() {
-                final Pair<File, Intent> intent = getImageCapterIntent(activity, preferExternal);
+                final Pair<File, Intent> intent = isImage ? getImageCapterIntent(activity) : getVideoCapterIntent(activity);
                 if (intent != null) {
                     try {
                         registerForActivityResultX(activity, new ActivityResultCallback<ActivityResult>() {
@@ -388,6 +463,25 @@ public class PhotoHanderUtils {
             dir = getCacheDirectory(context, preferExternal);
         }
         return File.createTempFile(JPEG_FILE_PREFIX, JPEG_FILE_SUFFIX, dir);
+
+    }
+
+    /**
+     * 创建视频文件
+     */
+    public static File createTmpVideoFile(Context context, boolean preferExternal) throws IOException {
+        File dir = null;
+        if (preferExternal) {
+            //是否挂载外部存储卡
+            if (TextUtils.equals(Environment.getExternalStorageState(), Environment.MEDIA_MOUNTED)) {
+                //外部DCIM 目录
+                dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+            }
+        }
+        if (dir == null || !dir.exists()) {
+            dir = getCacheDirectory(context, preferExternal);
+        }
+        return File.createTempFile(VIDEO_FILE_PREFIX, MP4_FILE_SUFFIX, dir);
     }
 
     public static File createCacheTmpFile(Context context, String dirName) throws IOException {

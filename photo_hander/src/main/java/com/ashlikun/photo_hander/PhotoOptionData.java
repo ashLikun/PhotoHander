@@ -47,16 +47,20 @@ public class PhotoOptionData implements Serializable {
      */
     public boolean isShowCamera = true;
     /**
-     * 是否只能拍照
+     * 是否只能拍照或者录制
      * 注意在主题里面设置  <item name="android:windowIsTranslucent">true</item>
      */
     public boolean isMustCamera = false;
     /**
-     * 拍照是否插入相册
-     * true:拍照会存放在/DCIM 目录
-     * false:拍照会存放在/data/data/pack/cache 目录
+     * 拍照和视频是否插入相册
+     * true:拍照会存放在/DCIM 目录,会到相册
+     * false:拍照会存放在/data/data/pack/cache 目录，不在相册
      */
-    public boolean isInsetPhoto = false;
+    public boolean isInsetPhoto = true;
+    /**
+     * 拍摄视频和照片的的大小限制，0：不限制
+     */
+    public long shootMaxSize = 0;
     /**
      * 是否裁剪
      */
